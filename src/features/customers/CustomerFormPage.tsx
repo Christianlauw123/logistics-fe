@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCustomerCreateQuery, useCustomerUpdateQuery } from "../customers/customer.hooks";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { errorHandler } from "../../lib/utils";
+import { errorHandler } from "@/lib/utils";
 
 export default function CustomerFormPage({ openMainAction, setOpenMainAction, mode, customer }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; customer: any }) {
     const [customerId, setCustomerId] = useState<string>("")
@@ -25,7 +25,7 @@ export default function CustomerFormPage({ openMainAction, setOpenMainAction, mo
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setLoading(true);
-        if (mode === "edit" && !customer?.id) {
+        if (mode === "edit" && !customerId) {
             setLoading(false);
             setOpenMainAction(false); 
             toast.error("Customer ID is missing")

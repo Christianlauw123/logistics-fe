@@ -1,5 +1,5 @@
-import { api } from "../../lib/api"
-import type { Paginated, SubDistrict } from "../../types"
+import { api } from "@/lib/api"
+import type { Paginated, SubDistrict } from "@/types"
 
 export type SubDistrictFilters = {
   search?: string

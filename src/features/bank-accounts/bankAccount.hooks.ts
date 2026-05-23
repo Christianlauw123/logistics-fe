@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-import { errorHandler } from "../../lib/utils"
+import { errorHandler } from "@/lib/utils"
 import { toast } from "sonner"
 import { createBankAccount, deleteBankAccount, getBankAccount, getBankAccounts, updateBankAccount, type BankAccountFilters, type CreateUpdateBankAccountPayload } from "./bankAccount.api"
 
 export function useBankAccountsQuery(filters: BankAccountFilters = {}) {
   return useQuery({
-    queryKey: ["bankAccounts", filters],
+    queryKey: ["bankAccounts", "list", filters],
     queryFn: () => getBankAccounts(filters),
     staleTime: 1000 * 60 * 5, // Cache options data for 5 minutes so it doesn't spam requests
   })
@@ -14,7 +14,7 @@ export function useBankAccountsQuery(filters: BankAccountFilters = {}) {
 
 export function useBankAccountQuery(id: string | undefined) {
   return useQuery({
-    queryKey: ["bankAccount", id],
+    queryKey: ["bankAccount", "detail", id],
     queryFn: () => getBankAccount(id),
     enabled: !!id, // Only run this query if an ID is provided
   })
@@ -29,7 +29,7 @@ export function useBankAccountCreateQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["bankAccounts"],
+        queryKey: ["bankAccounts", "list"],
       })
       toast.success("Bank Account Created")
     },

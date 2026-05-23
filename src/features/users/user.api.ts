@@ -1,5 +1,5 @@
-import { api } from "../../lib/api"
-import type { Paginated, User } from "../../types"
+import { api } from "@/lib/api"
+import type { Paginated, User } from "@/types"
 
 export type UserFilters = {
   search?: string

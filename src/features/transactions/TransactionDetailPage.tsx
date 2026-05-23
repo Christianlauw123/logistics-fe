@@ -1,23 +1,23 @@
 import { useParams } from "react-router-dom"
-import { Badge } from "../../components/ui/badge"
-import { Button } from "../../components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
-import { Field, FieldDescription, FieldLabel } from "../../components/ui/field"
-import { Input } from "../../components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 import { getTransaction, updateTransactionStatus } from "./transaction.hooks"
 import { createUploadAttachment } from "../attachments/attachment.hooks"
 
 import { MoreHorizontalIcon } from "lucide-react"
-import type { TransactionStatus } from "../../types"
+import type { TransactionStatus } from "@/types"
 import { useState } from "react"
 import { toast } from "sonner"
 import { createTransactionDetail, deleteTransactionDetail, updateTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
 import { transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
-import { errorHandler } from "../../lib/utils"
+import { errorHandler } from "@/lib/utils"
 import TransactionFormPage from "./TransactionFormPage"
 
 export default function TransactionDetailPage() {
@@ -223,79 +223,78 @@ export default function TransactionDetailPage() {
 
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Tujuan</TableHead>
-                                <TableHead>Jumlah</TableHead>
-                                <TableHead>Note</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {transaction.details.length === 0 && (
+                        <Table>
+                            <TableHeader>
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center">
-                                        No details added yet.
-                                    </TableCell>
+                                    <TableHead>Tujuan</TableHead>
+                                    <TableHead>Jumlah</TableHead>
+                                    <TableHead>Note</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
-                            )}
-                            {transaction.details.map((detail) => (
-                                <TableRow key={detail.id}>
-                                    <TableCell className="font-medium">{detail.purpose}</TableCell>
-                                    <TableCell>{detail.amount}</TableCell>
-                                    <TableCell>{detail.note}</TableCell>
-                                    <TableCell>
-                                        <Badge className={`${transactionStatusBadge[detail.status]}`}>{detail.status}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger >
-                                                <MoreHorizontalIcon />
-                                                <span className="sr-only">Open menu</span>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                {detail.status === "SUBMITTED" && (
-                                                    <DropdownMenuGroup>
-                                                        <DropdownMenuLabel>Action</DropdownMenuLabel>
-                                                        <DropdownMenuItem  onClick={(e) => {
-                                                                e.stopPropagation(); 
-                                                                setModeDetailAction("edit");
-                                                                setDataDetailEdit(detail);
-                                                                setOpenDetailAction(true);
-                                                            }}>
-                                                            Edit
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem variant="destructive" onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteDetail(detail.id)
-                                                        }}>
-                                                            Delete
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuGroup>
-                                                )}
-                                                {transactionStatusStage[detail.status].length !== 0 && (<DropdownMenuSeparator />)}
-                                                {transactionStatusStage[detail.status].length !== 0 && (
-                                                    <DropdownMenuGroup>
-                                                        <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-                                                        {transactionStatusStage[detail.status].map((transactionStage) => (
-                                                            <DropdownMenuItem key={transactionStage[0]} onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}>
-                                                                {transactionStage[1]}
+                            </TableHeader>
+                            <TableBody>
+                                {transaction.details.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center">
+                                            No details added yet.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                                {transaction.details.map((detail) => (
+                                    <TableRow key={detail.id}>
+                                        <TableCell className="font-medium">{detail.purpose}</TableCell>
+                                        <TableCell>{detail.amount}</TableCell>
+                                        <TableCell>{detail.note}</TableCell>
+                                        <TableCell>
+                                            <Badge className={`${transactionStatusBadge[detail.status]}`}>{detail.status}</Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger >
+                                                    <MoreHorizontalIcon />
+                                                    <span className="sr-only">Open menu</span>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    {detail.status === "SUBMITTED" && (
+                                                        <DropdownMenuGroup>
+                                                            <DropdownMenuLabel>Action</DropdownMenuLabel>
+                                                            <DropdownMenuItem  onClick={(e) => {
+                                                                    e.stopPropagation(); 
+                                                                    setModeDetailAction("edit");
+                                                                    setDataDetailEdit(detail);
+                                                                    setOpenDetailAction(true);
+                                                                }}>
+                                                                Edit
                                                             </DropdownMenuItem>
-                                                        ))}
-                                                    </DropdownMenuGroup>
-                                                )}
-                                                
-                                                
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            
-                        </TableBody>
-                    </Table>
+                                                            <DropdownMenuItem variant="destructive" onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteDetail(detail.id)
+                                                            }}>
+                                                                Delete
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuGroup>
+                                                    )}
+                                                    {transactionStatusStage[detail.status].length !== 0 && (<DropdownMenuSeparator />)}
+                                                    {transactionStatusStage[detail.status].length !== 0 && (
+                                                        <DropdownMenuGroup>
+                                                            <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
+                                                            {transactionStatusStage[detail.status].map((transactionStage) => (
+                                                                <DropdownMenuItem key={transactionStage[0]} onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}>
+                                                                    {transactionStage[1]}
+                                                                </DropdownMenuItem>
+                                                            ))}
+                                                        </DropdownMenuGroup>
+                                                    )}
+                                                    
+                                                    
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </div>
                 </CardContent>
             </Card>
@@ -313,28 +312,33 @@ export default function TransactionDetailPage() {
                     </Field>
 
                     <div className="space-y-2">
-                    {transaction.attachments.map((attachment) => (
-                        <div
-                        key={attachment.id}
-                        className="flex items-center justify-between rounded-md border p-3"
-                        >
-                        <Button variant="outline" >
-                            <a
-                            href={attachment.file_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            >
-                            Open
-                            </a>
-                        </Button>
-                        </div>
-                    ))}
-
-                    {transaction.attachments.length === 0 && (
-                        <p className="text-sm text-muted-foreground">
-                        No attachments uploaded.
-                        </p>
-                    )}
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>ID</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {transaction.attachments.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={2} className="text-center">
+                                            No attachments uploaded.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                                {transaction.attachments.map((attachment) => (
+                                    <TableRow key={attachment.id}>
+                                        <TableCell className="font-medium">{attachment.id}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="outline" >
+                                                <a href={attachment.file_url} target="_blank" rel="noreferrer">Open</a>
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </div>
                 </CardContent>
             </Card>

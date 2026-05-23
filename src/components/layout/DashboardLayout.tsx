@@ -1,17 +1,17 @@
 import { Outlet, NavLink } from "react-router-dom"
-import { Button } from "../../components/ui/button"
-import { useAuthStore } from "../../features/auth/auth.store"
-import { logout } from "../../features/auth/auth.api"
+import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/features/auth/auth.store"
+import { logout } from "@/features/auth/auth.api"
 
 export default function DashboardLayout() {
   const setUser = useAuthStore((state) => state.setUser)
+  const user = useAuthStore((state) => state.user)
 
   async function handleLogout() {
     await logout()
     setUser(null)
     window.location.href = "/login"
   }
-
   return (
     <div className="min-h-screen bg-muted/40">
       <aside className="fixed left-0 top-0 hidden h-screen w-64 border-r bg-background p-4 md:block">
@@ -19,11 +19,15 @@ export default function DashboardLayout() {
 
         <nav className="space-y-2">
           <NavItem to="/transactions" label="Transactions" />
-          <NavItem to="/customers" label="Customers" />
-          <NavItem to="/vehicles" label="Vehicles" />
-          <NavItem to="/bank-accounts" label="Bank Accounts" />
-          <NavItem to="/trip-prices" label="Trip Prices" />
-          <NavItem to="/users" label="Users" />
+          {user?.role.name === "Super Admin" && (
+            <>
+              <NavItem to="/customers" label="Customers" />
+              <NavItem to="/vehicles" label="Vehicles" />
+              <NavItem to="/bank-accounts" label="Bank Accounts" />
+              <NavItem to="/trip-prices" label="Trip Prices" />
+              <NavItem to="/users" label="Users" />
+            </>
+          )}
         </nav>
       </aside>
 

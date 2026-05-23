@@ -1,5 +1,5 @@
-import { api } from "../../lib/api"
-import type { User } from "../../types"
+import { api } from "@/lib/api"
+import type { User } from "@/types"
 
 export type LoginInput = {
     email: string

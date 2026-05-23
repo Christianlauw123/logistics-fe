@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useUserCreateQuery, useUserUpdateQuery } from "../users/user.hooks";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { errorHandler } from "../../lib/utils";
+import { errorHandler } from "@/lib/utils";
 import type { RoleFilters } from "../roles/role.api";
 import { useRolesQuery } from "../roles/role.hooks";
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "../../components/ui/combobox";
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
 import { Loader2 } from "lucide-react";
 import { useAuthStore } from "../auth/auth.store";
 import { logout } from "../auth/auth.api";
@@ -70,7 +70,7 @@ export default function UserFormPage({ openMainAction, setOpenMainAction, mode, 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setLoading(true);
-        if (mode === "edit" && !user?.id) {
+        if (mode === "edit" && !userId) {
             setLoading(false);
             setOpenMainAction(false); 
             toast.error("User ID is missing")

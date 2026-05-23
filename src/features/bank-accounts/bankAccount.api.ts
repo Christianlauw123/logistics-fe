@@ -1,5 +1,5 @@
-import { api } from "../../lib/api"
-import type { Paginated, BankAccount } from "../../types"
+import { api } from "@/lib/api"
+import type { Paginated, BankAccount } from "@/types"
 
 export type BankAccountFilters = {
   search?: string

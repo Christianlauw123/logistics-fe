@@ -19,7 +19,7 @@ export function errorHandler(error: any) {
 
   if (validationErrors && typeof validationErrors === "object") {
     // 3. Loop through keys (e.g. 'amount') and array values
-    Object.entries(validationErrors).forEach(([fieldKey, messages]) => {
+    Object.entries(validationErrors).forEach(([_, messages]) => {
       if (Array.isArray(messages)) {
         // Combines all string items inside the array cleanly
         errorMessageLines.push(`${messages.join(", ")}`);

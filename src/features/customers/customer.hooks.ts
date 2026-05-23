@@ -2,12 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createCustomer, deleteCustomer, getCustomer, getCustomers, updateCustomer } from "./customer.api"
 import { type CreateUpdateCustomerPayload, type CustomerFilters } from "./customer.api"
 
-import { errorHandler } from "../../lib/utils"
+import { errorHandler } from "@/lib/utils"
 import { toast } from "sonner"
 
 export function useCustomersQuery(filters: CustomerFilters = {}) {
   return useQuery({
-    queryKey: ["customers", filters],
+    queryKey: ["customers", "list", filters],
     queryFn: () => getCustomers(filters),
     staleTime: 1000 * 60 * 5, // Cache options data for 5 minutes so it doesn't spam requests
   })
@@ -15,7 +15,7 @@ export function useCustomersQuery(filters: CustomerFilters = {}) {
 
 export function useCustomerQuery(id: string | undefined) {
   return useQuery({
-    queryKey: ["customer", id],
+    queryKey: ["customer", "detail", id],
     queryFn: () => getCustomer(id),
     enabled: !!id, // Only run this query if an ID is provided
   })
@@ -30,7 +30,7 @@ export function useCustomerCreateQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["customers"],
+        queryKey: ["customers", "list"],
       })
       toast.success("Customer Created")
     },
@@ -50,7 +50,7 @@ export function useCustomerUpdateQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["customers"],
+        queryKey: ["customers", "list"],
       })
       toast.success("Customer Updated")
     },
@@ -69,7 +69,7 @@ export function useCustomerDeleteQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["customers"],
+        queryKey: ["customers", "list"],
       })
       toast.success("Customer Deleted")
     },

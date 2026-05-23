@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from "lucide-react"
 import { useTripPriceDeleteQuery, useTripPricesQuery } from "./tripPrice.hooks"
 import TripPriceFormPage from "./TripPriceFormPage"
@@ -124,7 +124,7 @@ export default function TripPriceListPage() {
 
         <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-            Page {tripPrices?.current_page} of {tripPrices?.last_page}
+            Page {page} of {tripPrices?.last_page}
             </p>
 
             <div className="space-x-2">

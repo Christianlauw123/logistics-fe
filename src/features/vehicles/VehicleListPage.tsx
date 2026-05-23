@@ -1,11 +1,11 @@
 import { useState } from "react"
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from "lucide-react"
 import { useVehicleDeleteQuery, useVehiclesQuery } from "./vehicle.hooks"
-import { Badge } from "../../components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import VehicleFormPage from "./VehicleFormPage"
 
 export default function VehicleListPage() {
@@ -133,7 +133,7 @@ export default function VehicleListPage() {
 
         <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-            Page {vehicles?.current_page} of {vehicles?.last_page}
+            Page {page} of {vehicles?.last_page}
             </p>
 
             <div className="space-x-2">

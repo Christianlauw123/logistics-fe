@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { api } from "../../lib/api"
-import type { Paginated, Transaction, TransactionStatus } from "../../types"
-import { errorHandler } from "../../lib/utils"
+import { api } from "@/lib/api"
+import type { Paginated, Transaction, TransactionStatus } from "@/types"
+import { errorHandler } from "@/lib/utils"
 
 export type TransactionFilters = {
   search?: string
@@ -20,7 +20,7 @@ export type TransactionFilters = {
 
 export function getTransactions(filters: TransactionFilters = {}) {
   return useQuery({
-    queryKey: ["transactions", filters],
+    queryKey: ["transactions", "list", filters],
     queryFn: async () => {
       const response = await api.get<Paginated<Transaction>>("/transactions", {
         params: filters,
@@ -33,7 +33,7 @@ export function getTransactions(filters: TransactionFilters = {}) {
 
 export function getTransaction(id: string | undefined) {
   return useQuery({
-    queryKey: ["transactions", id],
+    queryKey: ["transactions", "detail", id],
     queryFn: async () => {
       const response = await api.get<{ data: Transaction }>(
         `/transactions/${id}`
@@ -56,9 +56,9 @@ export function deleteTransaction() {
         },
       })
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries({
-        queryKey: ["transactions"],
+        queryKey: ["transactions", "list"],
       })
       toast.success("Transaction Detail Deleted")
     },
@@ -117,7 +117,7 @@ export function createTransaction() {
         },
       })
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries({
         queryKey: ["transactions"],
       })

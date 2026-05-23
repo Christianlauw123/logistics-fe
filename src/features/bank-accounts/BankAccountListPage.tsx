@@ -1,10 +1,10 @@
 import { useState } from "react"
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from "lucide-react"
-import type { BankAccount } from "../../types"
+import type { BankAccount } from "@/types"
 import { useBankAccountDeleteQuery, useBankAccountsQuery } from "./bankAccount.hooks"
 import BankAccountFormPage from "./BankAccountFormPage"
 
@@ -126,7 +126,7 @@ export default function BankAccountListPage() {
 
         <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-            Page {bankAccounts?.current_page} of {bankAccounts?.last_page}
+            Page {page} of {bankAccounts?.last_page}
             </p>
 
             <div className="space-x-2">

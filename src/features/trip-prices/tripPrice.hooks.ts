@@ -2,12 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createTripPrice, deleteTripPrice, getTripPrice, getTripPrices, updateTripPrice } from "./tripPrice.api"
 import { type CreateUpdateTripPricePayload, type TripPriceFilters } from "./tripPrice.api"
 
-import { errorHandler } from "../../lib/utils"
+import { errorHandler } from "@/lib/utils"
 import { toast } from "sonner"
 
 export function useTripPricesQuery(filters: TripPriceFilters = {}) {
   return useQuery({
-    queryKey: ["trip_prices", filters],
+    queryKey: ["trip_prices", "list", filters],
     queryFn: () => getTripPrices(filters),
     staleTime: 1000 * 60 * 5, // Cache options data for 5 minutes so it doesn't spam requests
   })
@@ -15,7 +15,7 @@ export function useTripPricesQuery(filters: TripPriceFilters = {}) {
 
 export function useTripPriceQuery(id: string | undefined) {
   return useQuery({
-    queryKey: ["trip_price", id],
+    queryKey: ["trip_price", "list"],
     queryFn: () => getTripPrice(id),
     enabled: !!id, // Only run this query if an ID is provided
   })
@@ -30,7 +30,7 @@ export function useTripPriceCreateQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["trip_prices"],
+        queryKey: ["trip_prices", "list"],
       })
       toast.success("Trip Price Created")
     },
@@ -50,7 +50,7 @@ export function useTripPriceUpdateQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["trip_prices"],
+        queryKey: ["trip_prices", "list"],
       })
       toast.success("Trip Price Updated")
     },

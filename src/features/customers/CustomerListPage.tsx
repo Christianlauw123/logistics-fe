@@ -1,12 +1,12 @@
 import { useState } from "react"
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from "lucide-react"
 import CustomerFormPage from "./CustomerFormPage"
 import { useCustomerDeleteQuery, useCustomersQuery } from "./customer.hooks"
-import type { Customer } from "../../types"
+import type { Customer } from "@/types"
 
 export default function CustomerListPage() {
     const [search, setSearch] = useState("")
@@ -125,7 +125,7 @@ export default function CustomerListPage() {
 
         <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-            Page {customers?.current_page} of {customers?.last_page}
+            Page {page} of {customers?.last_page}
             </p>
 
             <div className="space-x-2">

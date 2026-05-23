@@ -2,12 +2,12 @@ import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { Filter, Loader2, MoreHorizontalIcon, X } from "lucide-react"
 
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-import { Badge } from "../../components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "../../components/ui/combobox"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 import { getTransactions } from "./transaction.hooks"
 import { transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
@@ -16,7 +16,7 @@ import type { CustomerFilters } from "../customers/customer.api"
 import { useCustomersQuery } from "../customers/customer.hooks"
 
 import TransactionFormPage from "./TransactionFormPage"
-import type { TransactionStatus } from "../../types"
+import type { TransactionStatus } from "@/types"
 import type { VehicleFilters } from "../vehicles/vehicle.api"
 import { useVehiclesQuery } from "../vehicles/vehicle.hooks"
 
@@ -409,7 +409,7 @@ export default function TransactionListPage() {
 
         <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-            Page {data?.current_page} of {data?.last_page}
+            Page {page} of {data?.last_page}
             </p>
 
             <div className="space-x-2">

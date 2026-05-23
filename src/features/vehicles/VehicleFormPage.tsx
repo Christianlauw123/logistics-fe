@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useVehicleCreateQuery, useVehicleUpdateQuery } from "../vehicles/vehicle.hooks";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Label } from "../../components/ui/label";
-import { Switch } from "../../components/ui/switch";
-import { errorHandler } from "../../lib/utils";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { errorHandler } from "@/lib/utils";
 
 export default function VehicleFormPage({ openMainAction, setOpenMainAction, mode, vehicle }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; vehicle: any }) {
     const [vehicleId, setVehicleId] = useState<string>("")
@@ -30,7 +30,7 @@ export default function VehicleFormPage({ openMainAction, setOpenMainAction, mod
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setLoading(true);
-        if (mode === "edit" && !vehicle?.id) {
+        if (mode === "edit" && !vehicleId) {
             setLoading(false);
             setOpenMainAction(false); 
             toast.error("Vehicle ID is missing")
@@ -48,8 +48,6 @@ export default function VehicleFormPage({ openMainAction, setOpenMainAction, mod
             is_active: vehicleActive
         }
 
-        console.log(mode);
-        console.log(vehicle);
         try {
             if (mode === "add") {
                 // Call create API here with basePayload

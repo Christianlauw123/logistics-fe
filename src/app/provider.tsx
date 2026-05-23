@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { Toaster } from "../components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner"
 import { type ReactNode, useState } from "react"
 
 type ProvidersProps = {

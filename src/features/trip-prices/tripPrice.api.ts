@@ -1,5 +1,5 @@
-import { api } from "../../lib/api"
-import type { Paginated, TripPrice } from "../../types"
+import { api } from "@/lib/api"
+import type { Paginated, TripPrice } from "@/types"
 
 export type TripPriceFilters = {
   search?: string

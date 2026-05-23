@@ -1,18 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { api } from "../../lib/api"
+import { api } from "@/lib/api"
+import { errorHandler } from "@/lib/utils"
 
 export function createUploadAttachment() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      transactionId,
-      file,
-    }: {
-      transactionId: string
-      file: File
-    }) => {
+    mutationFn: async ({ transactionId, file }: { transactionId: string, file: File }) => {
       const formData = new FormData()
       formData.append("file", file)
       formData.append("transaction_id", transactionId)
@@ -25,12 +20,12 @@ export function createUploadAttachment() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["transactions", variables.transactionId],
+        queryKey: ["transactions", "detail", variables.transactionId],
       })
       toast.success("Attachment uploaded")
     },
     onError: (error: any) => {
-      toast.error("Upload failed")
+      errorHandler(error)
     },
   })
 }

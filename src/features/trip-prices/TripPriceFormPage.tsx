@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCustomersQuery } from "../customers/customer.hooks";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { errorHandler } from "../../lib/utils";
+import { errorHandler } from "@/lib/utils";
 import { useTripPriceCreateQuery, useTripPriceUpdateQuery } from "./tripPrice.hooks";
 import type { CustomerFilters } from "../customers/customer.api";
 import type { SubDistrictFilters } from "../sub-districts/subDistrict.api";
 import { useSubDistrictsQuery } from "../sub-districts/subDistrict.hooks";
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "../../components/ui/combobox";
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
 import { Loader2 } from "lucide-react";
 
 export default function TripPriceFormPage({ openMainAction, setOpenMainAction, mode, tripPrice }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; tripPrice: any }) {
@@ -95,7 +95,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setLoading(true);
-        if (mode === "edit" && !tripPrice?.id) {
+        if (mode === "edit" && !tripPriceId) {
             setLoading(false);
             setOpenMainAction(false); 
             toast.error("Trip Price ID is missing")

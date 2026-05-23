@@ -1,4 +1,4 @@
-import type { TransactionStatus } from "../../types";
+import type { TransactionStatus } from "@/types";
 
 const transactionStatusBadge: Record<string, string> = {
     'SUBMITTED': 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300',

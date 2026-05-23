@@ -2,11 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createUser, deleteUser, getUsers, updateUser } from "./user.api"
 import { type CreateUpdateUserPayload, type UserFilters } from "./user.api"
 import { toast } from "sonner"
-import { errorHandler } from "../../lib/utils"
+import { errorHandler } from "@/lib/utils"
 
 export function useUsersQuery(filters: UserFilters = {}) {
   return useQuery({
-    queryKey: ["users", filters],
+    queryKey: ["users", "list", filters],
     queryFn: () => getUsers(filters),
     staleTime: 1000 * 60 * 5, // Cache options data for 5 minutes so it doesn't spam requests
   })
@@ -14,7 +14,7 @@ export function useUsersQuery(filters: UserFilters = {}) {
 
 export function useUserQuery(id: string | undefined) {
   return useQuery({
-    queryKey: ["users", id],
+    queryKey: ["users", "list"],
     queryFn: () => getUsers({ id }),
     enabled: !!id, // Only run this query if an ID is provided
   })
@@ -29,7 +29,7 @@ export function useUserCreateQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users"],
+        queryKey: ["users", "list"],
       })
       toast.success("User Created")
     },
@@ -49,7 +49,7 @@ export function useUserUpdateQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users"],
+        queryKey: ["users", "list"],
       })
       toast.success("User Updated")
     },
@@ -68,7 +68,7 @@ export function useUserDeleteQuery(){
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users"],
+        queryKey: ["users", "list"],
       })
       toast.success("User Deleted")
     },

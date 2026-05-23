@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { errorHandler } from "../../lib/utils";
+import { errorHandler } from "@/lib/utils";
 import { useBankAccountCreateQuery, useBankAccountUpdateQuery } from "./bankAccount.hooks";
 
 export default function BankAccountFormPage({ openMainAction, setOpenMainAction, mode, bankAccount }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; bankAccount: any }) {
@@ -25,7 +25,7 @@ export default function BankAccountFormPage({ openMainAction, setOpenMainAction,
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setLoading(true);
-        if (mode === "edit" && !bankAccount?.id) {
+        if (mode === "edit" && !bankAccountId) {
             setLoading(false);
             setOpenMainAction(false); 
             toast.error("Bank Account ID is missing")

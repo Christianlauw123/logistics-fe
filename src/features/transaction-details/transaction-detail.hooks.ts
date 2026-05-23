@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { api } from "../../lib/api"
-import type { TransactionStatus } from "../../types"
-import { errorHandler } from "../../lib/utils"
+import { api } from "@/lib/api"
+import type { TransactionStatus } from "@/types"
+import { errorHandler } from "@/lib/utils"
 
 export function createTransactionDetail() {
   const queryClient = useQueryClient()
@@ -17,7 +17,7 @@ export function createTransactionDetail() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["transactions", variables.transactionId],
+        queryKey: ["transactions", "detail", variables.transactionId],
       })
       toast.success("Transaction Detail Created")
     },
@@ -31,7 +31,7 @@ export function updateTransactionDetail() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ transactionId, transactionDetailId, amount, note, purpose }: { transactionId: string, transactionDetailId: string, amount: number, note: string, purpose: string }) => {
+    mutationFn: async ({ transactionDetailId, amount, note, purpose }: { transactionId: string, transactionDetailId: string, amount: number, note: string, purpose: string }) => {
       await api.patch(`/transaction_details/${transactionDetailId}`, { amount: amount, note: note, purpose: purpose }, {
         headers: {
           "Content-Type": "application/json",
@@ -40,7 +40,7 @@ export function updateTransactionDetail() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["transactions", variables.transactionId],
+        queryKey: ["transactions", "detail", variables.transactionId],
       })
       toast.success("Transaction Detail Updated")
     },
@@ -55,7 +55,7 @@ export function deleteTransactionDetail() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ transactionId, transactionDetailId }: { transactionId: string, transactionDetailId: string }) => {
+    mutationFn: async ({ transactionDetailId }: { transactionId: string, transactionDetailId: string }) => {
       await api.delete(`/transaction_details/${transactionDetailId}`, {
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +64,7 @@ export function deleteTransactionDetail() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["transactions", variables.transactionId],
+        queryKey: ["transactions", "detail", variables.transactionId],
       })
       toast.success("Transaction Detail Deleted")
     },
@@ -78,12 +78,12 @@ export function updateTransactionDetailStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ transactionId, id, status }: { transactionId: string, id: string, status: TransactionStatus }) => {
+    mutationFn: async ({ id, status }: { transactionId: string, id: string, status: TransactionStatus }) => {
       await api.patch(`/transaction_details/${id}/status`, { status })
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["transactions", variables.transactionId],
+        queryKey: ["transactions", "detail", variables.transactionId],
       })
       toast.success("Status updated")
     },
