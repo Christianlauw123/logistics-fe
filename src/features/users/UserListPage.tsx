@@ -4,41 +4,40 @@ import { Input } from "../../components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from "lucide-react"
-import { useVehicleDeleteQuery, useVehiclesQuery } from "./vehicle.hooks"
-import { Badge } from "../../components/ui/badge"
-import VehicleFormPage from "./VehicleFormPage"
+import { useUserDeleteQuery, useUsersQuery } from "./user.hooks"
+import UserFormPage from "./UserFormPage"
 
-export default function VehicleListPage() {
+export default function UserListPage() {
     const [search, setSearch] = useState("")
     const [page, setPage] = useState(1)
     const [openMainAction, setOpenMainAction] = useState(false);
     const [modeMainAction, setModeMainAction] = useState<"add" | "edit">("add")
-    const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
 
-    const { data: vehicles, isError } = useVehiclesQuery({
+    const { data: users, isError } = useUsersQuery({
         search,
         page,
         per_page: 5,
     })
 
-    const deleteVehicle = useVehicleDeleteQuery();
+    const deleteUser = useUserDeleteQuery();
     function handleDeleteDetail(id: string) {
-        if (confirm("Are you sure you want to delete this vehicle?")) {
-            deleteVehicle.mutate({id: id})
+        if (confirm("Are you sure you want to delete this user?")) {
+            deleteUser.mutate({id: id})
         }
     }
 
     if (isError) {
-        return <div>Failed to load vehicles, Please reload the page</div>
+        return <div>Failed to load users, Please reload the page</div>
     }
 
     return (
         <div className="space-y-4">
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <div>
-            <h1 className="text-2xl font-bold">Vehicles</h1>
+            <h1 className="text-2xl font-bold">Users</h1>
             <p className="text-sm text-muted-foreground">
-                Manage Vehicles.
+                Manage Users.
             </p>
             </div>
 
@@ -46,14 +45,14 @@ export default function VehicleListPage() {
                 setModeMainAction("add")
                 setOpenMainAction(true)
             }}>
-                New Vehicle
+                New User
             </Button>
-            <VehicleFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} vehicle={selectedVehicle}/>
+            <UserFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} user={selectedUser}/>
             
         </div>
 
         <Input
-            placeholder="Search vehicles..."
+            placeholder="Search users..."
             value={search}
             onChange={(event) => {
             setSearch(event.target.value)
@@ -66,29 +65,21 @@ export default function VehicleListPage() {
             <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>Vehicle</TableHead>
-                <TableHead>Plate Number</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Capacity</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
                 <TableHead className="w-[120px]">Action</TableHead>
                 </TableRow>
             </TableHeader>
 
             <TableBody>
-                {vehicles?.data.map((vehicle) => (
-                <TableRow key={vehicle.id}>
+                {users?.data.map((user) => (
+                <TableRow key={user.id}>
                     <TableCell className="font-medium">
-                    {vehicle.name}
+                    {user.name}
                     </TableCell>
-                    <TableCell>{vehicle.plate_number}</TableCell>
-                    <TableCell>{vehicle.type}</TableCell>
-                    <TableCell>{vehicle.capacity}</TableCell>
-                    <TableCell>
-                        <Badge variant={vehicle.is_active ? "default" : "secondary"}>
-                            {vehicle.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role?.name}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                             <DropdownMenuTrigger>
@@ -101,7 +92,7 @@ export default function VehicleListPage() {
                                     <DropdownMenuItem 
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setSelectedVehicle(vehicle);
+                                            setSelectedUser(user);
                                             setModeMainAction("edit");
                                             setOpenMainAction(true);
                                         }}
@@ -110,7 +101,7 @@ export default function VehicleListPage() {
                                     <DropdownMenuItem variant="destructive"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleDeleteDetail(vehicle.id)
+                                            handleDeleteDetail(user.id)
                                         }}
                                     >Delete</DropdownMenuItem>
                                 </DropdownMenuGroup>
@@ -120,10 +111,10 @@ export default function VehicleListPage() {
                 </TableRow>
                 ))}
 
-                {vehicles?.data.length === 0 && (
+                {users?.data.length === 0 && (
                 <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                    No vehicles found.
+                    No users found.
                     </TableCell>
                 </TableRow>
                 )}
@@ -133,7 +124,7 @@ export default function VehicleListPage() {
 
         <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-            Page {vehicles?.current_page} of {vehicles?.last_page}
+            Page {users?.current_page} of {users?.last_page}
             </p>
 
             <div className="space-x-2">
@@ -147,7 +138,7 @@ export default function VehicleListPage() {
 
             <Button
                 variant="outline"
-                disabled={!vehicles || page >= vehicles.last_page}
+                disabled={!users || page >= users.last_page}
                 onClick={() => setPage((value) => value + 1)}
             >
                 Next

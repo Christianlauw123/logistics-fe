@@ -123,11 +123,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             setDoActualDate(transaction.do_actual_date || "")
             setNote(transaction.note || "")
 
-            console.log(transaction);
-            if (transaction.customer_id) {
-                console.log(transaction.customer_id)
-                setCustomerSearch({ id: transaction.customer_id })
-            }
+            if (transaction.customer_id) setCustomerSearch({ id: transaction.customer_id })
             if (transaction.origin_sub_district_id) setOriginSubDistrictSearch({ id: transaction.origin_sub_district_id })
             if (transaction.dest_sub_district_id) setDestinationSubDistrictSearch({ id: transaction.dest_sub_district_id })
             if (transaction.vehicle_id) setVehicleSearch({ id: transaction.vehicle_id })
@@ -214,7 +210,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="transaction_capacity" className="text-xs font-medium">Kapasitas</label>
-                        <Input id="transaction_capacity" defaultValue={transactionCapacity || ""} name="transaction_capacity" placeholder="e.g. Server hosting fee" required />
+                        <Input id="transaction_capacity" defaultValue={transactionCapacity || ""} name="transaction_capacity" type="number" placeholder="e.g. 0.1" required />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="transaction_items" className="text-xs font-medium">Jenis Barang</label>
@@ -242,7 +238,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                 setCustomerKeywordSearch("");
                             }}
                         >
-                            <ComboboxInput placeholder="Select a framework" value={getCustomerDisplayValue()}/>
+                            <ComboboxInput placeholder="Select a customer" value={getCustomerDisplayValue()}/>
                             <ComboboxContent>
                                 {customerLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
@@ -286,7 +282,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                 setOriginSubDistrictKeywordSearch("")
                             }}
                         >
-                            <ComboboxInput placeholder="Select a framework" value={getOriginSubDistrictDisplayValue()}/>
+                            <ComboboxInput placeholder="Select a origin sub district" value={getOriginSubDistrictDisplayValue()}/>
                             <ComboboxContent>
                                 {originSubDistrictLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
@@ -330,7 +326,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                 setDestinationSubDistrictKeywordSearch("");
                             }}
                         >
-                            <ComboboxInput placeholder="Select a framework" value={getDestinationSubDistrictDisplayValue()}/>
+                            <ComboboxInput placeholder="Select a destination sub district" value={getDestinationSubDistrictDisplayValue()}/>
                             <ComboboxContent>
                                 {destinationSubDistrictLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
@@ -374,7 +370,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                 setBankAccountKeywordSearch("");
                             }}
                         >
-                            <ComboboxInput placeholder="Select a framework" value={getBankAccountDisplayValue()}/>
+                            <ComboboxInput placeholder="Select a bank account" value={getBankAccountDisplayValue()}/>
                             <ComboboxContent>
                                 {bankLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
@@ -418,7 +414,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                 setVehicleKeywordSearch("");
                             }}
                         >
-                            <ComboboxInput placeholder="Select a framework" value={getVehicleDisplayValue()} />
+                            <ComboboxInput placeholder="Select a vehicle" value={getVehicleDisplayValue()} />
                             <ComboboxContent>
                                 {vehicleLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">

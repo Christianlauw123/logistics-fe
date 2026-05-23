@@ -49,7 +49,7 @@ export default function TransactionDetailPage() {
     }
 
     if (isError || !transaction) {
-        return <div>Failed to load transaction.</div>
+        return <div>Failed to load transaction, Please reload the page</div>
     }
 
     async function handleTransactionStatusChange(status: TransactionStatus) {
@@ -117,8 +117,9 @@ export default function TransactionDetailPage() {
     async function handleDeleteDetail(transactionDetailId: string) {
         if (!transactionDetailId) return
         if (!id) return
-
-        deleteDetail.mutate({ transactionId: id, transactionDetailId: transactionDetailId })
+        if (confirm("Are you sure you want to delete this detail?")) {
+            deleteDetail.mutate({ transactionId: id, transactionDetailId: transactionDetailId })
+        }
     }
     
     async function handleTransactionDetailStatusChange(transactionDetailId: string, status: TransactionStatus) {

@@ -5,6 +5,7 @@ import TransactionListPage from "../features/transactions/TransactionListPage"
 import TransactionDetailPage from "../features/transactions/TransactionDetailPage"
 import CustomerListPage from "../features/customers/CustomerListPage"
 import VehicleListPage from "../features/vehicles/VehicleListPage"
+import UserListPage from "../features/users/UserListPage"
 import BankAccountListPage from "../features/bank-accounts/BankAccountListPage"
 import TripPriceListPage from "../features/trip-prices/TripPriceListPage"
 
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/vehicles" element={<VehicleListPage />} />
           <Route path="/bank-accounts" element={<BankAccountListPage />} />
           <Route path="/trip-prices" element={<TripPriceListPage />} />
+          <Route path="/users" element={<UserListPage />} />
         </Route>
       </Route>
     </Routes>

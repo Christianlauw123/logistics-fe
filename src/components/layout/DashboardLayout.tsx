@@ -23,6 +23,7 @@ export default function DashboardLayout() {
           <NavItem to="/vehicles" label="Vehicles" />
           <NavItem to="/bank-accounts" label="Bank Accounts" />
           <NavItem to="/trip-prices" label="Trip Prices" />
+          <NavItem to="/users" label="Users" />
         </nav>
       </aside>
 

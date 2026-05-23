@@ -8,12 +8,14 @@ export type TransactionFilters = {
   search?: string
   status?: string
   customer_id?: string
-  do_date_from?: string
-  do_date_to?: string
+  date_start?: string
+  date_end?: string
   sort_by?: string
   sort_dir?: "asc" | "desc"
   per_page?: number
   page?: number
+  filter_date_key?: string
+  vehicle_id?: string
 }
 
 export function getTransactions(filters: TransactionFilters = {}) {

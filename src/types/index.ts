@@ -31,6 +31,7 @@ export type Customer = {
 
 export type Vehicle = {
     id: string
+    name: string | null,
     plate_number: string
     type: string
     capacity: number | null
@@ -113,7 +114,8 @@ export type Paginated<T> = {
   per_page: number
   total: number
   next_page_url: string | null
-  prev_page_url: string | null
+  prev_page_url: string | null,
+  from: number
 }
 
 export type ApiResponse<T> = {
