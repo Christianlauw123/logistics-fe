@@ -272,7 +272,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
                         <label htmlFor="base_price" className="text-xs font-medium">Base Price</label>
                         <Input id="base_price" defaultValue={tripPrice?.base_price?.toString() || ""} name="base_price" type="number" placeholder="e.g. 0.1" required />
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
+                    <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>
                         <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save"}</Button>
                     </div>

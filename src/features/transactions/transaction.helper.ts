@@ -8,12 +8,21 @@ const transactionStatusBadge: Record<string, string> = {
     'REJECTED': 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300'
 };
 
-const transactionStatusStage: Record<TransactionStatus, [TransactionStatus, string][]> = {
-    'SUBMITTED': [['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject']],
-    'APPROVED':  [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject']],
-    'DONE': [],
-    'CANCELLED': [],
-    'REJECTED': [],
+const transactionStatusStage: Record<string, Record<TransactionStatus, [TransactionStatus, string][]>> = {
+    'Super Admin': {
+        'SUBMITTED': [['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject']],
+        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject']],
+        'DONE': [],
+        'CANCELLED': [],
+        'REJECTED': []
+    },
+    'Staff': {
+        'SUBMITTED': [['CANCELLED', 'Cancel']],
+        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel']],
+        'DONE': [],
+        'CANCELLED': [],
+        'REJECTED': []
+    }
 };
 
 export {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "../../components/ui/combobox"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox"
 import { useCustomersQuery } from "../customers/customer.hooks";
 import { useBankAccountsQuery } from "../bank-accounts/bankAccount.hooks";
 import { useSubDistrictsQuery } from "../sub-districts/subDistrict.hooks";
@@ -10,10 +10,10 @@ import type { SubDistrictFilters } from "../sub-districts/subDistrict.api";
 import type { CustomerFilters } from "../customers/customer.api";
 import type { VehicleFilters } from "../vehicles/vehicle.api";
 import type { BankAccountFilters } from "../bank-accounts/bankAccount.api";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { errorHandler } from "../../lib/utils";
+import { errorHandler } from "@/lib/utils";
 import { createTransaction, updateTransaction } from "./transaction.hooks";
 
 export default function TransactionFormPage({ openMainAction, setOpenMainAction, mode, transaction }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; transaction: any }) {
@@ -190,7 +190,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
 
     return (
         <Dialog open={openMainAction} onOpenChange={setOpenMainAction}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="w-[95%] max-w-[425px] max-h-[85vh] overflow-y-auto rounded-lg sm:w-full">
                 <DialogHeader>
                     <DialogTitle>{mode === "add" ? "Add" : "Edit"} Transaction Main</DialogTitle>
                 </DialogHeader>
@@ -440,7 +440,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                         <label htmlFor="note" className="text-xs font-medium">Note</label>
                         <Input id="note" defaultValue={note || ""} name="note" placeholder="e.g. Server hosting fee" required />
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
+                    <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>
                         <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save Detail"}</Button>
                     </div>

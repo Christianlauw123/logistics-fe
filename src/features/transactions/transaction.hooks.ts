@@ -96,7 +96,7 @@ export function updateTransaction() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["transactions", variables.transactionId],
+        queryKey: ["transactions", "detail", variables.transactionId],
       })
       toast.success("Transaction Updated")
     },

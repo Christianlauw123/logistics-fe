@@ -19,6 +19,7 @@ import TransactionFormPage from "./TransactionFormPage"
 import type { TransactionStatus } from "@/types"
 import type { VehicleFilters } from "../vehicles/vehicle.api"
 import { useVehiclesQuery } from "../vehicles/vehicle.hooks"
+import { useAuthStore } from "../auth/auth.store"
 
 type FilterDateKey = "do_date" | "do_actual_date"
 
@@ -26,6 +27,7 @@ interface FilterState { customer_id: string | null, dateStart: string, dateEnd: 
 
 export default function TransactionListPage() {
     const navigate = useNavigate() 
+    const user = useAuthStore((state) => state.user)
     const [search, setSearch] = useState("")
     const [page, setPage] = useState(1)
     const [openMainAction, setOpenMainAction] = useState(false);
@@ -388,7 +390,9 @@ export default function TransactionListPage() {
                                         }}
                                     >View
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+                                    {user?.role?.name === "Super Admin" && (
+                                        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+                                    )}
                                 </DropdownMenuGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>

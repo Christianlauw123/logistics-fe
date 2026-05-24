@@ -66,7 +66,7 @@ export default function VehicleFormPage({ openMainAction, setOpenMainAction, mod
 
     return (
         <Dialog open={openMainAction} onOpenChange={setOpenMainAction}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="w-[95%] max-w-[425px] max-h-[85vh] overflow-y-auto rounded-lg sm:w-full">
                 <DialogHeader>
                     <DialogTitle>{mode === "add" ? "Add" : "Edit"} Vehicle</DialogTitle>
                 </DialogHeader>
@@ -93,7 +93,7 @@ export default function VehicleFormPage({ openMainAction, setOpenMainAction, mod
                         <Label htmlFor="vehicle-active">Status Vehicle</Label>
                         <Switch id="vehicle-active" checked={vehicleActive} onCheckedChange={setVehicleActive} />
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
+                    <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>
                         <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save"}</Button>
                     </div>

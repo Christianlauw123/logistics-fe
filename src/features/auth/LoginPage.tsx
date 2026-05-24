@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,12 +16,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  const [searchParams] = useSearchParams();
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
 
+    const deviceType = searchParams.get("device_type") || "web";
     try {
         setIsLoading(true)
-        const user = await login({ email, password })
+        const user = await login({ email, password, device_type: deviceType })
         setUser(user)
         toast.success("Login successful")
         navigate("/transactions")

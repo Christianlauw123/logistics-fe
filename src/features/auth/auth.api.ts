@@ -8,7 +8,7 @@ export type LoginInput = {
 }
 
 export async function login(input: LoginInput) {
-    const finalInput: LoginInput = {...input, device_type: "web"}
+    const finalInput: LoginInput = {...input}
     const response = await api.post<{ user: User; message: string }>("/auth/login", finalInput)
     return response.data.user
 }

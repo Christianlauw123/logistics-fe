@@ -29,3 +29,22 @@ export function createUploadAttachment() {
     },
   })
 }
+
+export function deleteUploadAttachment() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ attachmentId }: { transactionId: string, attachmentId: string }) => {
+      await api.delete(`/attachments/${attachmentId}`)
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["transactions", "detail", variables.transactionId],
+      })
+      toast.success("Attachment deleted")
+    },
+    onError: (error: any) => {
+      errorHandler(error)
+    },
+  })
+}

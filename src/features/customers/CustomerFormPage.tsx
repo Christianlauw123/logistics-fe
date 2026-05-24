@@ -77,7 +77,7 @@ export default function CustomerFormPage({ openMainAction, setOpenMainAction, mo
                         <label htmlFor="address" className="text-xs font-medium">Address</label>
                         <Input id="address" defaultValue={customer?.address || ""} name="address" placeholder="e.g. 123 Main St" />
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
+                    <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>
                         <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save"}</Button>
                     </div>

@@ -176,7 +176,7 @@ export default function UserFormPage({ openMainAction, setOpenMainAction, mode, 
                         <label htmlFor="password_confirmation" className="text-xs font-medium">Password Confirmation</label>
                         <Input id="password_confirmation" type="password" name="password_confirmation" placeholder="e.g. ********" />
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
+                    <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>
                         <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save"}</Button>
                     </div>

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 import { getTransaction, updateTransactionStatus } from "./transaction.hooks"
-import { createUploadAttachment } from "../attachments/attachment.hooks"
+import { createUploadAttachment, deleteUploadAttachment } from "../attachments/attachment.hooks"
 
 import { MoreHorizontalIcon } from "lucide-react"
 import type { TransactionStatus } from "@/types"
@@ -19,8 +19,10 @@ import { createTransactionDetail, deleteTransactionDetail, updateTransactionDeta
 import { transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
 import { errorHandler } from "@/lib/utils"
 import TransactionFormPage from "./TransactionFormPage"
+import { useAuthStore } from "../auth/auth.store"
 
 export default function TransactionDetailPage() {
+    const user = useAuthStore((state) => state.user)
     const { id } = useParams()
     const [fileInputKey, setFileInputKey] = useState(Date.now());
 
@@ -38,6 +40,7 @@ export default function TransactionDetailPage() {
 
     const updateStatus = updateTransactionStatus();
     const uploadTransactionAttachment = createUploadAttachment();
+    const deleteTransactionAttachment = deleteUploadAttachment();
 
     const createDetail = createTransactionDetail();
     const updateStatusTransactionDetail = updateTransactionDetailStatus();
@@ -72,6 +75,21 @@ export default function TransactionDetailPage() {
             setFileInputKey(Date.now());
         } catch (error) {
             toast.error("Upload failed")
+        }
+    }
+
+    async function handleDeleteAttachment(attachmentId: string) {
+        if (!id) return
+        if (!attachmentId) return
+        try {
+            deleteTransactionAttachment.mutate({
+                transactionId: id,
+                attachmentId: attachmentId,
+            })
+            
+            setFileInputKey(Date.now());
+        } catch (error) {
+            toast.error("Delete attachment failed")
         }
     }
 
@@ -170,14 +188,14 @@ export default function TransactionDetailPage() {
                 </CardContent>
             </Card>
 
-            {transactionStatusStage[transaction.status].length !== 0 && (
+            {transactionStatusStage[user?.role?.name || ''][transaction.status].length !== 0 && user?.role?.name === "Super Admin" && (
                 <Card>
                     <CardHeader>
                         <CardTitle>Status Action</CardTitle>
                     </CardHeader>
 
                     <CardContent className="flex flex-wrap gap-2">
-                        {transactionStatusStage[transaction.status].map((transactionStage) => (
+                        {transactionStatusStage[user?.role?.name || ''][transaction.status].map((transactionStage) => (
                             <Button key={transactionStage[0]} className={`${transactionStatusBadge[transactionStage[0]]}`} onClick={() => handleTransactionStatusChange(transactionStage[0] as TransactionStatus)}>{transactionStage[1]}</Button>
                         ))}
                     </CardContent>
@@ -267,19 +285,21 @@ export default function TransactionDetailPage() {
                                                                 }}>
                                                                 Edit
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem variant="destructive" onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDeleteDetail(detail.id)
-                                                            }}>
-                                                                Delete
-                                                            </DropdownMenuItem>
+                                                            {user?.role?.name === "Super Admin" && (
+                                                                <DropdownMenuItem variant="destructive" onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeleteDetail(detail.id)
+                                                                }}>
+                                                                    Delete
+                                                                </DropdownMenuItem>
+                                                            )}
                                                         </DropdownMenuGroup>
                                                     )}
-                                                    {transactionStatusStage[detail.status].length !== 0 && (<DropdownMenuSeparator />)}
-                                                    {transactionStatusStage[detail.status].length !== 0 && (
+                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (<DropdownMenuSeparator />)}
+                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (
                                                         <DropdownMenuGroup>
                                                             <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-                                                            {transactionStatusStage[detail.status].map((transactionStage) => (
+                                                            {transactionStatusStage[user?.role?.name || ''][detail.status].map((transactionStage) => (
                                                                 <DropdownMenuItem key={transactionStage[0]} onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}>
                                                                     {transactionStage[1]}
                                                                 </DropdownMenuItem>
@@ -333,6 +353,11 @@ export default function TransactionDetailPage() {
                                         <TableCell className="text-right">
                                             <Button variant="outline" >
                                                 <a href={attachment.file_url} target="_blank" rel="noreferrer">Open</a>
+                                            </Button>
+                                            <Button variant="destructive" onClick={() => 
+                                                handleDeleteAttachment(attachment.id)
+                                            }>
+                                                Delete
                                             </Button>
                                         </TableCell>
                                     </TableRow>
