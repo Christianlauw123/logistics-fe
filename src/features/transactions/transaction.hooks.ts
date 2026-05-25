@@ -18,6 +18,33 @@ export type TransactionFilters = {
   vehicle_id?: string
 }
 
+export interface CreateUpdateTransactionPayload {
+  do_number: string
+  do_actual_date: string
+  note: string
+  amount: number
+  transaction_capacity: number
+  transaction_items: string
+  dest_address: string
+  customer_id: string
+  origin_sub_district_id: string
+  dest_sub_district_id: string
+  vehicle_id: string
+  bank_account_id: string
+}
+
+export interface TransactionExport {
+  success: boolean
+	job_id: string
+	message: string
+}
+
+export interface TransactionExportStatus {
+	job_id: string
+	status: string
+  download_url: string
+}
+
 export function getTransactions(filters: TransactionFilters = {}) {
   return useQuery({
     queryKey: ["transactions", "list", filters],
@@ -66,21 +93,6 @@ export function deleteTransaction() {
       errorHandler(error)
     },
   })
-}
-
-export interface CreateUpdateTransactionPayload {
-  do_number: string
-  do_actual_date: string
-  note: string
-  amount: number
-  transaction_capacity: number
-  transaction_items: string
-  dest_address: string
-  customer_id: string
-  origin_sub_district_id: string
-  dest_sub_district_id: string
-  vehicle_id: string
-  bank_account_id: string
 }
 
 export function updateTransaction() {
@@ -151,6 +163,56 @@ export function updateTransactionStatus() {
     },
     onError: () => {
       toast.error("Failed to update status")
+    },
+  })
+}
+
+export function createExportTransaction() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ payload }: { payload: TransactionFilters}) => {
+      const response = await api.post<TransactionExport>("/transactions/export", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      return response.data
+    },
+    onSuccess: (_) => {
+      queryClient.invalidateQueries({
+        queryKey: ["transactions"],
+      })
+      toast.success("Export Transaction Created")
+    },
+    onError: (error: any) => {
+      errorHandler(error)
+    },
+  })
+}
+
+export function getExportTransactionStatus() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ job_id }: { job_id: string}) => {
+      const response = await api.get<TransactionExportStatus>(`/transactions/export-status/${job_id}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      return response.data
+    },
+    onSuccess: (_) => {
+      queryClient.invalidateQueries({
+        queryKey: ["transactions"],
+      })
+      toast.success("Export Transaction Created")
+    },
+    onError: (error: any) => {
+      errorHandler(error)
     },
   })
 }

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/features/auth/auth.store"
 import { logout } from "@/features/auth/auth.api"
 import { useState } from "react"
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet"
+import { Sheet, SheetContent } from "../ui/sheet"
 import { Menu } from "lucide-react"
 
 export default function DashboardLayout() {
@@ -43,14 +43,17 @@ export default function DashboardLayout() {
       <div className="md:pl-64">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4">
           <div className="flex items-center gap-3">
-            {/* Mobile Hamburger Drawer (Visible ONLY on small screens) */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger>
-                <Button variant="outline" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
-                </Button>
-              </SheetTrigger>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="md:hidden"
+                onClick={() => setIsOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+
               <SheetContent side="left" className="w-64 p-4">
                 <h1 className="mb-6 text-xl font-bold">Dashboard</h1>
                 <NavLinks />

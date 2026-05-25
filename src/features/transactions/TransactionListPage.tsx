@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
-import { Filter, Loader2, MoreHorizontalIcon, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Download, Filter, Loader2, MoreHorizontalIcon, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import { getTransactions } from "./transaction.hooks"
+import { createExportTransaction, getExportTransactionStatus, getTransactions } from "./transaction.hooks"
 import { transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
 
 import type { CustomerFilters } from "../customers/customer.api"
@@ -20,8 +20,17 @@ import type { TransactionStatus } from "@/types"
 import type { VehicleFilters } from "../vehicles/vehicle.api"
 import { useVehiclesQuery } from "../vehicles/vehicle.hooks"
 import { useAuthStore } from "../auth/auth.store"
+import { toast } from "sonner"
+import { errorHandler } from "@/lib/utils"
 
 type FilterDateKey = "do_date" | "do_actual_date"
+
+interface ExportState {
+    isExporting: boolean
+    jobId: string | null
+    status: "idle" | "processing" | "completed" | "failed"
+    error: string | null
+}
 
 interface FilterState { customer_id: string | null, dateStart: string, dateEnd: string, status: string | null, filterDateKey: FilterDateKey | null, vehicle_id: string | null }
 
@@ -33,6 +42,7 @@ export default function TransactionListPage() {
     const [openMainAction, setOpenMainAction] = useState(false);
     const [modeMainAction, setModeMainAction] = useState<null | "add">(null)
     const [showFilters, setShowFilters] = useState(false);
+    
 
     const [customerKeywordSearch, setCustomerKeywordSearch] = useState<string>("")
     const [customerSearch, setCustomerSearch] = useState<CustomerFilters>({})
@@ -65,6 +75,13 @@ export default function TransactionListPage() {
         filterDateKey: null,
         status: null,
         vehicle_id: null,
+    })
+
+    const [exportState, setExportState] = useState<ExportState>({
+        isExporting: false,
+        jobId: null,
+        status: "idle",
+        error: null,
     })
 
     const hasActiveFilters = filters.customer_id || filters.status || filters.dateStart || filters.dateEnd || search || filters.filterDateKey || filters.vehicle_id
@@ -118,6 +135,122 @@ export default function TransactionListPage() {
         return <div>Failed to load transactions, Please reload the page</div>
     }
 
+    const startExportTransaction = createExportTransaction();
+    const exportTransactionStatus = getExportTransactionStatus();
+
+    async function handleExport(){
+        if (filters.filterDateKey === null || filters.dateStart === '' || filters.dateEnd === ''){
+            toast.error('Please choose date filter, set date start & end before export')
+            return;
+        }
+
+        setExportState({
+            isExporting: true,
+            jobId: null,
+            status: "processing",
+            error: null,
+        })
+        try {
+            const basePayload = { 
+                search: search as string, // Ensure 'id' is available in this scope
+                customer_id: filters.customer_id === null ? undefined : filters.customer_id,
+                date_start: filters.dateStart,
+                date_end: filters.dateEnd,
+                filter_date_key: filters.filterDateKey === null ? undefined :filters.filterDateKey,
+                vehicle_id: filters.vehicle_id === null ? undefined :filters.vehicle_id,
+            }
+            const response = await startExportTransaction.mutateAsync({ payload: basePayload })
+
+            setExportState({
+                isExporting: true,
+                jobId: response.job_id,
+                status: "processing",
+                error: null,
+            })
+        }
+        catch(error){
+            errorHandler(error)
+            setExportState({
+                isExporting: false,
+                jobId: null,
+                status: "failed",
+                error: "Failed to start export. Please try again.",
+            })
+        }
+    }
+
+    const pollIntervalRef = useRef<number| null>(null)
+    // Poll for export status
+    useEffect(() => {
+        if (!exportState.jobId) return
+
+        const pollExportStatus = async () => {
+            try {
+                const response = await exportTransactionStatus.mutateAsync({ job_id: exportState.jobId as string })
+                if (response.status === "completed") {
+                    // Open the download link in a new tab safely
+                    window.open(`${import.meta.env.VITE_API_URL}/transactions/download-export/${response.job_id}`, '_blank', 'noopener,noreferrer');
+                    setExportState({
+                        isExporting: false,
+                        jobId: null,
+                        status: "completed",
+                        error: null,
+                    })
+
+                    // Clear polling
+                    if (pollIntervalRef.current) {
+                        clearInterval(pollIntervalRef.current)
+                        pollIntervalRef.current = null
+                    }
+
+                    // Reset after 3 seconds
+                    setTimeout(() => {
+                        setExportState({
+                            isExporting: false,
+                            jobId: null,
+                            status: "idle",
+                            error: null,
+                        })
+                    }, 3000)
+                } else if (response.status === "failed") {
+                    setExportState({
+                        isExporting: false,
+                        jobId: null,
+                        status: "failed",
+                        error: "Export failed",
+                    })
+
+                    // Clear polling
+                    if (pollIntervalRef.current) {
+                        clearInterval(pollIntervalRef.current)
+                        pollIntervalRef.current = null
+                    }
+                }
+            } catch (error) {
+                errorHandler(error)
+                if (pollIntervalRef.current) {
+                    clearInterval(pollIntervalRef.current)
+                    pollIntervalRef.current = null
+                }
+            }
+        }
+
+        // Poll immediately
+        pollExportStatus()
+
+        // Then poll every 1 second
+        if (!pollIntervalRef.current) {
+            pollIntervalRef.current = setInterval(pollExportStatus, 1000)
+        }
+
+        return () => {
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current)
+                pollIntervalRef.current = null
+            }
+        }
+    }, [exportState.jobId])
+
     return (
         <div className="space-y-4">
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
@@ -155,6 +288,21 @@ export default function TransactionListPage() {
         >
             <Filter className="h-4 w-4" />
             Filters
+        </Button>
+
+        <Button 
+            size="sm"
+            variant="default"
+            onClick={handleExport}
+            disabled={exportState.isExporting}
+            className="gap-2"
+        >
+            {exportState.isExporting && exportState.status === "processing" ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Exporting...</>
+            ) : exportState.status === "completed" ? (
+                <><Download className="mr-2 h-4 w-4" />Done!</>
+            ) : ( <><Download className="mr-2 h-4 w-4" />Export</>
+            )}
         </Button>
 
         {showFilters && (
