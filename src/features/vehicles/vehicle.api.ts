@@ -6,6 +6,7 @@ export type VehicleFilters = {
   per_page?: number
   page?: number
   id?: string
+  is_active?: boolean
 }
 
 export interface CreateUpdateVehiclePayload {

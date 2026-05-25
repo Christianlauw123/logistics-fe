@@ -26,7 +26,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     const [customerSearch, setCustomerSearch] = useState<CustomerFilters>({})
     const [subOriginDistrictSearch, setOriginSubDistrictSearch] = useState<SubDistrictFilters>({})
     const [subDestinationDistrictSearch, setDestinationSubDistrictSearch] = useState<SubDistrictFilters>({})
-    const [vehicleSearch, setVehicleSearch] = useState<VehicleFilters>({})
+    const [vehicleSearch, setVehicleSearch] = useState<VehicleFilters>({is_active: true})
     const [bankAccountSearch, setBankAccountSearch] = useState<BankAccountFilters>({})
 
     // Fetch Query
@@ -102,7 +102,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             if (customerKeywordSearch) setCustomerSearch({ search: customerKeywordSearch })
             if (originSubDistrictKeywordSearch) setOriginSubDistrictSearch({ search: originSubDistrictKeywordSearch })
             if (destinationSubDistrictKeywordSearch) setDestinationSubDistrictSearch({ search: destinationSubDistrictKeywordSearch })
-            if (vehicleKeywordSearch) setVehicleSearch({ search: vehicleKeywordSearch })
+            if (vehicleKeywordSearch) setVehicleSearch({ search: vehicleKeywordSearch, is_active: true })
             if (bankAccountKeywordSearch) setBankAccountSearch({ search: bankAccountKeywordSearch })
         }, 400)
         return () => clearTimeout(timer)

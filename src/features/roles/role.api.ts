@@ -9,6 +9,6 @@ export type RoleFilters = {
 }
 
 export async function getRoles(filters: RoleFilters = {}): Promise<Paginated<Role>> {
-  const response = await api.get<Paginated<Role>>("/users/roles", { params: filters })
+  const response = await api.get<Paginated<Role>>("/roles", { params: filters })
   return response.data
 }
