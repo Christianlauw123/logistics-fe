@@ -228,7 +228,7 @@ export default function TransactionDetailPage() {
                                 </div>
                                 <div className="space-y-1">
                                     <label htmlFor="note" className="text-xs font-medium">Note</label>
-                                    <Input id="note" defaultValue={dataDetailEdit?.note || ""} name="note" placeholder="e.g. Server hosting fee" required />
+                                    <Input id="note" defaultValue={dataDetailEdit?.note || ""} name="note" placeholder="e.g. Server hosting fee"  />
                                 </div>
                                 <div className="flex justify-end gap-2 pt-2">
                                     <Button type="button" variant="outline" onClick={() => setOpenDetailAction(false)}>Cancel</Button>

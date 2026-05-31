@@ -198,23 +198,23 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="space-y-1">
                         <label htmlFor="do_number" className="text-xs font-medium">DO Number</label>
-                        <Input id="do_number" defaultValue={doNumber || ""} name="do_number" placeholder="e.g. Server hosting fee" required />
+                        <Input id="do_number" defaultValue={doNumber || ""} name="do_number" placeholder="e.g. Server hosting fee" />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="do_actual_date" className="text-xs font-medium">DO Actual Date</label>
-                        <Input id="do_actual_date" defaultValue={doActualDate || ""} name="do_actual_date" type="date" required />
+                        <Input id="do_actual_date" defaultValue={doActualDate || ""} name="do_actual_date" type="date" />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="dest_address" className="text-xs font-medium">Alamat Tujuan</label>
                         <Input id="dest_address" defaultValue={destAddress || ""} name="dest_address" placeholder="e.g. Server hosting fee" required />
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="transaction_capacity" className="text-xs font-medium">Kapasitas</label>
+                        <label htmlFor="transaction_capacity" className="text-xs font-medium">Kapasitas (Ton)</label>
                         <Input id="transaction_capacity" defaultValue={transactionCapacity || ""} name="transaction_capacity" type="number" placeholder="e.g. 0.1" required />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="transaction_items" className="text-xs font-medium">Jenis Barang</label>
-                        <Input id="transaction_items" defaultValue={transactionItems || ""} name="transaction_items" placeholder="e.g. Server hosting fee" required />
+                        <Input id="transaction_items" defaultValue={transactionItems || ""} name="transaction_items" placeholder="e.g. Server hosting fee" />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="purpose" className="text-xs font-medium">Customer</label>
@@ -438,7 +438,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="note" className="text-xs font-medium">Note</label>
-                        <Input id="note" defaultValue={note || ""} name="note" placeholder="e.g. Server hosting fee" required />
+                        <Input id="note" defaultValue={note || ""} name="note" placeholder="e.g. Server hosting fee" />
                     </div>
                     <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>

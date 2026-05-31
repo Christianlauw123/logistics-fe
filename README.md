@@ -10,7 +10,6 @@ A modern web application boilerplate built with React, TypeScript, and Vite, fea
 - **Routing:** React Router DOM
 - **State Management:** Zustand
 - **Data Fetching:** TanStack React Query + Axios
-- **Forms & Validation:** React Hook Form + Zod
 
 ---
 
