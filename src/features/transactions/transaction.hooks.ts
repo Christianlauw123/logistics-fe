@@ -100,11 +100,12 @@ export function updateTransaction() {
 
   return useMutation({
     mutationFn: async ({ transactionId, payload }: { transactionId: string; payload: CreateUpdateTransactionPayload }) => {
-      await api.put(`/transactions/${transactionId}`, payload, {
+      const response = await api.put(`/transactions/${transactionId}`, payload, {
         headers: {
           "Content-Type": "application/json",
         },
       })
+      return response.data
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -113,7 +114,6 @@ export function updateTransaction() {
       toast.success("Transaction Updated")
     },
     onError: (error: any) => {
-      console.log(error)
       errorHandler(error)
     },
   })

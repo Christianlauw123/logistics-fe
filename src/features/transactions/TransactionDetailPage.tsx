@@ -175,7 +175,7 @@ export default function TransactionDetailPage() {
                     }}>
                         Edit Detail Main
                     </Button>
-                    <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={transaction} />
+                    <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={transaction} user={user}/>
                 </CardHeader>
 
                 <CardContent className="grid gap-4 md:grid-cols-2">

@@ -276,7 +276,7 @@ export default function TransactionListPage() {
             }}>
                 Tambah Transaksi
             </Button>
-            <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={null}/>
+            <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={null} user={user} />
             
         </div>
 

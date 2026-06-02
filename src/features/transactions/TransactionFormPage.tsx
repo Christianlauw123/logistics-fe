@@ -16,10 +16,8 @@ import { errorHandler } from "@/lib/utils";
 import { createTransaction, updateTransaction } from "./transaction.hooks";
 import type { TripPriceFilters } from "../trip-prices/tripPrice.api";
 import { useTripPriceGetAllowedDistrictsQuery } from "../trip-prices/tripPrice.hooks";
-import { useAuthStore } from "../auth/auth.store";
 
-export default function TransactionFormPage({ openMainAction, setOpenMainAction, mode, transaction }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; transaction: any }) {
-    const user = useAuthStore((state) => state.user)
+export default function TransactionFormPage({ openMainAction, setOpenMainAction, mode, transaction, user }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; transaction: any; user: any }) {
 
     const [customerKeywordSearch, setCustomerKeywordSearch] = useState<string>("")
     const [originSubDistrictKeywordSearch, setOriginSubDistrictKeywordSearch] = useState<string>("")
@@ -140,9 +138,6 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
         // 1. Gather all inputs automatically via the form DOM element
         const formData = new FormData(event.currentTarget);
         const rawData = Object.fromEntries(formData.entries());
-        console.log(transaction);
-        console.log(transactionCapacity);
-        console.log(rawData);
         const capacity = (rawData.transaction_capacity && !isNaN(Number(rawData.transaction_capacity))) ? Number(rawData.transaction_capacity) : Number(transactionCapacity || 0)
         const basePayload = { 
             do_number: rawData.do_number as string ?? doNumber, // Ensure 'id' is available in this scope
@@ -157,7 +152,6 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
 			vehicle_id: vehicleId,
 			bank_account_id: bankAccountId,
         }
-        console.log(basePayload);
 
         try {
             if (mode === "add") {
@@ -167,7 +161,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             } else if (mode === "edit") {
                 
                 const response = await updateMainTransaction.mutateAsync({ transactionId: transaction?.id, payload: basePayload })
-                setTransaction(response) // Update form with response after update performed, so user can see the updated value immediately after update without reopening the form
+                setTransaction(response.data) // Update form with response after update performed, so user can see the updated value immediately after update without reopening the form
             }
             setOpenMainAction(false); // Close dialog
 
