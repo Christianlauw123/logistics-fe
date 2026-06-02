@@ -44,10 +44,9 @@ export default function CustomerFormPage({ openMainAction, setOpenMainAction, mo
         try {
             if (mode === "add") {
                 // Call create API here with basePayload
-                // await createTransaction.mutateAsync(basePayload);
-                await createCustomer.mutate({ ...basePayload })
+                await createCustomer.mutateAsync({ ...basePayload })
             } else if (mode === "edit") {
-                await updateCustomer.mutate({ id: customer?.id, payload: basePayload })
+                await updateCustomer.mutateAsync({ id: customer?.id, payload: basePayload })
             }
             setOpenMainAction(false); // Close dialog
         } catch (error) {
@@ -61,25 +60,25 @@ export default function CustomerFormPage({ openMainAction, setOpenMainAction, mo
         <Dialog open={openMainAction} onOpenChange={setOpenMainAction}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{mode === "add" ? "Add" : "Edit"} Customer</DialogTitle>
+                    <DialogTitle>{mode === "add" ? "Add" : "Edit"} Pelanggan</DialogTitle>
                 </DialogHeader>
                 
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="space-y-1">
-                        <label htmlFor="name" className="text-xs font-medium">Customer Name</label>
+                        <label htmlFor="name" className="text-xs font-medium">Nama Pelanggan</label>
                         <Input id="name" defaultValue={customer?.name || ""} name="name" placeholder="e.g. John Doe" required />
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="phone" className="text-xs font-medium">Phone</label>
+                        <label htmlFor="phone" className="text-xs font-medium">Telepon</label>
                         <Input id="phone" defaultValue={customer?.phone || ""} name="phone" placeholder="e.g. 123-456-7890" />
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="address" className="text-xs font-medium">Address</label>
+                        <label htmlFor="address" className="text-xs font-medium">Alamat</label>
                         <Input id="address" defaultValue={customer?.address || ""} name="address" placeholder="e.g. 123 Main St" />
                     </div>
                     <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
-                        <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>
-                        <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save"}</Button>
+                        <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Batal</Button>
+                        <Button type="submit" disabled={loading}>{loading ? "Menyimpan..." : "Simpan"}</Button>
                     </div>
                 </form>
             </DialogContent>

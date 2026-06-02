@@ -52,9 +52,9 @@ export default function VehicleFormPage({ openMainAction, setOpenMainAction, mod
             if (mode === "add") {
                 // Call create API here with basePayload
                 // await createTransaction.mutateAsync(basePayload);
-                await createVehicle.mutate({ ...basePayload })
+                await createVehicle.mutateAsync({ ...basePayload })
             } else if (mode === "edit") {
-                await updateVehicle.mutate({ id: vehicle?.id, payload: basePayload })
+                await updateVehicle.mutateAsync({ id: vehicle?.id, payload: basePayload })
             }
             setOpenMainAction(false); // Close dialog
         } catch (error) {
@@ -68,34 +68,34 @@ export default function VehicleFormPage({ openMainAction, setOpenMainAction, mod
         <Dialog open={openMainAction} onOpenChange={setOpenMainAction}>
             <DialogContent className="w-[95%] max-w-[425px] max-h-[85vh] overflow-y-auto rounded-lg sm:w-full">
                 <DialogHeader>
-                    <DialogTitle>{mode === "add" ? "Add" : "Edit"} Vehicle</DialogTitle>
+                    <DialogTitle>{mode === "add" ? "Add" : "Edit"} Kendaraan</DialogTitle>
                 </DialogHeader>
                 
 
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="space-y-1">
-                        <label htmlFor="name" className="text-xs font-medium">Name</label>
+                        <label htmlFor="name" className="text-xs font-medium">Nama</label>
                         <Input id="name" defaultValue={vehicle?.name || ""} name="name" placeholder="e.g. John Doe" required />
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="plate_number" className="text-xs font-medium">Plate Number</label>
+                        <label htmlFor="plate_number" className="text-xs font-medium">Nomor Plat</label>
                         <Input id="plate_number" defaultValue={vehicle?.plate_number || ""} name="plate_number" placeholder="e.g. ABC-123" required />
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="type" className="text-xs font-medium">Type</label>
+                        <label htmlFor="type" className="text-xs font-medium">Jenis</label>
                         <Input id="type" defaultValue={vehicle?.type || ""} name="type" placeholder="e.g. Truck" />
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="capacity" className="text-xs font-medium">Capacity</label>
-                        <Input id="capacity" defaultValue={vehicle?.capacity || ""} type="number" name="capacity" placeholder="e.g. 1000" />
+                        <label htmlFor="capacity" className="text-xs font-medium">Kapasitas (Kg)</label>
+                        <Input id="capacity" defaultValue={Number(vehicle?.capacity)} type="number" name="capacity" placeholder="e.g. 1000" />
                     </div>
                     <div className="space-y-1">
-                        <Label htmlFor="vehicle-active">Status Vehicle</Label>
+                        <Label htmlFor="vehicle-active">Status Kendaraan</Label>
                         <Switch id="vehicle-active" checked={vehicleActive} onCheckedChange={setVehicleActive} />
                     </div>
                     <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
-                        <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>
-                        <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save"}</Button>
+                        <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Batal</Button>
+                        <Button type="submit" disabled={loading}>{loading ? "Menyimpan..." : "Simpan"}</Button>
                     </div>
                 </form>
             </DialogContent>

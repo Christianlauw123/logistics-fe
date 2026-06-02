@@ -48,16 +48,16 @@ export default function TransactionDetailPage() {
     const deleteDetail = deleteTransactionDetail();
 
     if (isLoading) {
-        return <div>Loading transaction...</div>
+        return <div>Mengambil Transaksi...</div>
     }
 
     if (isError || !transaction) {
-        return <div>Failed to load transaction, Please reload the page</div>
+        return <div>Gagal memuat transaksi, Silakan muat ulang halaman</div>
     }
 
     async function handleTransactionStatusChange(status: TransactionStatus) {
         if (!id) return
-        updateStatus.mutate({ id, status })
+        await updateStatus.mutateAsync({ id, status })
     }
 
     // Attachment upload mutation
@@ -67,14 +67,14 @@ export default function TransactionDetailPage() {
         if (!file || !id) return
 
         try {
-            uploadTransactionAttachment.mutate({
+            await uploadTransactionAttachment.mutateAsync({
                 transactionId: id,
                 file,
             })
             
             setFileInputKey(Date.now());
         } catch (error) {
-            toast.error("Upload failed")
+            errorHandler(error)
         }
     }
 
@@ -82,14 +82,14 @@ export default function TransactionDetailPage() {
         if (!id) return
         if (!attachmentId) return
         try {
-            deleteTransactionAttachment.mutate({
+            await deleteTransactionAttachment.mutateAsync({
                 transactionId: id,
                 attachmentId: attachmentId,
             })
             
             setFileInputKey(Date.now());
         } catch (error) {
-            toast.error("Delete attachment failed")
+            errorHandler(error)
         }
     }
 
@@ -101,7 +101,7 @@ export default function TransactionDetailPage() {
         if (!id){
             setLoading(false);
             setOpenDetailAction(false); 
-            toast.error("Transaction ID is missing")
+            toast.error("Transaction ID tidak ditemukan")
             return
         }
 
@@ -116,10 +116,10 @@ export default function TransactionDetailPage() {
         };
         try {
             if (modeDetailAction === "add")
-                createDetail.mutate(basePayload)
+                await createDetail.mutateAsync(basePayload)
             else if (modeDetailAction === "edit" && dataDetailEdit){
                 const updatedPayload = {...basePayload, transactionDetailId: dataDetailEdit.id}
-                updateDetail.mutate(updatedPayload)
+                await updateDetail.mutateAsync(updatedPayload)
 
             }
             
@@ -135,24 +135,32 @@ export default function TransactionDetailPage() {
     async function handleDeleteDetail(transactionDetailId: string) {
         if (!transactionDetailId) return
         if (!id) return
-        if (confirm("Are you sure you want to delete this detail?")) {
-            deleteDetail.mutate({ transactionId: id, transactionDetailId: transactionDetailId })
+        if (confirm("Yakin menghapus detail ini?")) {
+            await deleteDetail.mutateAsync({ transactionId: id, transactionDetailId: transactionDetailId })
         }
     }
     
     async function handleTransactionDetailStatusChange(transactionDetailId: string, status: TransactionStatus) {
         if (!id) return
         if (!transactionDetailId) return
-        updateStatusTransactionDetail.mutate({ transactionId: id, id: transactionDetailId, status })
+        await updateStatusTransactionDetail.mutateAsync({ transactionId: id, id: transactionDetailId, status })
+    }
+
+    function dateFormat(dateString: string) {
+        const d = new Date(dateString);
+        const yyyymmdd = d.toISOString().split('T')[0]; // Returns "2026-06-02"
+        const time = d.toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }); // Returns "12.55"
+        
+        return `${yyyymmdd} ${time}`;
     }
 
     return (
         <div className="space-y-4">
             <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <div>
-                <h1 className="text-2xl font-bold">DO Number: {transaction.do_number}</h1>
+                <h1 className="text-2xl font-bold">No DO: {transaction.do_number}</h1>
                 <p className="text-sm text-muted-foreground">
-                Transaction detail and attachment.
+                Detail Transaksi dan Upload Bukti untuk No DO: {transaction.do_number}
                 </p>
             </div>
             <Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge>
@@ -171,27 +179,27 @@ export default function TransactionDetailPage() {
                 </CardHeader>
 
                 <CardContent className="grid gap-4 md:grid-cols-2">
-                    <Info label="Customer" value={transaction.customer_name} />
-                    <Info label="Vehicle" value={transaction.vehicle_plate} />
-                    <Info label="Destination" value={transaction.dest_address} />
-                    <Info label="DO Date" value={transaction.do_date ?? ''} />
-                    <Info label="Actual DO Date" value={transaction.do_actual_date ?? "-"}/>
-                    <Info label="Normal Trip Price" value={transaction.trip_price_amount.toString() ?? "-"}/>
-                    <Info label="Origin" value={transaction.origin_district} />
-                    <Info label="Destination" value={transaction.destination_district} />
-                    <Info label="Bank Account" value={transaction.bank_account_num ?? ''} />
-                    <Info label="Tonase / Kapasitas" value={transaction.transaction_capacity.toString() ?? "-"}/>
-                    <Info label="Item" value={transaction.transaction_items ?? "-"}/>
+                    <Info label="Pelanggan" value={transaction.customer_name} />
+                    <Info label="Kendaraan" value={transaction.vehicle_plate} />
+                    {/* <Info label="Tujuan" value={transaction.dest_address} /> */}
+                    <Info label="Tanggal DO" value={transaction.do_date ?? ''} />
+                    <Info label="Tanggal DO Aktual" value={transaction.do_actual_date ?? "-"}/>
+                    <Info label="Harga Trip Normal" value={transaction.trip_price_amount.toString() ?? "-"}/>
+                    <Info label="Asal" value={transaction.origin_district} />
+                    <Info label="Tujuan" value={transaction.destination_district} />
+                    <Info label="Akun Bank" value={transaction.bank_account_num ?? ''} />
+                    <Info label="Kapasitas (Kg)" value={Number(transaction.transaction_capacity).toLocaleString('id-ID') ?? "-"}/>
+                    {/* <Info label="Item" value={transaction.transaction_items ?? "-"}/> */}
                     <Info label="Note" value={transaction.note ?? "-"}/>
-                    <Info label="Creation Time" value={`${new Date(transaction.created_at).toLocaleString()} - (${transaction.created_at})`} />
-                    <Info label="Creator" value={transaction.user.name ?? "-"}/>
+                    <Info label="Tanggal/Jam Dibuat" value={`${dateFormat(transaction.created_at)}`} />
+                    <Info label="Kreator" value={transaction.user.name ?? "-"}/>
                 </CardContent>
             </Card>
 
             {transactionStatusStage[user?.role?.name || ''][transaction.status].length !== 0 && user?.role?.name === "Super Admin" && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Status Action</CardTitle>
+                        <CardTitle>Aksi</CardTitle>
                     </CardHeader>
 
                     <CardContent className="flex flex-wrap gap-2">
@@ -204,13 +212,14 @@ export default function TransactionDetailPage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Transaction Request Details</CardTitle>
+                    <CardTitle>Detail Transaksi</CardTitle>
+                    {user?.role?.name !== "Operational" && (
                     <Button size="sm" onClick={() => {
                         setModeDetailAction("add")
                         setOpenDetailAction(true)
                     }}>
-                        Add Detail
-                    </Button>
+                        Tambah Detail
+                    </Button>)}
                     <Dialog open={openDetailAction} onOpenChange={setOpenDetailAction}>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
@@ -219,7 +228,7 @@ export default function TransactionDetailPage() {
                             
                             <form onSubmit={handleDetailSubmit} className="space-y-4 pt-2">
                                 <div className="space-y-1">
-                                    <label htmlFor="purpose" className="text-xs font-medium">Tujuan</label>
+                                    <label htmlFor="purpose" className="text-xs font-medium">Keperluan</label>
                                     <Input id="purpose" defaultValue={dataDetailEdit?.purpose || ""} name="purpose" placeholder="e.g. Server hosting fee" required />
                                 </div>
                                 <div className="space-y-1">
@@ -244,7 +253,7 @@ export default function TransactionDetailPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Tujuan</TableHead>
+                                    <TableHead>Keperluan</TableHead>
                                     <TableHead>Jumlah</TableHead>
                                     <TableHead>Note</TableHead>
                                     <TableHead>Status</TableHead>
@@ -325,11 +334,12 @@ export default function TransactionDetailPage() {
                 </CardHeader>
 
                 <CardContent className="space-y-4">
+                    {user?.role?.name !== "Staff" && (
                     <Field>
                         <FieldLabel htmlFor="file">File</FieldLabel>
                         <Input key={fileInputKey}type="file" id="file" onChange={handleUpload} />
                         <FieldDescription>Select a file to upload.</FieldDescription>
-                    </Field>
+                    </Field>)}
 
                     <div className="space-y-2">
                         <Table>

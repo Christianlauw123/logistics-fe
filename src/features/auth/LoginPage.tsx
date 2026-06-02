@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { login } from "./auth.api"
 import { useAuthStore } from "./auth.store"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   const [searchParams] = useSearchParams();
 
@@ -56,12 +58,29 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <Label>Password</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="********"
-              />
+              
+              {/* ⚡ THE FIX: This relative wrapper locks the absolute button inside it */}
+              <div className="relative flex items-center">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="********"
+                  className="pr-10" // Prevents password characters from slipping under the eye icon
+                />
+                <button
+                  type="button" 
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 text-red-400 hover:text-red-600 focus:outline-none transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>

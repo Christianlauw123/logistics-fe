@@ -21,23 +21,23 @@ export default function TripPriceListPage() {
     })
 
     const deleteTripPrice = useTripPriceDeleteQuery();
-    function handleDeleteDetail(id: string) {
-        if (confirm("Are you sure you want to delete this trip price?")) {
-            deleteTripPrice.mutate({id: id})
+    async function handleDelete(id: string) {
+        if (confirm("Yakin menghapus harga trip ini?")) {
+            await deleteTripPrice.mutateAsync({id: id})
         }
     }
 
     if (isError) {
-        return <div>Failed to load trip prices, Please reload the page</div>
+        return <div>Gagal memuat harga trip, Silakan muat ulang halaman</div>
     }
 
     return (
         <div className="space-y-4">
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <div>
-            <h1 className="text-2xl font-bold">Trip Prices</h1>
+            <h1 className="text-2xl font-bold">Harga Trip</h1>
             <p className="text-sm text-muted-foreground">
-                Manage Trip Prices.
+                Pengaturan Harga Trip.
             </p>
             </div>
 
@@ -45,14 +45,14 @@ export default function TripPriceListPage() {
                 setModeMainAction("add")
                 setOpenMainAction(true)
             }}>
-                New Trip Price
+                Tambah Harga Trip
             </Button>
             <TripPriceFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} tripPrice={selectedTripPrice}/>
             
         </div>
 
         <Input
-            placeholder="Search trip prices..."
+            placeholder="Mencari harga trip..."
             value={search}
             onChange={(event) => {
             setSearch(event.target.value)
@@ -65,11 +65,11 @@ export default function TripPriceListPage() {
             <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>Customer</TableHead>
+                <TableHead>Pelanggan</TableHead>
                 <TableHead>Asal</TableHead>
                 <TableHead>Tujuan</TableHead>
-                <TableHead>Base Price</TableHead>
-                <TableHead className="w-[120px]">Action</TableHead>
+                <TableHead>Harga Dasar</TableHead>
+                <TableHead className="w-[120px]">Aksi</TableHead>
                 </TableRow>
             </TableHeader>
 
@@ -79,7 +79,7 @@ export default function TripPriceListPage() {
                     <TableCell className="font-medium">{tripPrice.customer?.name}</TableCell>
                     <TableCell>{tripPrice.origin_sub_district?.name}, {tripPrice.origin_sub_district?.district?.name}</TableCell>
                     <TableCell>{tripPrice.destination_sub_district?.name}, {tripPrice.destination_sub_district?.district?.name}</TableCell>
-                    <TableCell>{tripPrice.base_price}</TableCell>
+                    <TableCell>{Number.parseFloat(tripPrice?.base_price || "0").toLocaleString('id-ID') }</TableCell>
                     <TableCell>
                     <DropdownMenu>
                             <DropdownMenuTrigger>
@@ -101,7 +101,7 @@ export default function TripPriceListPage() {
                                     <DropdownMenuItem variant="destructive"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleDeleteDetail(tripPrice.id)
+                                            handleDelete(tripPrice.id)
                                         }}
                                     >Delete</DropdownMenuItem>
                                 </DropdownMenuGroup>
@@ -114,7 +114,7 @@ export default function TripPriceListPage() {
                 {tripPrices?.data.length === 0 && (
                 <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                    No trip prices found.
+                    Harga trip tidak ditemukan.
                     </TableCell>
                 </TableRow>
                 )}

@@ -11,6 +11,7 @@ import TripPriceListPage from "@/features/trip-prices/TripPriceListPage"
 
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import RoleProtectedRoute from "@/features/auth/RoleProtectedRoute"
+import { allowedRoles } from "@/lib/utils"
 
 
 export default function App() {
@@ -22,7 +23,7 @@ export default function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<Navigate to="/transactions" replace />} />
 
-          <Route element={<RoleProtectedRoute allowedRoles={['Super Admin', 'Staff']} />}>
+          <Route element={<RoleProtectedRoute allowedRoles={allowedRoles} />}>
             <Route path="/transactions" element={<TransactionListPage />} />
             <Route path="/transactions/:id" element={<TransactionDetailPage />} />
           </Route>

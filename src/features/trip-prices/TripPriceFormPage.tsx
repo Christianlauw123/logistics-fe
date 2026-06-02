@@ -81,7 +81,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
 
             if (tripPrice.customer_id) setCustomerSearch({ id: tripPrice.customer_id })
             if (tripPrice.origin_sub_district_id) setOriginSubDistrictSearch({ id: tripPrice.origin_sub_district_id })
-            if (tripPrice.destination_sub_district_id) setDestinationSubDistrictSearch({ id: tripPrice.destination_sub_district_id })
+            if (tripPrice.dest_sub_district_id) setDestinationSubDistrictSearch({ id: tripPrice.dest_sub_district_id })
 
         } else {
             // Completely reset fields when user opens an "Add New" form
@@ -98,7 +98,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
         if (mode === "edit" && !tripPriceId) {
             setLoading(false);
             setOpenMainAction(false); 
-            toast.error("Trip Price ID is missing")
+            toast.error("Trip Price ID tidak ditemukan")
             return
         }
 
@@ -116,9 +116,9 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
             if (mode === "add") {
                 // Call create API here with basePayload
                 // await createTransaction.mutateAsync(basePayload);
-                await createTripPrice.mutate({ ...basePayload })
+                await createTripPrice.mutateAsync({ ...basePayload })
             } else if (mode === "edit") {
-                await updateTripPrice.mutate({ id: tripPrice?.id, payload: basePayload })
+                await updateTripPrice.mutateAsync({ id: tripPrice?.id, payload: basePayload })
             }
             setOpenMainAction(false); // Close dialog
         } catch (error) {
@@ -132,12 +132,12 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
         <Dialog open={openMainAction} onOpenChange={setOpenMainAction}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{mode === "add" ? "Add" : "Edit"} Trip Price</DialogTitle>
+                    <DialogTitle>{mode === "add" ? "Add" : "Edit"} Harga Trip</DialogTitle>
                 </DialogHeader>
                 
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="space-y-1">
-                        <label htmlFor="purpose" className="text-xs font-medium">Customer</label>
+                        <label htmlFor="purpose" className="text-xs font-medium">Pelanggan</label>
                         <Combobox 
                             items={customerOptions}
                             value={customerId}
@@ -158,17 +158,17 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
                                 setCustomerKeywordSearch("");
                             }}
                         >
-                            <ComboboxInput placeholder="Select a customer" value={getCustomerDisplayValue()}/>
+                            <ComboboxInput placeholder="Pilih Pelanggan" value={getCustomerDisplayValue()}/>
                             <ComboboxContent>
                                 {customerLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                    Searching database...
+                                    Mencari di database...
                                     </div>
                                 )}
                                 
                                 {!customerLoading && customerOptions.length === 0 && (
-                                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                    <ComboboxEmpty>Tidak ditemukan.</ComboboxEmpty>
                                 )}
                                 <ComboboxList>
                                 {(item) => (
@@ -202,17 +202,17 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
                                 setOriginSubDistrictKeywordSearch("")
                             }}
                         >
-                            <ComboboxInput placeholder="Select a origin sub district" value={getOriginSubDistrictDisplayValue()}/>
+                            <ComboboxInput placeholder="Pilih wilayah asal" value={getOriginSubDistrictDisplayValue()}/>
                             <ComboboxContent>
                                 {originSubDistrictLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                    Searching database...
+                                    Mencari di database...
                                     </div>
                                 )}
                                 
                                 {!originSubDistrictLoading && originSubDistrictOptions.length === 0 && (
-                                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                    <ComboboxEmpty>Tidak ditemukan.</ComboboxEmpty>
                                 )}
                                 <ComboboxList>
                                 {(item) => (
@@ -246,17 +246,17 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
                                 setDestinationSubDistrictKeywordSearch("");
                             }}
                         >
-                            <ComboboxInput placeholder="Select a destination sub district" value={getDestinationSubDistrictDisplayValue()}/>
+                            <ComboboxInput placeholder="Pilih wilayah tujuan" value={getDestinationSubDistrictDisplayValue()}/>
                             <ComboboxContent>
                                 {destinationSubDistrictLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                    Searching database...
+                                    Mencari di database...
                                     </div>
                                 )}
                                 
                                 {!destinationSubDistrictLoading && destinationSubDistrictOptions.length === 0 && (
-                                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                    <ComboboxEmpty>Tidak ditemukan.</ComboboxEmpty>
                                 )}
                                 <ComboboxList>
                                 {(item) => (
@@ -269,12 +269,12 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
                         </Combobox>
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="base_price" className="text-xs font-medium">Base Price</label>
-                        <Input id="base_price" defaultValue={tripPrice?.base_price?.toString() || ""} name="base_price" type="number" placeholder="e.g. 0.1" required />
+                        <label htmlFor="base_price" className="text-xs font-medium">Harga Dasar</label>
+                        <Input id="base_price" defaultValue={Number.parseFloat(tripPrice?.base_price || "0").toString() || ""} name="base_price" type="number" placeholder="e.g. 1000" required />
                     </div>
                     <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
-                        <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Cancel</Button>
-                        <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save"}</Button>
+                        <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Batal</Button>
+                        <Button type="submit" disabled={loading}>{loading ? "Menyimpan..." : "Simpan"}</Button>
                     </div>
                 </form>
             </DialogContent>

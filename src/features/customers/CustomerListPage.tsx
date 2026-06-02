@@ -22,23 +22,23 @@ export default function CustomerListPage() {
     })
 
     const deleteCustomer = useCustomerDeleteQuery();
-    function handleDeleteDetail(id: string) {
-        if (confirm("Are you sure you want to delete this customer?")) {
-            deleteCustomer.mutate({id: id})
+    async function handleDelete(id: string) {
+        if (confirm("Yakin menghapus pelanggan ini?")) {
+            await deleteCustomer.mutateAsync({id: id})
         }
     }
 
     if (isError) {
-        return <div>Failed to load customers, Please reload the page</div>
+        return <div>Gagal memuat pelanggan, Silakan muat ulang halaman</div>
     }
 
     return (
         <div className="space-y-4">
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <div>
-            <h1 className="text-2xl font-bold">Customers</h1>
+            <h1 className="text-2xl font-bold">Pelanggan</h1>
             <p className="text-sm text-muted-foreground">
-                Manage Customers.
+                Pengaturan Pelanggan
             </p>
             </div>
 
@@ -46,14 +46,14 @@ export default function CustomerListPage() {
                 setModeMainAction("add")
                 setOpenMainAction(true)
             }}>
-                New Customer
+                Tambah Pelanggan
             </Button>
             <CustomerFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} customer={selectedCustomer}/>
             
         </div>
 
         <Input
-            placeholder="Search customers..."
+            placeholder="Mencari pelanggan..."
             value={search}
             onChange={(event) => {
             setSearch(event.target.value)
@@ -66,10 +66,10 @@ export default function CustomerListPage() {
             <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead className="w-[120px]">Action</TableHead>
+                <TableHead>Pelanggan</TableHead>
+                <TableHead>Telepon</TableHead>
+                <TableHead>Alamat</TableHead>
+                <TableHead className="w-[120px]">Aksi</TableHead>
                 </TableRow>
             </TableHeader>
 
@@ -89,7 +89,7 @@ export default function CustomerListPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuGroup>
-                                    <DropdownMenuLabel>Action</DropdownMenuLabel>
+                                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                                     <DropdownMenuItem 
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -102,7 +102,7 @@ export default function CustomerListPage() {
                                     <DropdownMenuItem variant="destructive"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleDeleteDetail(customer.id)
+                                            handleDelete(customer.id)
                                         }}
                                     >Delete</DropdownMenuItem>
                                 </DropdownMenuGroup>
@@ -115,7 +115,7 @@ export default function CustomerListPage() {
                 {customers?.data.length === 0 && (
                 <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                    No customers found.
+                    Tidak ada pelanggan ditemukan.
                     </TableCell>
                 </TableRow>
                 )}

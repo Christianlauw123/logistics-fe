@@ -1,9 +1,11 @@
 import { api } from "@/lib/api"
-import type { Paginated, TripPrice } from "@/types"
+import type { District, Paginated, TripPrice } from "@/types"
 
 export type TripPriceFilters = {
   search?: string
-  customerId?: string
+  customer_id?: string
+  origin_sub_district_id?: string
+  dest_sub_district_id?: string
   per_page?: number
   page?: number
   id?: string
@@ -14,6 +16,12 @@ export interface CreateUpdateTripPricePayload {
   origin_sub_district_id?: string
   dest_sub_district_id?: string
   base_price: number
+}
+
+export interface TripPriceAllowedDistrict {
+  id: string
+  name: string
+  district: District
 }
 
 export async function getTripPrices(filters: TripPriceFilters = {}): Promise<Paginated<TripPrice>> {
@@ -38,5 +46,10 @@ export async function updateTripPrice(id: string, payload: CreateUpdateTripPrice
 
 export async function deleteTripPrice(id: string): Promise<void> {
   await api.delete<TripPrice>(`/trip_prices/${id}`)
+}
+
+export async function listTripAllowedSubDistricts(filters: TripPriceFilters = {}): Promise<Paginated<TripPriceAllowedDistrict>> {
+  const response = await api.get<Paginated<TripPriceAllowedDistrict>>(`/trip_prices/sub_districts`, { params: filters })
+  return response.data
 }
 

@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import { createExportTransaction, getExportTransactionStatus, getTransactions } from "./transaction.hooks"
+import { createExportTransaction, deleteTransaction, getExportTransactionStatus, getTransactions } from "./transaction.hooks"
 import { transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
 
 import type { CustomerFilters } from "../customers/customer.api"
@@ -132,15 +132,24 @@ export default function TransactionListPage() {
 
 
     if (isError) {
-        return <div>Failed to load transactions, Please reload the page</div>
+        return <div>Gagal memuat transaksi, Silakan muat ulang halaman</div>
     }
 
     const startExportTransaction = createExportTransaction();
     const exportTransactionStatus = getExportTransactionStatus();
 
+    
+    const deleteTrans = deleteTransaction();
+    
+    async function handleDelete(id: string) {
+        if (confirm("Yakin menghapus transaksi ini?")) {
+            await deleteTrans.mutateAsync({transactionId: id})
+        }
+    }
+    
     async function handleExport(){
         if (filters.filterDateKey === null || filters.dateStart === '' || filters.dateEnd === ''){
-            toast.error('Please choose date filter, set date start & end before export')
+            toast.error('Silakan pilih filter tanggal, atur tanggal mulai & selesai sebelum mengekspor')
             return;
         }
 
@@ -255,9 +264,9 @@ export default function TransactionListPage() {
         <div className="space-y-4">
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <div>
-            <h1 className="text-2xl font-bold">Transactions</h1>
+            <h1 className="text-2xl font-bold">Transaksi</h1>
             <p className="text-sm text-muted-foreground">
-                Manage delivery order transactions.
+                Pengaturan Transaksi
             </p>
             </div>
 
@@ -265,14 +274,14 @@ export default function TransactionListPage() {
                 setModeMainAction("add")
                 setOpenMainAction(true)
             }}>
-                New Transaction
+                Tambah Transaksi
             </Button>
             <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={null}/>
             
         </div>
 
         <Input
-            placeholder="Search DO number, customer..."
+            placeholder="Mencari nomor DO, pelanggan..."
             value={search}
             onChange={(event) => {
             setSearch(event.target.value)
@@ -308,7 +317,7 @@ export default function TransactionListPage() {
         {showFilters && (
             <div className="rounded-lg border bg-card p-4 space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">Advanced Filters</h3>
+                    <h3 className="font-semibold">Filter Lanjutan</h3>
                     {hasActiveFilters && (
                         <Button 
                             size="sm" 
@@ -324,7 +333,7 @@ export default function TransactionListPage() {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {/* Customer Filter */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Customer</label>
+                        <label className="text-sm font-medium">Pelanggan</label>
                         <Combobox 
                             items={customerOptions}
                             value={filters.customer_id || ""}
@@ -356,12 +365,12 @@ export default function TransactionListPage() {
                                 {customerLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
                                         <Loader2 className="h-4 w-4 animate-spin" />
-                                        Searching database...
+                                        Mencari database...
                                     </div>
                                 )}
                                 
                                 {!customerLoading && customerOptions.length === 0 && (
-                                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                    <ComboboxEmpty>Pelanggan tidak ditemukan.</ComboboxEmpty>
                                 )}
                                 <ComboboxList>
                                 {(item) => (
@@ -403,17 +412,17 @@ export default function TransactionListPage() {
                                 setVehicleKeywordSearch("");
                             }}
                         >
-                            <ComboboxInput placeholder="Select a Vehicle" value={getVehicleDisplayValue()}/>
+                            <ComboboxInput placeholder="Pilih Kendaraan" value={getVehicleDisplayValue()}/>
                             <ComboboxContent>
                                 {vehicleLoading && (
                                     <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
                                         <Loader2 className="h-4 w-4 animate-spin" />
-                                        Searching database...
+                                        Mencari database...
                                     </div>
                                 )}
                                 
                                 {!vehicleLoading && vehicleOptions.length === 0 && (
-                                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                    <ComboboxEmpty>Kendaraan tidak ditemukan.</ComboboxEmpty>
                                 )}
                                 <ComboboxList>
                                 {(item) => (
@@ -428,21 +437,21 @@ export default function TransactionListPage() {
 
                     {/* Date Filter Type */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Date Type</label>
+                        <label className="text-sm font-medium">Filter Tanggal</label>
                         <select 
                             value={filters.filterDateKey || ""}
                             onChange={(e) => handleDateFilterChange(e.target.value as FilterDateKey || null)}
                             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                         >
                             <option value="">No Filter</option>
-                            <option value="do_date">DO Date</option>
-                            <option value="do_actual_date">DO Actual Date</option>
+                            <option value="do_date">Tanggal DO</option>
+                            <option value="do_actual_date">Tanggal DO Actual</option>
                         </select>
                     </div>
 
                     {/* Custom Date Start */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">From Date</label>
+                        <label className="text-sm font-medium">Tanggal Mulai</label>
                         <Input
                             type="date"
                             value={filters.dateStart}
@@ -458,7 +467,7 @@ export default function TransactionListPage() {
 
                     {/* Custom Date End */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">To Date</label>
+                        <label className="text-sm font-medium">Tanggal Selesai</label>
                         <Input
                             type="date"
                             value={filters.dateEnd}
@@ -487,7 +496,7 @@ export default function TransactionListPage() {
                             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                         >
                             <option value="">All Status</option>
-                            {(Object.keys(transactionStatusStage) as TransactionStatus[]).map((status) => (
+                            {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
                                 <option key={status} value={status}>
                                     {status.charAt(0).toUpperCase() + status.slice(1)}
                                 </option>
@@ -503,13 +512,15 @@ export default function TransactionListPage() {
             <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>DO Number</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Vehicle</TableHead>
+                <TableHead>No DO</TableHead>
+                <TableHead>Tanggal DO Dibuat</TableHead>
+                <TableHead>Tanggal Actual DO</TableHead>
+                <TableHead>Pelanggan</TableHead>
+                <TableHead>Asal</TableHead>
+                <TableHead>Tujuan</TableHead>
+                <TableHead>Kendaraan</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>DO Date</TableHead>
-                <TableHead>DO Actual Date</TableHead>
-                <TableHead className="w-[120px]">Action</TableHead>
+                <TableHead className="w-[120px]">Aksi</TableHead>
                 </TableRow>
             </TableHeader>
 
@@ -517,11 +528,13 @@ export default function TransactionListPage() {
                 {data?.data.map((transaction) => (
                 <TableRow key={transaction.id}>
                     <TableCell className="font-medium">{transaction.do_number}</TableCell>
-                    <TableCell>{transaction.customer?.name}</TableCell>
-                    <TableCell>{transaction.vehicle?.plate_number}</TableCell>
-                    <TableCell><Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge></TableCell>
                     <TableCell>{transaction.do_date}</TableCell>
                     <TableCell>{transaction.do_actual_date}</TableCell>
+                    <TableCell>{transaction.customer?.name}</TableCell>
+                    <TableCell>{transaction.origin_district}</TableCell>
+                    <TableCell>{transaction.destination_district}</TableCell>
+                    <TableCell>{transaction.vehicle?.plate_number}</TableCell>
+                    <TableCell><Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge></TableCell>
                     <TableCell>
                     <DropdownMenu>
                             <DropdownMenuTrigger>
@@ -539,8 +552,15 @@ export default function TransactionListPage() {
                                     >View
                                     </DropdownMenuItem>
                                     {user?.role?.name === "Super Admin" && (
-                                        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+                                        <DropdownMenuItem variant="destructive"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(transaction.id)
+                                            }}
+                                        >Delete</DropdownMenuItem>
                                     )}
+
+                                    
                                 </DropdownMenuGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -551,7 +571,7 @@ export default function TransactionListPage() {
                 {data?.data.length === 0 && (
                 <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                    No transactions found.
+                    Transaksi tidak ditemukan.
                     </TableCell>
                 </TableRow>
                 )}

@@ -22,23 +22,23 @@ export default function BankAccountListPage() {
     })
 
     const deleteBankAccount = useBankAccountDeleteQuery();
-    function handleDeleteDetail(id: string) {
-        if (confirm("Are you sure you want to delete this bank account?")) {
-            deleteBankAccount.mutate({id: id})
+    async function handleDelete(id: string) {
+        if (confirm("Yakin menghapus akun bank ini?")) {
+            await deleteBankAccount.mutateAsync({id: id})
         }
     }
 
     if (isError) {
-        return <div>Failed to load bank accounts, Please reload the page</div>
+        return <div>Gagal memuat akun bank, Silakan muat ulang halaman</div>
     }
 
     return (
         <div className="space-y-4">
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <div>
-            <h1 className="text-2xl font-bold">Bank Accounts</h1>
+            <h1 className="text-2xl font-bold">Akun Bank</h1>
             <p className="text-sm text-muted-foreground">
-                Manage Bank Accounts.
+                Pengaturan Akun Bank.
             </p>
             </div>
 
@@ -46,14 +46,14 @@ export default function BankAccountListPage() {
                 setModeMainAction("add")
                 setOpenMainAction(true)
             }}>
-                New Bank Account
+                Tambah Akun Bank
             </Button>
             <BankAccountFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} bankAccount={selectedBankAccount}/>
             
         </div>
 
         <Input
-            placeholder="Search bank accounts..."
+            placeholder="Mencari akun bank..."
             value={search}
             onChange={(event) => {
             setSearch(event.target.value)
@@ -66,11 +66,11 @@ export default function BankAccountListPage() {
             <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>Bank Name</TableHead>
-                <TableHead>Identifier Num</TableHead>
-                <TableHead>Account Number</TableHead>
-                <TableHead>Account Name</TableHead>
-                <TableHead className="w-[120px]">Action</TableHead>
+                <TableHead>Nama Bank</TableHead>
+                <TableHead>Nomor Unik</TableHead>
+                <TableHead>Nomor Akun</TableHead>
+                <TableHead>Nama Akun</TableHead>
+                <TableHead className="w-[120px]">Aksi</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -90,7 +90,7 @@ export default function BankAccountListPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuGroup>
-                                    <DropdownMenuLabel>Action</DropdownMenuLabel>
+                                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                                     <DropdownMenuItem 
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -103,7 +103,7 @@ export default function BankAccountListPage() {
                                     <DropdownMenuItem variant="destructive"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleDeleteDetail(bankAccount.id)
+                                            handleDelete(bankAccount.id)
                                         }}
                                     >Delete</DropdownMenuItem>
                                 </DropdownMenuGroup>

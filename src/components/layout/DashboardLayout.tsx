@@ -19,13 +19,13 @@ export default function DashboardLayout() {
 
   const NavLinks = () => (
     <nav className="space-y-2">
-      <NavItem to="/transactions" label="Transactions" onClick={() => setIsOpen(false)} />
+      <NavItem to="/transactions" label="Transaksi" onClick={() => setIsOpen(false)} />
       {user?.role.name === "Super Admin" && (
         <>
-          <NavItem to="/customers" label="Customers" onClick={() => setIsOpen(false)} />
-          <NavItem to="/vehicles" label="Vehicles" onClick={() => setIsOpen(false)} />
-          <NavItem to="/bank-accounts" label="Bank Accounts" onClick={() => setIsOpen(false)} />
-          <NavItem to="/trip-prices" label="Trip Prices" onClick={() => setIsOpen(false)} />
+          <NavItem to="/customers" label="Pelanggan" onClick={() => setIsOpen(false)} />
+          <NavItem to="/vehicles" label="Kendaraan" onClick={() => setIsOpen(false)} />
+          <NavItem to="/bank-accounts" label="Akun Bank" onClick={() => setIsOpen(false)} />
+          <NavItem to="/trip-prices" label="Harga Trip" onClick={() => setIsOpen(false)} />
           <NavItem to="/users" label="Users" onClick={() => setIsOpen(false)} />
         </>
       )}
@@ -60,7 +60,7 @@ export default function DashboardLayout() {
               </SheetContent>
             </Sheet>
 
-            <h2 className="font-semibold">Operations</h2>
+            <h2 className="font-semibold">Welcome {user?.name || "User"} - Role : {user?.role?.name || "N/A"}</h2>
           </div>
 
           <Button variant="outline" onClick={handleLogout}>

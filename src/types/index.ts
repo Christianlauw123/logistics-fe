@@ -1,6 +1,6 @@
 export type Role = {
     id: string
-    name: "Super Admin" | "Staff"
+    name: "Super Admin" | "Staff" | "Operational"
 }
 
 export type User = {

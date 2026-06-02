@@ -38,3 +38,5 @@ export function errorHandler(error: any) {
     toast.error(backendData?.message || "");
   }
 }
+
+export const allowedRoles = ['Super Admin', 'Staff', 'Operational']

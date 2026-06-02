@@ -19,13 +19,13 @@ export type TransactionFilters = {
 }
 
 export interface CreateUpdateTransactionPayload {
-  do_number: string
-  do_actual_date: string
-  note: string
-  amount: number
-  transaction_capacity: number
-  transaction_items: string
-  dest_address: string
+  do_number?: string
+  do_actual_date?: string
+  note?: string
+  // amount: number
+  transaction_capacity?: number
+  // transaction_items: string
+  // dest_address: string
   customer_id: string
   origin_sub_district_id: string
   dest_sub_district_id: string
@@ -87,7 +87,7 @@ export function deleteTransaction() {
       queryClient.invalidateQueries({
         queryKey: ["transactions", "list"],
       })
-      toast.success("Transaction Detail Deleted")
+      toast.success("Transaction  Deleted")
     },
     onError: (error: any) => {
       errorHandler(error)
@@ -113,6 +113,7 @@ export function updateTransaction() {
       toast.success("Transaction Updated")
     },
     onError: (error: any) => {
+      console.log(error)
       errorHandler(error)
     },
   })

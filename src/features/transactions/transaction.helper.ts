@@ -22,6 +22,13 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
         'DONE': [],
         'CANCELLED': [],
         'REJECTED': []
+    },
+    'Operational': {
+        'SUBMITTED': [['CANCELLED', 'Cancel']],
+        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel']],
+        'DONE': [],
+        'CANCELLED': [],
+        'REJECTED': []
     }
 };
 
