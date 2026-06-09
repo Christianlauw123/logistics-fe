@@ -12,6 +12,7 @@ import TripPriceListPage from "@/features/trip-prices/TripPriceListPage"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import RoleProtectedRoute from "@/features/auth/RoleProtectedRoute"
 import { allowedRoles } from "@/lib/utils"
+import DriverListPage from "@/features/drivers/DriverListPage"
 
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/vehicles" element={<VehicleListPage />} />
             <Route path="/bank-accounts" element={<BankAccountListPage />} />
             <Route path="/trip-prices" element={<TripPriceListPage />} />
+            <Route path="/drivers" element={<DriverListPage />} />
             <Route path="/users" element={<UserListPage />} />
           </Route>
         </Route>

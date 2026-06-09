@@ -14,8 +14,11 @@ import { logout } from "../auth/auth.api";
 
 export default function UserFormPage({ openMainAction, setOpenMainAction, mode, user }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; user: any }) {
     const [userId, setUserId] = useState<string>("")
-    const [loading, setLoading] = useState(false);
     const [roleId, setRoleId] = useState<string>("")
+    const [name, setName] = useState<string>("")
+    const [email, setEmail] = useState<string>("")
+
+    const [loading, setLoading] = useState(false);
     const [roleSearch, setRoleSearch] = useState<RoleFilters>({})
     const [roleKeywordSearch, setRoleKeywordSearch] = useState<string>("")
     const [showPassword, setShowPassword] = useState(false);
@@ -85,8 +88,8 @@ export default function UserFormPage({ openMainAction, setOpenMainAction, mode, 
         const formData = new FormData(event.currentTarget);
         const rawData = Object.fromEntries(formData.entries());
         const basePayload = { 
-            name: rawData.name as string | undefined,
-            email: rawData.email as string | undefined,
+            name: rawData.name as string ?? name,
+            email: rawData.email as string ?? email,
             password: rawData.password as string | undefined,
             password_confirmation: rawData.password_confirmation as string | undefined,
             role_id: roleId || undefined,
@@ -122,11 +125,11 @@ export default function UserFormPage({ openMainAction, setOpenMainAction, mode, 
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="space-y-1">
                         <label htmlFor="name" className="text-xs font-medium">Nama</label>
-                        <Input id="name" defaultValue={user?.name || ""} name="name" placeholder="e.g. John Doe" required />
+                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} name="name" placeholder="e.g. John Doe" required />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="email" className="text-xs font-medium">Email</label>
-                        <Input id="email" defaultValue={user?.email || ""} name="email" placeholder="e.g. john.doe@example.com" required />
+                        <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} name="email" placeholder="e.g. john.doe@example.com" required />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="purpose" className="text-xs font-medium">Role</label>

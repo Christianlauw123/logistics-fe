@@ -8,6 +8,10 @@ import { errorHandler } from "@/lib/utils";
 
 export default function CustomerFormPage({ openMainAction, setOpenMainAction, mode, customer }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; customer: any }) {
     const [customerId, setCustomerId] = useState<string>("")
+    const [customerName, setCustomerName] = useState<string>("")
+    const [customerPhone, setCustomerPhone] = useState<string>("")
+    const [customerAddress, setCustomerAddress] = useState<string>("")
+    
     const [loading, setLoading] = useState(false);
 
     const createCustomer = useCustomerCreateQuery();
@@ -16,9 +20,15 @@ export default function CustomerFormPage({ openMainAction, setOpenMainAction, mo
     useEffect(() => {
         if (mode === "edit" && customer) {
             setCustomerId(customer.id?.toString() || "")
+            setCustomerPhone(customer.phone?.toString() || "")
+            setCustomerName(customer.name?.toString() || "")
+            setCustomerAddress(customer.address?.toString() || "")
         } else {
             // Completely reset fields when user opens an "Add New" form
             setCustomerId("")
+            setCustomerPhone("")
+            setCustomerName("")
+            setCustomerAddress("")
         }
     }, [mode, customer?.id])
 
@@ -36,9 +46,9 @@ export default function CustomerFormPage({ openMainAction, setOpenMainAction, mo
         const formData = new FormData(event.currentTarget);
         const rawData = Object.fromEntries(formData.entries());
         const basePayload = { 
-            name: rawData.name as string,
-            phone: rawData.phone as string | undefined,
-            address: rawData.address as string | undefined
+            name: rawData.name as string ?? customerName,
+            phone: rawData.phone as string ?? customerPhone,
+            address: rawData.address as string ?? customerAddress
         }
 
         try {
@@ -66,15 +76,15 @@ export default function CustomerFormPage({ openMainAction, setOpenMainAction, mo
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="space-y-1">
                         <label htmlFor="name" className="text-xs font-medium">Nama Pelanggan</label>
-                        <Input id="name" defaultValue={customer?.name || ""} name="name" placeholder="e.g. John Doe" required />
+                        <Input id="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} name="name" placeholder="e.g. John Doe" required />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="phone" className="text-xs font-medium">Telepon</label>
-                        <Input id="phone" defaultValue={customer?.phone || ""} name="phone" placeholder="e.g. 123-456-7890" />
+                        <Input id="phone" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} name="phone" placeholder="e.g. 123-456-7890" />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="address" className="text-xs font-medium">Alamat</label>
-                        <Input id="address" defaultValue={customer?.address || ""} name="address" placeholder="e.g. 123 Main St" />
+                        <Input id="address" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} name="address" placeholder="e.g. 123 Main St" />
                     </div>
                     <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Batal</Button>

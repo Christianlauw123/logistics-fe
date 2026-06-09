@@ -24,15 +24,20 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
         'REJECTED': []
     },
     'Operational': {
-        'SUBMITTED': [['CANCELLED', 'Cancel']],
-        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel']],
+        'SUBMITTED': [],
+        'APPROVED': [],
         'DONE': [],
         'CANCELLED': [],
         'REJECTED': []
     }
 };
 
+const allowedMainTransactionEditDetailStatus = ['SUBMITTED', 'APPROVED']
+const detailNotAllowedModify = ['TABUNGAN', 'CLAIM']
+
 export {
     transactionStatusBadge,
-    transactionStatusStage
+    transactionStatusStage,
+    allowedMainTransactionEditDetailStatus,
+    detailNotAllowedModify
 }

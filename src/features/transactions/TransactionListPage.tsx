@@ -22,6 +22,8 @@ import { useVehiclesQuery } from "../vehicles/vehicle.hooks"
 import { useAuthStore } from "../auth/auth.store"
 import { toast } from "sonner"
 import { errorHandler } from "@/lib/utils"
+import { ListPaginationFooter } from "@/components/layout/ListFooter"
+import { ListHeader, SearchBar } from "@/components/layout/ListHeader"
 
 type FilterDateKey = "do_date" | "do_actual_date"
 
@@ -262,346 +264,314 @@ export default function TransactionListPage() {
 
     return (
         <div className="space-y-4">
-        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-            <div>
-            <h1 className="text-2xl font-bold">Transaksi</h1>
-            <p className="text-sm text-muted-foreground">
-                Pengaturan Transaksi
-            </p>
+            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                <ListHeader
+                    title="Transaksi"
+                    onButtonClick={() => {
+                        setModeMainAction("add")
+                        setOpenMainAction(true)
+                    }}
+                />
+                <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={null} user={user} />
             </div>
 
-            <Button size="sm" onClick={() => {
-                setModeMainAction("add")
-                setOpenMainAction(true)
-            }}>
-                Tambah Transaksi
+            <SearchBar title="Transaksi" searchValue={search} onChange= {(event) => {
+                setSearch(event.target.value)
+                setPage(1)
+            }} />
+            <Button 
+                size="sm"
+                variant={showFilters ? "default" : "outline"}
+                onClick={() => setShowFilters(!showFilters)}
+                className="gap-2"
+            >
+                <Filter className="h-4 w-4" />
+                Filters
             </Button>
-            <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={null} user={user} />
-            
-        </div>
 
-        <Input
-            placeholder="Mencari nomor DO, pelanggan..."
-            value={search}
-            onChange={(event) => {
-            setSearch(event.target.value)
-            setPage(1)
-            }}
-            className="max-w-md"
-        />
-        <Button 
-            size="sm"
-            variant={showFilters ? "default" : "outline"}
-            onClick={() => setShowFilters(!showFilters)}
-            className="gap-2"
-        >
-            <Filter className="h-4 w-4" />
-            Filters
-        </Button>
-
-        <Button 
-            size="sm"
-            variant="default"
-            onClick={handleExport}
-            disabled={exportState.isExporting}
-            className="gap-2"
-        >
-            {exportState.isExporting && exportState.status === "processing" ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Exporting...</>
-            ) : exportState.status === "completed" ? (
-                <><Download className="mr-2 h-4 w-4" />Done!</>
-            ) : ( <><Download className="mr-2 h-4 w-4" />Export</>
-            )}
-        </Button>
-
-        {showFilters && (
-            <div className="rounded-lg border bg-card p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">Filter Lanjutan</h3>
-                    {hasActiveFilters && (
-                        <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={clearFilters}
-                        >
-                            <X className="h-4 w-4 mr-1" />
-                            Clear All
-                        </Button>
-                    )}
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    {/* Customer Filter */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Pelanggan</label>
-                        <Combobox 
-                            items={customerOptions}
-                            value={filters.customer_id || ""}
-                            onInputValueChange={(value) => {
-                                const isJustSelected = customerOptions.some(
-                                    (b) => b.id.toString() === value.toString()
-                                );
-                                
-                                if (isJustSelected) {
-                                    return;
-                                }
-
-                                setCustomerKeywordSearch(value);
-                            }}
-                            onValueChange={(id) => {
-                                if (id){
-                                    setFilters((prev) => ({
-                                        ...prev,
-                                        customer_id: id || null,
-                                    }))
-                                    setPage(1)
-                                }
-                                else setFilters((prev) => ({ ...prev, customer_id: null }));
-                                setCustomerKeywordSearch("");
-                            }}
-                        >
-                            <ComboboxInput placeholder="Select a Customer" value={getCustomerDisplayValue()}/>
-                            <ComboboxContent>
-                                {customerLoading && (
-                                    <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Mencari database...
-                                    </div>
-                                )}
-                                
-                                {!customerLoading && customerOptions.length === 0 && (
-                                    <ComboboxEmpty>Pelanggan tidak ditemukan.</ComboboxEmpty>
-                                )}
-                                <ComboboxList>
-                                {(item) => (
-                                    <ComboboxItem key={item.id} value={item.id.toString()}>
-                                        {item.name}
-                                    </ComboboxItem>
-                                )}
-                                </ComboboxList>
-                            </ComboboxContent>
-                        </Combobox>
-                    </div>
-
-                    {/* Kendaraan Filter */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Kendaraan</label>
-                        <Combobox 
-                            items={vehicleOptions}
-                            value={filters.vehicle_id || ""}
-                            onInputValueChange={(value) => {
-                                const isJustSelected = vehicleOptions.some(
-                                    (b) => b.id.toString() === value.toString()
-                                );
-                                
-                                if (isJustSelected) {
-                                    return;
-                                }
-
-                                setVehicleKeywordSearch(value);
-                            }}
-                            onValueChange={(id) => {
-                                if (id){
-                                    setFilters((prev) => ({
-                                        ...prev,
-                                        vehicle_id: id || null,
-                                    }))
-                                    setPage(1)
-                                }
-                                else setFilters((prev) => ({ ...prev, vehicle_id: null }));
-                                setVehicleKeywordSearch("");
-                            }}
-                        >
-                            <ComboboxInput placeholder="Pilih Kendaraan" value={getVehicleDisplayValue()}/>
-                            <ComboboxContent>
-                                {vehicleLoading && (
-                                    <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Mencari database...
-                                    </div>
-                                )}
-                                
-                                {!vehicleLoading && vehicleOptions.length === 0 && (
-                                    <ComboboxEmpty>Kendaraan tidak ditemukan.</ComboboxEmpty>
-                                )}
-                                <ComboboxList>
-                                {(item) => (
-                                    <ComboboxItem key={item.id} value={item.id.toString()}>
-                                        {item.plate_number}
-                                    </ComboboxItem>
-                                )}
-                                </ComboboxList>
-                            </ComboboxContent>
-                        </Combobox>
-                    </div>
-
-                    {/* Date Filter Type */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Tanggal</label>
-                        <select 
-                            value={filters.filterDateKey || ""}
-                            onChange={(e) => handleDateFilterChange(e.target.value as FilterDateKey || null)}
-                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                        >
-                            <option value="">No Filter</option>
-                            <option value="do_date">Tanggal DO</option>
-                            <option value="do_actual_date">Tanggal DO Actual</option>
-                        </select>
-                    </div>
-
-                    {/* Custom Date Start */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Tanggal Mulai</label>
-                        <Input
-                            type="date"
-                            value={filters.dateStart}
-                            onChange={(e) => {
-                                setFilters((prev) => ({
-                                    ...prev,
-                                    dateStart: e.target.value,
-                                }))
-                                setPage(1)
-                            }}
-                        />
-                    </div>
-
-                    {/* Custom Date End */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Tanggal Selesai</label>
-                        <Input
-                            type="date"
-                            value={filters.dateEnd}
-                            onChange={(e) => {
-                                setFilters((prev) => ({
-                                    ...prev,
-                                    dateEnd: e.target.value,
-                                }))
-                                setPage(1)
-                            }}
-                        />
-                    </div>
-
-                    {/* Status Filter */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Status</label>
-                        <select 
-                            value={filters.status || ""}
-                            onChange={(e) => {
-                                setFilters((prev) => ({
-                                    ...prev,
-                                    status: e.target.value || null,
-                                }))
-                                setPage(1)
-                            }}
-                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                        >
-                            <option value="">All Status</option>
-                            {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
-                                <option key={status} value={status}>
-                                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-            </div>
-        )}
-
-
-        <div className="overflow-hidden rounded-md border bg-background">
-            <Table>
-            <TableHeader>
-                <TableRow>
-                <TableHead>No DO</TableHead>
-                <TableHead>Tanggal DO Dibuat</TableHead>
-                <TableHead>Tanggal Actual DO</TableHead>
-                <TableHead>Pelanggan</TableHead>
-                <TableHead>Asal</TableHead>
-                <TableHead>Tujuan</TableHead>
-                <TableHead>Kendaraan</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[120px]">Aksi</TableHead>
-                </TableRow>
-            </TableHeader>
-
-            <TableBody>
-                {data?.data.map((transaction) => (
-                <TableRow key={transaction.id}>
-                    <TableCell className="font-medium">{transaction.do_number}</TableCell>
-                    <TableCell>{transaction.do_date}</TableCell>
-                    <TableCell>{transaction.do_actual_date}</TableCell>
-                    <TableCell>{transaction.customer?.name}</TableCell>
-                    <TableCell>{transaction.origin_district}</TableCell>
-                    <TableCell>{transaction.destination_district}</TableCell>
-                    <TableCell>{transaction.vehicle?.plate_number}</TableCell>
-                    <TableCell><Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge></TableCell>
-                    <TableCell>
-                    <DropdownMenu>
-                            <DropdownMenuTrigger>
-                                <MoreHorizontalIcon />
-                                <span className="sr-only">Open menu</span>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuGroup>
-                                    <DropdownMenuLabel>Action</DropdownMenuLabel>
-                                    <DropdownMenuItem 
-                                        onClick={(e) => {
-                                            e.stopPropagation(); 
-                                            navigate(`/transactions/${transaction.id}`);
-                                        }}
-                                    >View
-                                    </DropdownMenuItem>
-                                    {user?.role?.name === "Super Admin" && (
-                                        <DropdownMenuItem variant="destructive"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDelete(transaction.id)
-                                            }}
-                                        >Delete</DropdownMenuItem>
-                                    )}
-
-                                    
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </TableCell>
-                </TableRow>
-                ))}
-
-                {data?.data.length === 0 && (
-                <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                    Transaksi tidak ditemukan.
-                    </TableCell>
-                </TableRow>
+            <Button 
+                size="sm"
+                variant="default"
+                onClick={handleExport}
+                disabled={exportState.isExporting}
+                className="gap-2"
+            >
+                {exportState.isExporting && exportState.status === "processing" ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Exporting...</>
+                ) : exportState.status === "completed" ? (
+                    <><Download className="mr-2 h-4 w-4" />Done!</>
+                ) : ( <><Download className="mr-2 h-4 w-4" />Export</>
                 )}
-            </TableBody>
-            </Table>
-        </div>
-
-        <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-            Page {page} of {data?.last_page}
-            </p>
-
-            <div className="space-x-2">
-            <Button
-                variant="outline"
-                disabled={page <= 1}
-                onClick={() => setPage((value) => value - 1)}
-            >
-                Previous
             </Button>
 
-            <Button
-                variant="outline"
-                disabled={!data || page >= data.last_page}
-                onClick={() => setPage((value) => value + 1)}
-            >
-                Next
-            </Button>
+            {showFilters && (
+                <div className="rounded-lg border bg-card p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-semibold">Filter Lanjutan</h3>
+                        {hasActiveFilters && (
+                            <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={clearFilters}
+                            >
+                                <X className="h-4 w-4 mr-1" />
+                                Clear All
+                            </Button>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        {/* Customer Filter */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Pelanggan</label>
+                            <Combobox 
+                                items={customerOptions}
+                                value={filters.customer_id || ""}
+                                onInputValueChange={(value) => {
+                                    const isJustSelected = customerOptions.some(
+                                        (b) => b.id.toString() === value.toString()
+                                    );
+                                    
+                                    if (isJustSelected) {
+                                        return;
+                                    }
+
+                                    setCustomerKeywordSearch(value);
+                                }}
+                                onValueChange={(id) => {
+                                    if (id){
+                                        setFilters((prev) => ({
+                                            ...prev,
+                                            customer_id: id || null,
+                                        }))
+                                        setPage(1)
+                                    }
+                                    else setFilters((prev) => ({ ...prev, customer_id: null }));
+                                    setCustomerKeywordSearch("");
+                                }}
+                            >
+                                <ComboboxInput placeholder="Select a Customer" value={getCustomerDisplayValue()}/>
+                                <ComboboxContent>
+                                    {customerLoading && (
+                                        <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Mencari database...
+                                        </div>
+                                    )}
+                                    
+                                    {!customerLoading && customerOptions.length === 0 && (
+                                        <ComboboxEmpty>Pelanggan tidak ditemukan.</ComboboxEmpty>
+                                    )}
+                                    <ComboboxList>
+                                    {(item) => (
+                                        <ComboboxItem key={item.id} value={item.id.toString()}>
+                                            {item.name}
+                                        </ComboboxItem>
+                                    )}
+                                    </ComboboxList>
+                                </ComboboxContent>
+                            </Combobox>
+                        </div>
+
+                        {/* Kendaraan Filter */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Kendaraan</label>
+                            <Combobox 
+                                items={vehicleOptions}
+                                value={filters.vehicle_id || ""}
+                                onInputValueChange={(value) => {
+                                    const isJustSelected = vehicleOptions.some(
+                                        (b) => b.id.toString() === value.toString()
+                                    );
+                                    
+                                    if (isJustSelected) {
+                                        return;
+                                    }
+
+                                    setVehicleKeywordSearch(value);
+                                }}
+                                onValueChange={(id) => {
+                                    if (id){
+                                        setFilters((prev) => ({
+                                            ...prev,
+                                            vehicle_id: id || null,
+                                        }))
+                                        setPage(1)
+                                    }
+                                    else setFilters((prev) => ({ ...prev, vehicle_id: null }));
+                                    setVehicleKeywordSearch("");
+                                }}
+                            >
+                                <ComboboxInput placeholder="Pilih Kendaraan" value={getVehicleDisplayValue()}/>
+                                <ComboboxContent>
+                                    {vehicleLoading && (
+                                        <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Mencari database...
+                                        </div>
+                                    )}
+                                    
+                                    {!vehicleLoading && vehicleOptions.length === 0 && (
+                                        <ComboboxEmpty>Kendaraan tidak ditemukan.</ComboboxEmpty>
+                                    )}
+                                    <ComboboxList>
+                                    {(item) => (
+                                        <ComboboxItem key={item.id} value={item.id.toString()}>
+                                            {item.plate_number}
+                                        </ComboboxItem>
+                                    )}
+                                    </ComboboxList>
+                                </ComboboxContent>
+                            </Combobox>
+                        </div>
+
+                        {/* Date Filter Type */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Filter Tanggal</label>
+                            <select 
+                                value={filters.filterDateKey || ""}
+                                onChange={(e) => handleDateFilterChange(e.target.value as FilterDateKey || null)}
+                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            >
+                                <option value="">No Filter</option>
+                                <option value="do_date">Tanggal DO</option>
+                                <option value="do_actual_date">Tanggal DO Actual</option>
+                            </select>
+                        </div>
+
+                        {/* Custom Date Start */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Tanggal Mulai</label>
+                            <Input
+                                type="date"
+                                value={filters.dateStart}
+                                onChange={(e) => {
+                                    setFilters((prev) => ({
+                                        ...prev,
+                                        dateStart: e.target.value,
+                                    }))
+                                    setPage(1)
+                                }}
+                            />
+                        </div>
+
+                        {/* Custom Date End */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Tanggal Selesai</label>
+                            <Input
+                                type="date"
+                                value={filters.dateEnd}
+                                onChange={(e) => {
+                                    setFilters((prev) => ({
+                                        ...prev,
+                                        dateEnd: e.target.value,
+                                    }))
+                                    setPage(1)
+                                }}
+                            />
+                        </div>
+
+                        {/* Status Filter */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Status</label>
+                            <select 
+                                value={filters.status || ""}
+                                onChange={(e) => {
+                                    setFilters((prev) => ({
+                                        ...prev,
+                                        status: e.target.value || null,
+                                    }))
+                                    setPage(1)
+                                }}
+                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            >
+                                <option value="">All Status</option>
+                                {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
+                                    <option key={status} value={status}>
+                                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+            <div className="overflow-hidden rounded-md border bg-background">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead className="w-[120px]">Aksi</TableHead>
+                    <TableHead>No DO</TableHead>
+                    <TableHead>Tanggal DO Dibuat</TableHead>
+                    <TableHead>Tanggal Actual DO</TableHead>
+                    <TableHead>Supir</TableHead>
+                    <TableHead>Pelanggan</TableHead>
+                    <TableHead>Asal</TableHead>
+                    <TableHead>Tujuan</TableHead>
+                    <TableHead>Kendaraan</TableHead>
+                    <TableHead>Status</TableHead>
+                    </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                    {data?.data.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                        <TableCell>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger>
+                                    <MoreHorizontalIcon />
+                                    <span className="sr-only">Open menu</span>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                                        <DropdownMenuItem 
+                                            onClick={(e) => {
+                                                e.stopPropagation(); 
+                                                navigate(`/transactions/${transaction.id}`);
+                                            }}
+                                        >View
+                                        </DropdownMenuItem>
+                                        {user?.role?.name === "Super Admin" && (
+                                            <DropdownMenuItem variant="destructive"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(transaction.id)
+                                                }}
+                                            >Delete</DropdownMenuItem>
+                                        )}
+
+                                        
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                        <TableCell className="font-medium">{transaction.do_number}</TableCell>
+                        <TableCell>{transaction.do_date}</TableCell>
+                        <TableCell>{transaction.do_actual_date}</TableCell>
+                        <TableCell>{transaction.driver_name}</TableCell>
+                        <TableCell>{transaction.customer_name}</TableCell>
+                        <TableCell>{transaction.origin_district}</TableCell>
+                        <TableCell>{transaction.destination_district}</TableCell>
+                        <TableCell>{transaction.vehicle_plate}</TableCell>
+                        <TableCell><Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge></TableCell>
+                    </TableRow>
+                    ))}
+
+                    {data?.data.length === 0 && (
+                    <TableRow>
+                        <TableCell colSpan={6} className="h-24 text-center">
+                        Transaksi tidak ditemukan.
+                        </TableCell>
+                    </TableRow>
+                    )}
+                </TableBody>
+                </Table>
             </div>
-        </div>
+
+            <ListPaginationFooter data={data} page={page} setPage={setPage} />
         </div>
     )
 }

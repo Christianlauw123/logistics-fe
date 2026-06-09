@@ -16,6 +16,8 @@ import { errorHandler } from "@/lib/utils";
 import { createTransaction, updateTransaction } from "./transaction.hooks";
 import type { TripPriceFilters } from "../trip-prices/tripPrice.api";
 import { useTripPriceGetAllowedDistrictsQuery } from "../trip-prices/tripPrice.hooks";
+import type { DriverFilters } from "../drivers/driver.api";
+import { useDriversQuery } from "../drivers/driver.hooks";
 
 export default function TransactionFormPage({ openMainAction, setOpenMainAction, mode, transaction, user }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; transaction: any; user: any }) {
 
@@ -24,12 +26,14 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     const [destinationSubDistrictKeywordSearch, setDestinationSubDistrictKeywordSearch] = useState<string>("")
     const [vehicleKeywordSearch, setVehicleKeywordSearch] = useState<string>("")
     const [bankAccountKeywordSearch, setBankAccountKeywordSearch] = useState<string>("")
+    const [driverKeywordSearch, setDriverKeywordSearch] = useState<string>("")
     
     const [customerSearch, setCustomerSearch] = useState<CustomerFilters>({})
     const [subOriginDistrictSearch, setOriginSubDistrictSearch] = useState<TripPriceFilters>({})
     const [subDestinationDistrictSearch, setDestinationSubDistrictSearch] = useState<TripPriceFilters>({})
     const [vehicleSearch, setVehicleSearch] = useState<VehicleFilters>({})
     const [bankAccountSearch, setBankAccountSearch] = useState<BankAccountFilters>({})
+    const [driverSearch, setDriverSearch] = useState<DriverFilters>({})
 
     // Fetch Query
     const { data: customerData, isLoading: customerLoading } = useCustomersQuery(customerSearch);
@@ -37,12 +41,14 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     const { data: destinationSubDistrictData, isLoading: destinationSubDistrictLoading } = useTripPriceGetAllowedDistrictsQuery({ filters: subDestinationDistrictSearch });
     const { data: vehicleData, isLoading: vehicleLoading } = useVehiclesQuery(vehicleSearch);
     const { data: bankAccountData, isLoading: bankLoading } = useBankAccountsQuery(bankAccountSearch);
+    const { data: driverData, isLoading: driverLoading } = useDriversQuery(driverSearch);
 
     const customerOptions = customerData?.data || []
     const originSubDistrictOptions = originSubDistrictData?.data || []
     const destinationSubDistrictOptions = destinationSubDistrictData?.data || []
     const vehicleOptions = vehicleData?.data || []
     const bankAccountOptions = bankAccountData?.data || []
+    const driverOptions = driverData?.data || []
 
     // Set Value for Form
     const [customerId, setCustomerId] = useState<string>("")
@@ -50,6 +56,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     const [destinationSubDistrictId, setDestinationSubDistrictId] = useState<string>("")
     const [vehicleId, setVehicleId] = useState<string>("")
     const [bankAccountId, setBankAccountId] = useState<string>("")
+    const [driverId, setDriverId] = useState<string>("")
     const [transactionCapacity, setTransactionCapacity] = useState<number>(0)
     // const [transactionItems, setTransactionItems] = useState<string>("")
     // const [destAddress, setDestAddress] = useState<string>("")
@@ -93,6 +100,14 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
         return selected ? selected.plate_number : "";
     };
 
+    
+    const getDriverDisplayValue = () => {
+        if (driverKeywordSearch) return driverKeywordSearch;
+        if (!driverId) return "";
+        const selected = driverOptions.find((d) => d.id.toString() === driverId.toString());
+        return selected ? selected.name : "";
+    };
+
     const [loading, setLoading] = useState(false);
 
     // Function API
@@ -111,9 +126,10 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
 
             if (vehicleKeywordSearch) setVehicleSearch({ search: vehicleKeywordSearch, is_active: true })
             if (bankAccountKeywordSearch) setBankAccountSearch({ search: bankAccountKeywordSearch })
+            if (driverKeywordSearch) setDriverSearch({ search: driverKeywordSearch })
         }, 400)
         return () => clearTimeout(timer)
-    }, [customerKeywordSearch, originSubDistrictKeywordSearch, destinationSubDistrictKeywordSearch, vehicleKeywordSearch, bankAccountKeywordSearch])
+    }, [customerKeywordSearch, originSubDistrictKeywordSearch, destinationSubDistrictKeywordSearch, vehicleKeywordSearch, bankAccountKeywordSearch, driverKeywordSearch])
 
     // Add Edit
     useEffect(() => {
@@ -151,6 +167,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
 			dest_sub_district_id: destinationSubDistrictId,
 			vehicle_id: vehicleId,
 			bank_account_id: bankAccountId,
+            driver_id: driverId
         }
 
         try {
@@ -186,12 +203,14 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             setDoNumber(transaction.do_number || "")
             setDoActualDate(transaction.do_actual_date || "")
             setNote(transaction.note || "")
+            setDriverId(transaction.driver_id?.toString() || "")
 
             if (transaction.customer_id) setCustomerSearch({ id: transaction.customer_id })
             if (transaction.origin_sub_district_id) setOriginSubDistrictSearch({ customer_id: transaction.customer_id })
             if (transaction.dest_sub_district_id) setDestinationSubDistrictSearch({ customer_id: transaction.customer_id, origin_sub_district_id: transaction.origin_sub_district_id })
             if (transaction.vehicle_id) setVehicleSearch({ id: transaction.vehicle_id })
             if (transaction.bank_account_id) setBankAccountSearch({ id: transaction.bank_account_id })
+            if (transaction.driver_id) setDriverSearch({ id: transaction.driver_id })
         }
         else{
             setCustomerId("")
@@ -205,6 +224,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             setDoNumber("")
             setDoActualDate("")
             setNote("")
+            setDriverId("")
         }
     }
 
@@ -384,6 +404,50 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                     {(item) => (
                                         <ComboboxItem key={item.id} value={item.id.toString()}>
                                             {item.name} - {item.district.name}
+                                        </ComboboxItem>
+                                    )}
+                                    </ComboboxList>
+                                </ComboboxContent>
+                            </Combobox>
+                        </div>
+                        <div className="space-y-1">
+                            <label htmlFor="purpose" className="text-xs font-medium">Supir</label>
+                            <Combobox 
+                                items={driverOptions}
+                                value={driverId}
+                                onInputValueChange={(value) => {
+                                    const isJustSelected = driverOptions.some(
+                                        (b: any) => b.id.toString() === value.toString()
+                                    );
+                                    
+                                    if (isJustSelected) {
+                                        return;
+                                    }
+
+                                    setDriverKeywordSearch(value);
+                                }}
+                                onValueChange={(id) => {
+                                    if (id) setDriverId(id.toString())
+                                    else setDriverId("");
+                                    setDriverKeywordSearch("");
+                                }}
+                            >
+                                <ComboboxInput placeholder="Pilih driver" value={getDriverDisplayValue()}/>
+                                <ComboboxContent>
+                                    {driverLoading && (
+                                        <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Mencari database...
+                                        </div>
+                                    )}
+                                    
+                                    {!driverLoading && driverOptions.length === 0 && (
+                                        <ComboboxEmpty>Tidak ditemukan.</ComboboxEmpty>
+                                    )}
+                                    <ComboboxList>
+                                    {(item) => (
+                                        <ComboboxItem key={item.id} value={item.id.toString()}>
+                                            {item.name}
                                         </ComboboxItem>
                                     )}
                                     </ComboboxList>

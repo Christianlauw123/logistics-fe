@@ -26,6 +26,7 @@ export default function DashboardLayout() {
           <NavItem to="/vehicles" label="Kendaraan" onClick={() => setIsOpen(false)} />
           <NavItem to="/bank-accounts" label="Akun Bank" onClick={() => setIsOpen(false)} />
           <NavItem to="/trip-prices" label="Harga Trip" onClick={() => setIsOpen(false)} />
+          <NavItem to="/drivers" label="Driver" onClick={() => setIsOpen(false)} />
           <NavItem to="/users" label="Users" onClick={() => setIsOpen(false)} />
         </>
       )}

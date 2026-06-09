@@ -1,12 +1,13 @@
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from "lucide-react"
 import CustomerFormPage from "./CustomerFormPage"
 import { useCustomerDeleteQuery, useCustomersQuery } from "./customer.hooks"
 import type { Customer } from "@/types"
+import { ListPaginationFooter } from "@/components/layout/ListFooter"
+import { ListHeader, SearchBar } from "@/components/layout/ListHeader"
 
 export default function CustomerListPage() {
     const [search, setSearch] = useState("")
@@ -34,118 +35,86 @@ export default function CustomerListPage() {
 
     return (
         <div className="space-y-4">
-        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-            <div>
-            <h1 className="text-2xl font-bold">Pelanggan</h1>
-            <p className="text-sm text-muted-foreground">
-                Pengaturan Pelanggan
-            </p>
+            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                <ListHeader
+                    title="Pelanggan"
+                    onButtonClick={() => {
+                        setModeMainAction("add")
+                        setOpenMainAction(true)
+                    }}
+                />
+                <CustomerFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} customer={selectedCustomer}/>
+                
             </div>
 
-            <Button size="sm" onClick={() => {
-                setModeMainAction("add")
-                setOpenMainAction(true)
-            }}>
-                Tambah Pelanggan
-            </Button>
-            <CustomerFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} customer={selectedCustomer}/>
-            
-        </div>
+            <SearchBar title="Pelanggan" searchValue={search} onChange= {(event) => {
+                setSearch(event.target.value)
+                setPage(1)
+            }} />
 
-        <Input
-            placeholder="Mencari pelanggan..."
-            value={search}
-            onChange={(event) => {
-            setSearch(event.target.value)
-            setPage(1)
-            }}
-            className="max-w-md"
-        />
+            <div className="overflow-hidden rounded-md border bg-background">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-[120px]">Aksi</TableHead>
+                        <TableHead>Pelanggan</TableHead>
+                        <TableHead>Telepon</TableHead>
+                        <TableHead>Alamat</TableHead>
+                    </TableRow>
+                </TableHeader>
 
-        <div className="overflow-hidden rounded-md border bg-background">
-            <Table>
-            <TableHeader>
-                <TableRow>
-                <TableHead>Pelanggan</TableHead>
-                <TableHead>Telepon</TableHead>
-                <TableHead>Alamat</TableHead>
-                <TableHead className="w-[120px]">Aksi</TableHead>
-                </TableRow>
-            </TableHeader>
+                <TableBody>
+                    {customers?.data.map((customer) => (
+                    <TableRow key={customer.id}>
+                        <TableCell>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger>
+                                    <MoreHorizontalIcon />
+                                    <span className="sr-only">Open menu</span>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                                        <DropdownMenuItem 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedCustomer(customer);
+                                                setModeMainAction("edit");
+                                                setOpenMainAction(true);
+                                            }}
+                                        >Edit
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem variant="destructive"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(customer.id)
+                                            }}
+                                        >Delete</DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                        {customer.name}
+                        </TableCell>
+                        <TableCell>{customer.phone}</TableCell>
+                        <TableCell>{customer.address}</TableCell>
+                        
+                    </TableRow>
+                    ))}
 
-            <TableBody>
-                {customers?.data.map((customer) => (
-                <TableRow key={customer.id}>
-                    <TableCell className="font-medium">
-                    {customer.name}
-                    </TableCell>
-                    <TableCell>{customer.phone}</TableCell>
-                    <TableCell>{customer.address}</TableCell>
-                    <TableCell>
-                    <DropdownMenu>
-                            <DropdownMenuTrigger>
-                                <MoreHorizontalIcon />
-                                <span className="sr-only">Open menu</span>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuGroup>
-                                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                                    <DropdownMenuItem 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedCustomer(customer);
-                                            setModeMainAction("edit");
-                                            setOpenMainAction(true);
-                                        }}
-                                    >Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem variant="destructive"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(customer.id)
-                                        }}
-                                    >Delete</DropdownMenuItem>
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </TableCell>
-                </TableRow>
-                ))}
-
-                {customers?.data.length === 0 && (
-                <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                    Tidak ada pelanggan ditemukan.
-                    </TableCell>
-                </TableRow>
-                )}
-            </TableBody>
-            </Table>
-        </div>
-
-        <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-            Page {page} of {customers?.last_page}
-            </p>
-
-            <div className="space-x-2">
-            <Button
-                variant="outline"
-                disabled={page <= 1}
-                onClick={() => setPage((value) => value - 1)}
-            >
-                Previous
-            </Button>
-
-            <Button
-                variant="outline"
-                disabled={!customers || page >= customers.last_page}
-                onClick={() => setPage((value) => value + 1)}
-            >
-                Next
-            </Button>
+                    {customers?.data.length === 0 && (
+                    <TableRow>
+                        <TableCell colSpan={6} className="h-24 text-center">
+                        Tidak ada pelanggan ditemukan.
+                        </TableCell>
+                    </TableRow>
+                    )}
+                </TableBody>
+                </Table>
             </div>
-        </div>
+
+            <ListPaginationFooter data={customers} page={page} setPage={setPage} />
         </div>
     )
 }

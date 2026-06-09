@@ -6,7 +6,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-
 /* Global Helper*/
 export function errorHandler(error: any) {
   // 1. Safely extract the inner response object based on your network layer
@@ -40,3 +39,18 @@ export function errorHandler(error: any) {
 }
 
 export const allowedRoles = ['Super Admin', 'Staff', 'Operational']
+
+export const formatCurrency = (value: number | string): string => {
+  // 1. Return "0" immediately if value is null, undefined, or empty string
+  if (value === null || value === undefined || value === "") {
+    return (0).toLocaleString('id-ID');
+  }
+
+  // 2. Parse string to float (handles standard numbers and trailing text)
+  const parsed = Number.parseFloat(`${value}`);
+
+  // 3. Fallback to 0 if parsing results in NaN, then format to id-ID string
+  const cleanNumber = Number.isNaN(parsed) ? 0 : parsed;
+  
+  return cleanNumber.toLocaleString('id-ID');
+};

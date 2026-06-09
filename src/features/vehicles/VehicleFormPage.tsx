@@ -11,6 +11,11 @@ import { errorHandler } from "@/lib/utils";
 export default function VehicleFormPage({ openMainAction, setOpenMainAction, mode, vehicle }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; vehicle: any }) {
     const [vehicleId, setVehicleId] = useState<string>("")
     const [vehicleActive, setVehicleActive] = useState<boolean>(true)
+    const [vehicleName, setVehicleName] = useState<string>("")
+    const [vehiclePlateNumber, setVehiclePlateNumber] = useState<string>("")
+    const [vehicleCapacity, setVehicleCapacity] = useState<string>("")
+    const [vehicleType, setVehicleType] = useState<string>("")
+
     const [loading, setLoading] = useState(false);
 
     const createVehicle = useVehicleCreateQuery();
@@ -20,10 +25,18 @@ export default function VehicleFormPage({ openMainAction, setOpenMainAction, mod
         if (mode === "edit" && vehicle) {
             setVehicleId(vehicle.id?.toString() || "")
             setVehicleActive(vehicle.is_active || false)
+            setVehicleCapacity(vehicle.capacity || "")
+            setVehicleName(vehicle.name?.toString() || "")
+            setVehiclePlateNumber(vehicle.plate_number?.toString() || "")
+            setVehicleType(vehicle.type?.toString() || "")
         } else {
             // Completely reset fields when user opens an "Add New" form
             setVehicleId("")
             setVehicleActive(true)
+            setVehicleCapacity("")
+            setVehicleName("")
+            setVehiclePlateNumber("")
+            setVehicleType("")
         }
     }, [mode, vehicle?.id])
 
@@ -75,19 +88,19 @@ export default function VehicleFormPage({ openMainAction, setOpenMainAction, mod
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="space-y-1">
                         <label htmlFor="name" className="text-xs font-medium">Nama</label>
-                        <Input id="name" defaultValue={vehicle?.name || ""} name="name" placeholder="e.g. John Doe" required />
+                        <Input id="name" value={vehicleName} onChange={(e) => setVehicleName(e.target.value)} name="name" placeholder="e.g. John Doe" required />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="plate_number" className="text-xs font-medium">Nomor Plat</label>
-                        <Input id="plate_number" defaultValue={vehicle?.plate_number || ""} name="plate_number" placeholder="e.g. ABC-123" required />
+                        <Input id="plate_number" value={vehiclePlateNumber} onChange={(e) => setVehiclePlateNumber(e.target.value)} name="plate_number" placeholder="e.g. ABC-123" required />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="type" className="text-xs font-medium">Jenis</label>
-                        <Input id="type" defaultValue={vehicle?.type || ""} name="type" placeholder="e.g. Truck" />
+                        <Input id="type" value={vehicleType} onChange={(e) => setVehicleType(e.target.value)} name="type" placeholder="e.g. Truck" />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="capacity" className="text-xs font-medium">Kapasitas (Kg)</label>
-                        <Input id="capacity" defaultValue={Number(vehicle?.capacity)} type="number" name="capacity" placeholder="e.g. 1000" />
+                        <Input id="capacity" value={Number.parseFloat(vehicleCapacity || "").toString()} onChange={(e) => setVehicleCapacity(e.target.value)} type="number" name="capacity" placeholder="e.g. 1000" />
                     </div>
                     <div className="space-y-1">
                         <Label htmlFor="vehicle-active">Status Kendaraan</Label>

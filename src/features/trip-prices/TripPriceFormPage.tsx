@@ -14,7 +14,11 @@ import { Loader2 } from "lucide-react";
 
 export default function TripPriceFormPage({ openMainAction, setOpenMainAction, mode, tripPrice }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; tripPrice: any }) {
     const [tripPriceId, setTripPriceId] = useState<string>("")
-    
+    const [customerId, setCustomerId] = useState<string>("")
+    const [originSubDistrictId, setOriginSubDistrictId] = useState<string>("")
+    const [destinationSubDistrictId, setDestinationSubDistrictId] = useState<string>("")
+    const [tripPriceAmount, setTripPriceAmount] = useState<string>("");
+
     const [customerSearch, setCustomerSearch] = useState<CustomerFilters>({})
     const [customerKeywordSearch, setCustomerKeywordSearch] = useState<string>("")
     const [originSubDistrictSearch, setOriginSubDistrictSearch] = useState<SubDistrictFilters>({})
@@ -36,9 +40,6 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
     const originSubDistrictOptions = originSubDistrictData?.data || []
     const destinationSubDistrictOptions = destinationSubDistrictData?.data || []
 
-    const [customerId, setCustomerId] = useState<string>("")
-    const [originSubDistrictId, setOriginSubDistrictId] = useState<string>("")
-    const [destinationSubDistrictId, setDestinationSubDistrictId] = useState<string>("")
     
     const getOriginSubDistrictDisplayValue = () => {
         if (originSubDistrictKeywordSearch) return originSubDistrictKeywordSearch;
@@ -78,6 +79,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
             setCustomerId(tripPrice.customer_id?.toString() || "")
             setOriginSubDistrictId(tripPrice.origin_sub_district_id?.toString() || "")
             setDestinationSubDistrictId(tripPrice.dest_sub_district_id?.toString() || "")
+            setTripPriceAmount(tripPrice.base_price.toString() || "")
 
             if (tripPrice.customer_id) setCustomerSearch({ id: tripPrice.customer_id })
             if (tripPrice.origin_sub_district_id) setOriginSubDistrictSearch({ id: tripPrice.origin_sub_district_id })
@@ -89,6 +91,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
             setCustomerId("")
             setOriginSubDistrictId("")
             setDestinationSubDistrictId("")
+            setTripPriceAmount("")
         }
     }, [mode, tripPrice?.id])
 
@@ -107,9 +110,9 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
         const rawData = Object.fromEntries(formData.entries());
         const basePayload = { 
             customer_id: customerId as string,
-            origin_sub_district_id: originSubDistrictId as string | undefined,
-            dest_sub_district_id: destinationSubDistrictId as string | undefined,
-            base_price: Number(rawData.base_price)
+            origin_sub_district_id: originSubDistrictId as string,
+            dest_sub_district_id: destinationSubDistrictId as string,
+            base_price: Number(rawData.base_price) ?? Number(tripPriceAmount)
         }
 
         try {
@@ -270,7 +273,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="base_price" className="text-xs font-medium">Harga Dasar</label>
-                        <Input id="base_price" defaultValue={Number.parseFloat(tripPrice?.base_price || "0").toString() || ""} name="base_price" type="number" placeholder="e.g. 1000" required />
+                        <Input id="base_price" value={Number.parseFloat(tripPriceAmount).toString()} onChange={(e) => setTripPriceAmount(e.target.value)} name="base_price" type="number" placeholder="e.g. 1000" required />
                     </div>
                     <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Batal</Button>

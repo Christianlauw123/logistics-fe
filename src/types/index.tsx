@@ -31,11 +31,16 @@ export type Customer = {
 
 export type Vehicle = {
     id: string
-    name: string | null,
+    name: string | null
     plate_number: string
     type: string
     capacity: number | null
     is_active: boolean
+}
+
+export type Driver = {
+    id: string
+    name: string
 }
 
 export type BankAccount = {
@@ -104,8 +109,10 @@ export type Transaction = {
     destination_district: string
     bank_account_num: string
     customer_name: string
+    driver_name: string
     note: string
     created_at: string
+    current_total?: number | 0
 }
 
 export type Paginated<T> = {
@@ -114,12 +121,6 @@ export type Paginated<T> = {
   per_page: number
   total: number
   next_page_url: string | null
-  prev_page_url: string | null,
+  prev_page_url: string | null
   from: number
-}
-
-export type ApiResponse<T> = {
-  success: boolean
-  data: T
-  message?: string
 }

@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 import { getTransaction, updateTransactionStatus } from "./transaction.hooks"
 import { createUploadAttachment, deleteUploadAttachment } from "../attachments/attachment.hooks"
@@ -14,16 +13,18 @@ import { createUploadAttachment, deleteUploadAttachment } from "../attachments/a
 import { MoreHorizontalIcon } from "lucide-react"
 import type { TransactionStatus } from "@/types"
 import { useState } from "react"
-import { toast } from "sonner"
-import { createTransactionDetail, deleteTransactionDetail, updateTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
-import { transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
-import { errorHandler } from "@/lib/utils"
+import { deleteTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
+import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
+import { errorHandler, formatCurrency } from "@/lib/utils"
 import TransactionFormPage from "./TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
+import TransactionDetailFormPage from "./TransactionDetailFormPage"
+import { Info } from "@/components/info"
 
 export default function TransactionDetailPage() {
     const user = useAuthStore((state) => state.user)
     const { id } = useParams()
+
     const [fileInputKey, setFileInputKey] = useState(Date.now());
 
     const [openMainAction, setOpenMainAction] = useState(false);
@@ -33,19 +34,15 @@ export default function TransactionDetailPage() {
     const [modeDetailAction, setModeDetailAction] = useState<"add" | "edit">("add")
     const [dataDetailEdit, setDataDetailEdit] = useState<any>(null);
 
-    const [loading, setLoading] = useState(false);
-
     const { data: transaction, isLoading, isError } = getTransaction(id)
-
 
     const updateStatus = updateTransactionStatus();
     const uploadTransactionAttachment = createUploadAttachment();
     const deleteTransactionAttachment = deleteUploadAttachment();
 
-    const createDetail = createTransactionDetail();
     const updateStatusTransactionDetail = updateTransactionDetailStatus();
-    const updateDetail = updateTransactionDetail();
     const deleteDetail = deleteTransactionDetail();
+
 
     if (isLoading) {
         return <div>Mengambil Transaksi...</div>
@@ -90,45 +87,6 @@ export default function TransactionDetailPage() {
             setFileInputKey(Date.now());
         } catch (error) {
             errorHandler(error)
-        }
-    }
-
-    // Transaction Detail mutation handlers
-    // Transaction Detail data fetching and mutations
-    async function handleDetailSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setLoading(true);
-        if (!id){
-            setLoading(false);
-            setOpenDetailAction(false); 
-            toast.error("Transaction ID tidak ditemukan")
-            return
-        }
-
-        // 1. Gather all inputs automatically via the form DOM element
-        const formData = new FormData(event.currentTarget);
-        const rawData = Object.fromEntries(formData.entries());
-        const basePayload = { 
-            transactionId: id, // Ensure 'id' is available in this scope
-            purpose: rawData.purpose as string,
-            note: rawData.note as string,
-            amount: Number(rawData.amount), 
-        };
-        try {
-            if (modeDetailAction === "add")
-                await createDetail.mutateAsync(basePayload)
-            else if (modeDetailAction === "edit" && dataDetailEdit){
-                const updatedPayload = {...basePayload, transactionDetailId: dataDetailEdit.id}
-                await updateDetail.mutateAsync(updatedPayload)
-
-            }
-            
-            setOpenDetailAction(false); // Close dialog
-            event.currentTarget.reset(); // Clear all form inputs cleanly
-        } catch (error) {
-            errorHandler(error);
-        } finally {
-            setLoading(false);
         }
     }
 
@@ -181,6 +139,7 @@ export default function TransactionDetailPage() {
                 <CardContent className="grid gap-4 md:grid-cols-2">
                     <Info label="Pelanggan" value={transaction.customer_name} />
                     <Info label="Kendaraan" value={transaction.vehicle_plate} />
+                    <Info label="Supir" value={transaction.driver_name} />
                     {/* <Info label="Tujuan" value={transaction.dest_address} /> */}
                     <Info label="Tanggal DO" value={transaction.do_date ?? ''} />
                     <Info label="Tanggal DO Aktual" value={transaction.do_actual_date ?? "-"}/>
@@ -213,39 +172,19 @@ export default function TransactionDetailPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Detail Transaksi</CardTitle>
-                    {user?.role?.name !== "Operational" && (
+                    <CardContent className="grid gap-4 md:grid-cols-2">
+                        <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} />
+                        <Info label="Sisa Pengajuan" value={formatCurrency(transaction.trip_price_amount - (transaction?.current_total ?? 0))} />
+                    </CardContent>
+                    {user?.role?.name !== "Operational" && transaction.status === 'SUBMITTED' && (
                     <Button size="sm" onClick={() => {
                         setModeDetailAction("add")
                         setOpenDetailAction(true)
                     }}>
                         Tambah Detail
                     </Button>)}
-                    <Dialog open={openDetailAction} onOpenChange={setOpenDetailAction}>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>{modeDetailAction === "add" ? "Add" : "Edit"} Transaction Detail</DialogTitle>
-                            </DialogHeader>
-                            
-                            <form onSubmit={handleDetailSubmit} className="space-y-4 pt-2">
-                                <div className="space-y-1">
-                                    <label htmlFor="purpose" className="text-xs font-medium">Keperluan</label>
-                                    <Input id="purpose" defaultValue={dataDetailEdit?.purpose || ""} name="purpose" placeholder="e.g. Server hosting fee" required />
-                                </div>
-                                <div className="space-y-1">
-                                    <label htmlFor="amount" className="text-xs font-medium">Amount</label>
-                                    <Input id="amount" defaultValue={dataDetailEdit?.amount || ""} name="amount" type="number" placeholder="0.00" required />
-                                </div>
-                                <div className="space-y-1">
-                                    <label htmlFor="note" className="text-xs font-medium">Note</label>
-                                    <Input id="note" defaultValue={dataDetailEdit?.note || ""} name="note" placeholder="e.g. Server hosting fee"  />
-                                </div>
-                                <div className="flex justify-end gap-2 pt-2">
-                                    <Button type="button" variant="outline" onClick={() => setOpenDetailAction(false)}>Cancel</Button>
-                                    <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save Detail"}</Button>
-                                </div>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
+                    
+                    <TransactionDetailFormPage openDetailAction={openDetailAction} setOpenDetailAction={setOpenDetailAction} mode={modeDetailAction!} detailTransaction={dataDetailEdit} transaction={transaction}/>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
@@ -271,7 +210,7 @@ export default function TransactionDetailPage() {
                                 {transaction.details.map((detail) => (
                                     <TableRow key={detail.id}>
                                         <TableCell className="font-medium">{detail.purpose}</TableCell>
-                                        <TableCell>{detail.amount}</TableCell>
+                                        <TableCell>{formatCurrency(detail.amount)}</TableCell>
                                         <TableCell>{detail.note}</TableCell>
                                         <TableCell>
                                             <Badge className={`${transactionStatusBadge[detail.status]}`}>{detail.status}</Badge>
@@ -283,7 +222,7 @@ export default function TransactionDetailPage() {
                                                     <span className="sr-only">Open menu</span>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    {detail.status === "SUBMITTED" && (
+                                                    {detail.status === "SUBMITTED" && user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status) && (
                                                         <DropdownMenuGroup>
                                                             <DropdownMenuLabel>Action</DropdownMenuLabel>
                                                             <DropdownMenuItem  onClick={(e) => {
@@ -304,19 +243,23 @@ export default function TransactionDetailPage() {
                                                             )}
                                                         </DropdownMenuGroup>
                                                     )}
-                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (<DropdownMenuSeparator />)}
-                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (
-                                                        <DropdownMenuGroup>
-                                                            <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-                                                            {transactionStatusStage[user?.role?.name || ''][detail.status].map((transactionStage) => (
-                                                                <DropdownMenuItem key={transactionStage[0]} onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}>
-                                                                    {transactionStage[1]}
-                                                                </DropdownMenuItem>
-                                                            ))}
-                                                        </DropdownMenuGroup>
+                                                    {!detailNotAllowedModify?.includes(detail?.purpose) && (
+                                                        <>
+                                                            {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (
+                                                                <>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuGroup>
+                                                                    <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
+                                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].map((transactionStage) => (
+                                                                        <DropdownMenuItem key={transactionStage[0]} onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}>
+                                                                            {transactionStage[1]}
+                                                                        </DropdownMenuItem>
+                                                                    ))}
+                                                                </DropdownMenuGroup>
+                                                                </>
+                                                            )}
+                                                        </>
                                                     )}
-                                                    
-                                                    
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -379,13 +322,5 @@ export default function TransactionDetailPage() {
             </Card>
         </div>
         )
-    }
-
-    function Info({ label, value }: { label: string; value: string }) {
-        return (
-        <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="font-medium">{value}</p>
-        </div>
-    )
 }
+
