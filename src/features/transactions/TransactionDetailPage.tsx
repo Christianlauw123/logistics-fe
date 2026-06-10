@@ -174,7 +174,8 @@ export default function TransactionDetailPage() {
                     <CardTitle>Detail Transaksi</CardTitle>
                     <CardContent className="grid gap-4 md:grid-cols-2">
                         <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} />
-                        <Info label="Sisa Pengajuan" value={formatCurrency(transaction.trip_price_amount - (transaction?.current_total ?? 0))} />
+                        <Info label="Total Pengajuan Approved" value={formatCurrency(transaction.current_total_approved || 0)} />
+                        <Info label="Sisa Pengajuan" value={formatCurrency(transaction.trip_price_amount - (transaction?.current_total_approved ?? 0))} />
                     </CardContent>
                     {user?.role?.name !== "Operational" && transaction.status === 'SUBMITTED' && (
                     <Button size="sm" onClick={() => {

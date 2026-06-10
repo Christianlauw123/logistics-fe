@@ -15,8 +15,9 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
     const [detailAmount, setDetailAmount] = useState<string>("")
     const [detailPurpose, setDetailPurpose] = useState<string>("")
     const [detailNote, setDetailNote] = useState<string>("")
-    const [totalUsage, setTotalUsage] = useState<number>(0)
-    const [remainingUsage, setRemainingUsage] = useState<number>(0)
+    const [totalRequest, setTotalRequest] = useState<number>(0)
+    const [totalRequestApproved, setTotalRequestApproved] = useState<number>(0)
+    const [remainingRequest, setRemainingRequest] = useState<number>(0)
 
     const [loading, setLoading] = useState(false);
 
@@ -46,7 +47,6 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             amount: Number(rawData.amount) ?? Number(detailAmount)
         };
         try {
-            console.log(mode)
             if (mode === "add")
                 await createDetail.mutateAsync(basePayload)
             else if (mode === "edit" && detailTransaction){
@@ -77,14 +77,16 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
 
             const detailAmount = Number.isNaN(Number.parseFloat(detail?.amount)) ? Number(detail?.amount) : Number.parseFloat(detail?.amount)
 
-            setTotalUsage(transaction?.current_total - detailAmount || 0)
-            setRemainingUsage(transaction?.trip_price_amount - transaction?.current_total + detailAmount || 0)
+            setTotalRequest(transaction?.current_total|| 0)
+            setTotalRequestApproved(transaction?.current_total_approved || 0)
+            setRemainingRequest(transaction?.trip_price_amount - transaction?.current_total_approved - detailAmount || 0)
         }else{
             setDetailAmount("");
             setDetailPurpose("");
             setDetailNote("");
-            setTotalUsage(detail?.current_total || 0)
-            setRemainingUsage(detail?.trip_price_amount - detail?.current_total || 0)
+            setTotalRequest(transaction?.current_total || 0)
+            setTotalRequestApproved(transaction?.current_total_approved || 0)
+            setRemainingRequest(transaction?.trip_price_amount - transaction?.current_total_approved || 0)
         }
     }
 
@@ -95,8 +97,9 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
                     <DialogTitle>{mode === "add" ? "Add" : "Edit"} Transaction Detail</DialogTitle>
 
                     <CardContent className="grid gap-4 md:grid-cols-2">
-                        <Info label="Total Pengajuan" value={formatCurrency(totalUsage)} />
-                        <Info label="Sisa Pengajuan" value={formatCurrency(remainingUsage)} />
+                        <Info label="Total Pengajuan" value={formatCurrency(totalRequest)} />
+                        <Info label="Total Pengajuan Approved" value={formatCurrency(totalRequestApproved)} />
+                        <Info label="Sisa Pengajuan" value={formatCurrency(remainingRequest)} />
                     </CardContent>
                 </DialogHeader>
                 

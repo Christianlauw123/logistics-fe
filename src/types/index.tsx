@@ -113,6 +113,7 @@ export type Transaction = {
     note: string
     created_at: string
     current_total?: number | 0
+    current_total_approved?: number | 0
 }
 
 export type Paginated<T> = {
