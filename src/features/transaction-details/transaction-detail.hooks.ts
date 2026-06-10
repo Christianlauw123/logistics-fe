@@ -9,11 +9,12 @@ export function createTransactionDetail() {
   
   return useMutation({
     mutationFn: async ({ transactionId, amount, note, purpose }: { transactionId: string, amount: number, note: string, purpose: string }) => {
-      await api.post(`/transaction_details`, { transaction_id: transactionId, amount: amount, note: note, purpose: purpose }, {
+      const response = await api.post(`/transaction_details`, { transaction_id: transactionId, amount: amount, note: note, purpose: purpose }, {
         headers: {
           "Content-Type": "application/json",
         },
       })
+      return response.data
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -32,11 +33,12 @@ export function updateTransactionDetail() {
 
   return useMutation({
     mutationFn: async ({ transactionDetailId, amount, note, purpose }: { transactionId: string, transactionDetailId: string, amount: number, note: string, purpose: string }) => {
-      await api.patch(`/transaction_details/${transactionDetailId}`, { amount: amount, note: note, purpose: purpose }, {
+      const response = await api.patch(`/transaction_details/${transactionDetailId}`, { amount: amount, note: note, purpose: purpose }, {
         headers: {
           "Content-Type": "application/json",
         },
       })
+      return response.data
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
