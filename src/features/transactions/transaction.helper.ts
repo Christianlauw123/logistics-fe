@@ -34,10 +34,12 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
 
 const allowedMainTransactionEditDetailStatus = ['SUBMITTED', 'APPROVED']
 const detailNotAllowedModify = ['TABUNGAN', 'CLAIM']
+const detailTabunganClaimStatus = ['APPROVED', 'DONE']
 
 export {
     transactionStatusBadge,
     transactionStatusStage,
     allowedMainTransactionEditDetailStatus,
-    detailNotAllowedModify
+    detailNotAllowedModify,
+    detailTabunganClaimStatus
 }

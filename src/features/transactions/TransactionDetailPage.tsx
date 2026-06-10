@@ -14,7 +14,7 @@ import { MoreHorizontalIcon } from "lucide-react"
 import type { TransactionStatus } from "@/types"
 import { useState } from "react"
 import { deleteTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
-import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
+import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
 import { errorHandler, formatCurrency } from "@/lib/utils"
 import TransactionFormPage from "./TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
@@ -174,7 +174,8 @@ export default function TransactionDetailPage() {
                     <CardTitle>Detail Transaksi</CardTitle>
                     <CardContent className="grid gap-4 md:grid-cols-2">
                         <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} />
-                        <Info label="Sisa Pengajuan" value={formatCurrency(transaction.trip_price_amount - (transaction?.current_total ?? 0))} />
+                        <Info label="Total Pengajuan Approved" value={formatCurrency(transaction.current_total_approved || 0)} />
+                        <Info label="Sisa Pengajuan" value={formatCurrency(transaction.trip_price_amount - (transaction?.current_total_approved ?? 0))} />
                     </CardContent>
                     {user?.role?.name !== "Operational" && transaction.status === 'SUBMITTED' && (
                     <Button size="sm" onClick={() => {
@@ -243,21 +244,25 @@ export default function TransactionDetailPage() {
                                                             )}
                                                         </DropdownMenuGroup>
                                                     )}
-                                                    {!detailNotAllowedModify?.includes(detail?.purpose) && (
+                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (
                                                         <>
-                                                            {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (
-                                                                <>
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuGroup>
-                                                                    <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-                                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].map((transactionStage) => (
-                                                                        <DropdownMenuItem key={transactionStage[0]} onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuGroup>
+                                                            <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
+                                                            {transactionStatusStage[user?.role?.name || ''][detail.status].map((transactionStage) => {
+                                                                const detailTabunganClaimInfo = detailNotAllowedModify?.includes(detail?.purpose)
+                                                                const shouldRenderButton = !detailTabunganClaimInfo || detailTabunganClaimStatus.includes(transactionStage[0])
+                                                                return (shouldRenderButton && (
+                                                                        <DropdownMenuItem 
+                                                                            key={transactionStage[0]} 
+                                                                            onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}
+                                                                        >
                                                                             {transactionStage[1]}
                                                                         </DropdownMenuItem>
-                                                                    ))}
-                                                                </DropdownMenuGroup>
-                                                                </>
-                                                            )}
+                                                                    )
+                                                                );
+                                                            })}
+                                                        </DropdownMenuGroup>
                                                         </>
                                                     )}
                                                 </DropdownMenuContent>
