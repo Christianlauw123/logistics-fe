@@ -14,7 +14,7 @@ import { MoreHorizontalIcon } from "lucide-react"
 import type { TransactionStatus } from "@/types"
 import { useState } from "react"
 import { deleteTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
-import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
+import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
 import { errorHandler, formatCurrency } from "@/lib/utils"
 import TransactionFormPage from "./TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
@@ -244,21 +244,25 @@ export default function TransactionDetailPage() {
                                                             )}
                                                         </DropdownMenuGroup>
                                                     )}
-                                                    {!detailNotAllowedModify?.includes(detail?.purpose) && (
+                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (
                                                         <>
-                                                            {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (
-                                                                <>
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuGroup>
-                                                                    <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-                                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].map((transactionStage) => (
-                                                                        <DropdownMenuItem key={transactionStage[0]} onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuGroup>
+                                                            <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
+                                                            {transactionStatusStage[user?.role?.name || ''][detail.status].map((transactionStage) => {
+                                                                const detailTabunganClaimInfo = detailNotAllowedModify?.includes(detail?.purpose)
+                                                                const shouldRenderButton = !detailTabunganClaimInfo || detailTabunganClaimStatus.includes(transactionStage[0])
+                                                                return (shouldRenderButton && (
+                                                                        <DropdownMenuItem 
+                                                                            key={transactionStage[0]} 
+                                                                            onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}
+                                                                        >
                                                                             {transactionStage[1]}
                                                                         </DropdownMenuItem>
-                                                                    ))}
-                                                                </DropdownMenuGroup>
-                                                                </>
-                                                            )}
+                                                                    )
+                                                                );
+                                                            })}
+                                                        </DropdownMenuGroup>
                                                         </>
                                                     )}
                                                 </DropdownMenuContent>
