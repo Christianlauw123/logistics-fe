@@ -11,10 +11,10 @@ import { getTransaction, updateTransactionStatus } from "./transaction.hooks"
 import { createUploadAttachment, deleteUploadAttachment } from "../attachments/attachment.hooks"
 
 import { MoreHorizontalIcon } from "lucide-react"
-import type { TransactionStatus } from "@/types"
+import type { TransactionDetailStatus, TransactionStatus } from "@/types"
 import { useState } from "react"
 import { deleteTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
-import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
+import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage } from "./transaction.helper"
 import { errorHandler, formatCurrency } from "@/lib/utils"
 import TransactionFormPage from "./TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
@@ -115,7 +115,7 @@ export default function TransactionDetailPage() {
         }
     }
     
-    async function handleTransactionDetailStatusChange(transactionDetailId: string, status: TransactionStatus) {
+    async function handleTransactionDetailStatusChange(transactionDetailId: string, status: TransactionDetailStatus) {
         if (!id) return
         if (!transactionDetailId) return
         await updateStatusTransactionDetail.mutateAsync({ transactionId: id, id: transactionDetailId, status })
@@ -144,12 +144,13 @@ export default function TransactionDetailPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Main Information</CardTitle>
+                    {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
                     <Button size="sm" onClick={() => {
                         setModeMainAction("edit")
                         setOpenMainAction(true)
                     }}>
                         Edit Detail Main
-                    </Button>
+                    </Button>)}
                     <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={transaction} user={user}/>
                 </CardHeader>
 
@@ -194,7 +195,7 @@ export default function TransactionDetailPage() {
                         <Info label="Total Pengajuan Approved" value={formatCurrency(transaction.current_total_approved || 0)} />
                         <Info label="Sisa Pengajuan" value={formatCurrency(transaction.trip_price_amount - (transaction?.current_total_approved ?? 0))} />
                     </CardContent>
-                    {user?.role?.name !== "Operational" && transaction.status === 'SUBMITTED' && (
+                    {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
                     <Button size="sm" onClick={() => {
                         setModeDetailAction("add")
                         setOpenDetailAction(true)
@@ -213,6 +214,8 @@ export default function TransactionDetailPage() {
                                     <TableHead>Keperluan</TableHead>
                                     <TableHead>Jumlah</TableHead>
                                     <TableHead>Note</TableHead>
+                                    <TableHead>Kasus Khusus</TableHead>
+                                    <TableHead>Bukti</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
@@ -230,6 +233,14 @@ export default function TransactionDetailPage() {
                                         <TableCell className="font-medium">{detail.purpose}</TableCell>
                                         <TableCell>{formatCurrency(detail.amount)}</TableCell>
                                         <TableCell>{detail.note}</TableCell>
+                                        <TableCell>{detail.is_special_case ? 'y' : 'x'}</TableCell>
+                                        <TableCell>
+                                            {detail.attachment && (
+                                                <Button variant="outline" >
+                                                    <a href={detail.attachment} target="_blank" rel="noreferrer">Open</a>
+                                                </Button>
+                                            )}
+                                        </TableCell>
                                         <TableCell>
                                             <Badge className={`${transactionStatusBadge[detail.status]}`}>{detail.status}</Badge>
                                         </TableCell>
@@ -261,20 +272,20 @@ export default function TransactionDetailPage() {
                                                             )}
                                                         </DropdownMenuGroup>
                                                     )}
-                                                    {transactionStatusStage[user?.role?.name || ''][detail.status].length !== 0 && (
+                                                    {transactionDetailStatusStage[user?.role?.name || ''][detail.status as TransactionDetailStatus].length !== 0 && (
                                                         <>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuGroup>
                                                             <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-                                                            {transactionStatusStage[user?.role?.name || ''][detail.status].map((transactionStage) => {
+                                                            {transactionDetailStatusStage[user?.role?.name || ''][detail.status as TransactionDetailStatus].map((transactionDetailStage) => {
                                                                 const detailTabunganClaimInfo = detailNotAllowedModify?.includes(detail?.purpose)
-                                                                const shouldRenderButton = !detailTabunganClaimInfo || detailTabunganClaimStatus.includes(transactionStage[0])
+                                                                const shouldRenderButton = !detailTabunganClaimInfo || detailTabunganClaimStatus.includes(transactionDetailStage[0])
                                                                 return (shouldRenderButton && (
                                                                         <DropdownMenuItem 
-                                                                            key={transactionStage[0]} 
-                                                                            onClick={() => handleTransactionDetailStatusChange(detail.id, transactionStage[0] as TransactionStatus)}
+                                                                            key={transactionDetailStage[0]} 
+                                                                            onClick={() => handleTransactionDetailStatusChange(detail.id, transactionDetailStage[0] as TransactionDetailStatus)}
                                                                         >
-                                                                            {transactionStage[1]}
+                                                                            {transactionDetailStage[1]}
                                                                         </DropdownMenuItem>
                                                                     )
                                                                 );
@@ -316,7 +327,7 @@ export default function TransactionDetailPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>ID</TableHead>
+                                    <TableHead>ID - Name</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -330,7 +341,7 @@ export default function TransactionDetailPage() {
                                 )}
                                 {transaction.attachments.map((attachment) => (
                                     <TableRow key={attachment.id}>
-                                        <TableCell className="font-medium">{attachment.id}</TableCell>
+                                        <TableCell className="font-medium">{attachment.original_file_name}</TableCell>
                                         <TableCell className="text-right">
                                             <Button variant="outline" >
                                                 <a href={attachment.file_url} target="_blank" rel="noreferrer">Open</a>

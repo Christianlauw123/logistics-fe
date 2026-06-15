@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
-import type { TransactionStatus } from "@/types"
+import type { TransactionDetailStatus } from "@/types"
 import { errorHandler } from "@/lib/utils"
 
 export function createTransactionDetail() {
@@ -11,7 +11,7 @@ export function createTransactionDetail() {
     mutationFn: async ({ transactionId, amount, note, purpose, file, is_special_case }: { transactionId: string, amount: number, note: string, purpose: string, file?: File, is_special_case?: boolean }) => {
       const response = await api.post(`/transaction_details`, { transaction_id: transactionId, amount: amount, note: note, purpose: purpose, file: file, is_special_case: is_special_case }, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       })
       return response.data
@@ -35,7 +35,7 @@ export function updateTransactionDetail() {
     mutationFn: async ({ transactionDetailId, amount, note, purpose, file, is_special_case }: { transactionId: string, transactionDetailId: string, amount: number, note: string, purpose: string, file?: File, is_special_case?: boolean }) => {
       const response = await api.patch(`/transaction_details/${transactionDetailId}`, { amount: amount, note: note, purpose: purpose, file: file, is_special_case: is_special_case }, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       })
       return response.data
@@ -80,7 +80,7 @@ export function updateTransactionDetailStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, status }: { transactionId: string, id: string, status: TransactionStatus }) => {
+    mutationFn: async ({ id, status }: { transactionId: string, id: string, status: TransactionDetailStatus }) => {
       await api.patch(`/transaction_details/${id}/status`, { status })
     },
     onSuccess: (_, variables) => {

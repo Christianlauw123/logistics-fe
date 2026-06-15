@@ -60,6 +60,7 @@ export type TripPrice = {
 }
 
 export type TransactionStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "DONE_AND_WAITING_DOCUMENT" | "CANCELLED_NO_REFUND" | "CANCELLED_AND_REFUND"
+export type TransactionDetailStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "CANCELLED_FOR_REVISION"
 
 export type AttachmentStatus = "PENDING" | "VERIFIED" | "REJECTED"
 
@@ -71,10 +72,12 @@ export type TransactionDetail = {
     transaction: Transaction
     status: TransactionStatus
     is_special_case: boolean
+    attachment?: string
 }
 
 export type Attachment = {
     id: string
+    original_file_name?: string
     file_url: string
     file_id: string
     file_provider: string

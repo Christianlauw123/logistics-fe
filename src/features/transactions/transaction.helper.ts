@@ -1,31 +1,40 @@
-import type { TransactionStatus } from "@/types";
+import type { TransactionDetailStatus, TransactionStatus } from "@/types";
 
 const transactionStatusBadge: Record<string, string> = {
     'SUBMITTED': 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
     'APPROVED':  'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300',
+    'DONE_AND_WAITING_DOCUMENT': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
     'DONE': 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300',
-    'CANCELLED': 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300',
     'REJECTED': 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300',
-    'DONE_AND_WAITING_DOCUMENT': 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300',
-    'CANCELLED_NO_REFUND': 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300',
-    'CANCELLED_AND_REFUND': 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300',
+    'CANCELLED': 'bg-gray-50 text-gray-700 dark:bg-gray-950 dark:text-gray-300',
+    'CANCELLED_NO_REFUND': 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300',
+    'CANCELLED_AND_REFUND': 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300',
+    'CANCELLED_FOR_REVISION': 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
 };
 
 const transactionStatusStage: Record<string, Record<TransactionStatus, [TransactionStatus, string][]>> = {
     'Super Admin': {
-        'SUBMITTED': [['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokument'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
-        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokument'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
-        'DONE': [],
-        'CANCELLED': [['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
-        'REJECTED': [],
-        'DONE_AND_WAITING_DOCUMENT': [['DONE', 'Done']],
-        'CANCELLED_NO_REFUND': [],
-        'CANCELLED_AND_REFUND': []
+        // 'SUBMITTED': [['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        // 'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        // 'DONE': [],
+        // 'CANCELLED': [['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        // 'REJECTED': [],
+        // 'DONE_AND_WAITING_DOCUMENT': [['DONE', 'Done']],
+        // 'CANCELLED_NO_REFUND': [],
+        // 'CANCELLED_AND_REFUND': []
+        'SUBMITTED': [['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        'APPROVED': [['SUBMITTED', 'Submitted'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        'DONE': [['SUBMITTED', 'Submitted'], ['APPROVED', 'Approve'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        'CANCELLED': [['SUBMITTED', 'Submitted'], ['APPROVED', 'Approve'], ['DONE', 'Done'], ['REJECTED', 'Reject'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        'REJECTED': [['SUBMITTED', 'Submitted'], ['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        'DONE_AND_WAITING_DOCUMENT': [['SUBMITTED', 'Submitted'], ['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        'CANCELLED_NO_REFUND': [['SUBMITTED', 'Submitted'], ['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['REJECTED', 'Reject'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        'CANCELLED_AND_REFUND': [['SUBMITTED', 'Submitted'], ['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['REJECTED', 'Reject'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund']],
     },
 
     'Staff': {
         'SUBMITTED': [['CANCELLED', 'Cancel']],
-        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokument'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
         'DONE': [],
         'CANCELLED': [['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
         'REJECTED': [],
@@ -45,14 +54,43 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
     }
 };
 
-//  | "DONE_AND_WAITING_DOCUMENT" | "CANCELLED_NO_REFUND" | "CANCELLED_AND_REFUND"
-const allowedMainTransactionEditDetailStatus = ['SUBMITTED', 'APPROVED']
+const transactionDetailStatusStage: Record<string, Record<TransactionDetailStatus, [TransactionDetailStatus, string][]>> = {
+    'Super Admin': {
+        'SUBMITTED': [['APPROVED', 'Approve'], ['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['CANCELLED_FOR_REVISION', 'Cancel - Revisi']],
+        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['REJECTED', 'Reject'], ['CANCELLED_FOR_REVISION', 'Cancel - Revisi']],
+        'DONE': [],
+        'CANCELLED': [],
+        'REJECTED': [],
+        'CANCELLED_FOR_REVISION': []
+    },
+
+    'Staff': {
+        'SUBMITTED': [['CANCELLED', 'Cancel']],
+        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel']],
+        'DONE': [],
+        'CANCELLED': [],
+        'REJECTED': [],
+        'CANCELLED_FOR_REVISION': []
+    },
+    'Operational': {
+        'SUBMITTED': [],
+        'APPROVED': [],
+        'DONE': [],
+        'CANCELLED': [],
+        'REJECTED': [],
+        'CANCELLED_FOR_REVISION': []
+    }
+};
+
+
+const allowedMainTransactionEditDetailStatus = ['SUBMITTED']
 const detailNotAllowedModify = ['TABUNGAN', 'CLAIM']
 const detailTabunganClaimStatus = ['APPROVED', 'DONE']
 
 export {
     transactionStatusBadge,
     transactionStatusStage,
+    transactionDetailStatusStage,
     allowedMainTransactionEditDetailStatus,
     detailNotAllowedModify,
     detailTabunganClaimStatus

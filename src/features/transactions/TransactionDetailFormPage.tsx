@@ -55,6 +55,7 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             is_special_case: (rawData.is_special_case ? true : false) || specialCase
         };
         try {
+            console.log(selectedFile)
             if (mode === "add")
                 await createDetail.mutateAsync(basePayload)
             else if (mode === "edit" && detailTransaction){
@@ -103,6 +104,7 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
 
     async function handleProveAttachmentChange(event: React.ChangeEvent<HTMLInputElement>) {
        const file = event.target.files?.[0];
+       console.log(file)
         if (file) {
             setSelectedFile(file);
         }
