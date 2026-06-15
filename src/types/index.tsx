@@ -59,7 +59,7 @@ export type TripPrice = {
     destination_sub_district: SubDistrict
 }
 
-export type TransactionStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED"
+export type TransactionStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "DONE_AND_WAITING_DOCUMENT" | "CANCELLED_NO_REFUND" | "CANCELLED_AND_REFUND"
 
 export type AttachmentStatus = "PENDING" | "VERIFIED" | "REJECTED"
 
@@ -70,6 +70,7 @@ export type TransactionDetail = {
     note: string
     transaction: Transaction
     status: TransactionStatus
+    is_special_case: boolean
 }
 
 export type Attachment = {
