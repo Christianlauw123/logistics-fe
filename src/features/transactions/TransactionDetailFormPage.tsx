@@ -9,6 +9,7 @@ import { createTransactionDetail, updateTransactionDetail } from "../transaction
 import { errorHandler, formatCurrency } from "@/lib/utils"
 import { Info } from "@/components/info"
 import { CardContent } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
 
 export default function TransactionDetailFormPage({ openDetailAction, setOpenDetailAction, mode, detailTransaction, transaction }: { openDetailAction: boolean; setOpenDetailAction: (openDetailAction: boolean) => void; mode: "add" | "edit"; detailTransaction: any; transaction: any}) {
     const { id } = useParams()
@@ -18,6 +19,10 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
     const [totalRequest, setTotalRequest] = useState<number>(0)
     const [totalRequestApproved, setTotalRequestApproved] = useState<number>(0)
     const [remainingRequest, setRemainingRequest] = useState<number>(0)
+    const [specialCase, setSpecialCase] = useState<boolean>(false)
+
+    // Upload Bukti
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const [loading, setLoading] = useState(false);
 
@@ -44,7 +49,9 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             transactionId: id, // Ensure 'id' is available in this scope
             purpose: rawData.purpose as string ?? detailPurpose,
             note: rawData.note as string ?? detailNote,
-            amount: Number(rawData.amount) ?? Number(detailAmount)
+            amount: Number(rawData.amount) ?? Number(detailAmount),
+            file: selectedFile ?? undefined,
+            is_special_case: (rawData.is_special_case ? true : false) || specialCase
         };
         try {
             if (mode === "add")
@@ -74,6 +81,7 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             setDetailAmount(detail?.amount || "0");
             setDetailPurpose(detail?.purpose || "");
             setDetailNote(detail?.note || "");
+            setSpecialCase(detail?.is_special_case || false);
 
             const detailAmount = Number.isNaN(Number.parseFloat(detail?.amount)) ? Number(detail?.amount) : Number.parseFloat(detail?.amount)
 
@@ -84,9 +92,17 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             setDetailAmount("");
             setDetailPurpose("");
             setDetailNote("");
+            setSpecialCase(false);
             setTotalRequest(transaction?.current_total || 0)
             setTotalRequestApproved(transaction?.current_total_approved || 0)
             setRemainingRequest(transaction?.trip_price_amount - transaction?.current_total_approved || 0)
+        }
+    }
+
+    async function handleProveAttachmentChange(event: React.ChangeEvent<HTMLInputElement>) {
+       const file = event.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
         }
     }
 
@@ -115,6 +131,15 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
                     <div className="space-y-1">
                         <label htmlFor="note" className="text-xs font-medium">Note</label>
                         <Input id="note" value={detailNote} onChange={(e) => setDetailNote(e.target.value)} name="note" placeholder="e.g. Server hosting fee"  />
+                    </div>
+                    <div className="space-y-1">
+                        <label htmlFor="file_detail" className="text-xs font-medium">Bukti Foto</label>
+                        <Input type="file" id="file_detail" onChange={handleProveAttachmentChange} />
+                    </div>
+
+                    <div className="space-y-1">
+                        <label htmlFor="is_special_case" className="text-xs font-medium">Kasus Special</label>
+                        <Switch id="is_special_case" checked={specialCase} onCheckedChange={setSpecialCase} />
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
                         <Button type="button" variant="outline" onClick={() => setOpenDetailAction(false)}>Cancel</Button>

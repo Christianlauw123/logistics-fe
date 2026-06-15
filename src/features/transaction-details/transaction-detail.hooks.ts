@@ -8,8 +8,8 @@ export function createTransactionDetail() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: async ({ transactionId, amount, note, purpose }: { transactionId: string, amount: number, note: string, purpose: string }) => {
-      await api.post(`/transaction_details`, { transaction_id: transactionId, amount: amount, note: note, purpose: purpose }, {
+    mutationFn: async ({ transactionId, amount, note, purpose, file, is_special_case }: { transactionId: string, amount: number, note: string, purpose: string, file?: File, is_special_case?: boolean }) => {
+      await api.post(`/transaction_details`, { transaction_id: transactionId, amount: amount, note: note, purpose: purpose, file: file, is_special_case: is_special_case }, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -31,8 +31,8 @@ export function updateTransactionDetail() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ transactionDetailId, amount, note, purpose }: { transactionId: string, transactionDetailId: string, amount: number, note: string, purpose: string }) => {
-      await api.patch(`/transaction_details/${transactionDetailId}`, { amount: amount, note: note, purpose: purpose }, {
+    mutationFn: async ({ transactionDetailId, amount, note, purpose, file, is_special_case }: { transactionId: string, transactionDetailId: string, amount: number, note: string, purpose: string, file?: File, is_special_case?: boolean }) => {
+      await api.patch(`/transaction_details/${transactionDetailId}`, { amount: amount, note: note, purpose: purpose, file: file, is_special_case: is_special_case }, {
         headers: {
           "Content-Type": "application/json",
         },

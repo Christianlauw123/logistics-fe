@@ -20,6 +20,7 @@ import TransactionFormPage from "./TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
 import TransactionDetailFormPage from "./TransactionDetailFormPage"
 import { Info } from "@/components/info"
+import { toast } from "sonner"
 
 export default function TransactionDetailPage() {
     const user = useAuthStore((state) => state.user)
@@ -43,6 +44,8 @@ export default function TransactionDetailPage() {
     const updateStatusTransactionDetail = updateTransactionDetailStatus();
     const deleteDetail = deleteTransactionDetail();
 
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [attachmentUploadLoading, setAttachmentUploadLoading] = useState<boolean>(false);
 
     if (isLoading) {
         return <div>Mengambil Transaksi...</div>
@@ -59,16 +62,28 @@ export default function TransactionDetailPage() {
 
     // Attachment upload mutation
     // Handle file upload for transaction attachment
-    async function handleUpload(event: React.ChangeEvent<HTMLInputElement>) {
-        const file = event.target.files?.[0]
-        if (!file || !id) return
+  
+    async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+       const file = event.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+    }
+
+    async function handleSubmitUpload(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!selectedFile || !id) {
+            toast.error("Message ")
+            return
+        }
 
         try {
             await uploadTransactionAttachment.mutateAsync({
                 transactionId: id,
-                file,
+                file: selectedFile,
             })
-            
+            setSelectedFile(null)
+            console.log("enterred - 2")
             setFileInputKey(Date.now());
         } catch (error) {
             errorHandler(error)
@@ -76,8 +91,8 @@ export default function TransactionDetailPage() {
     }
 
     async function handleDeleteAttachment(attachmentId: string) {
-        if (!id) return
-        if (!attachmentId) return
+        if (!id || !attachmentId) return
+        setAttachmentUploadLoading(true)
         try {
             await deleteTransactionAttachment.mutateAsync({
                 transactionId: id,
@@ -87,6 +102,8 @@ export default function TransactionDetailPage() {
             setFileInputKey(Date.now());
         } catch (error) {
             errorHandler(error)
+        } finally{
+            setAttachmentUploadLoading(false)
         }
     }
 
@@ -283,11 +300,17 @@ export default function TransactionDetailPage() {
 
                 <CardContent className="space-y-4">
                     {user?.role?.name !== "Staff" && (
-                    <Field>
-                        <FieldLabel htmlFor="file">File</FieldLabel>
-                        <Input key={fileInputKey}type="file" id="file" onChange={handleUpload} />
-                        <FieldDescription>Select a file to upload.</FieldDescription>
-                    </Field>)}
+                        <form onSubmit={handleSubmitUpload} className="space-y-4 pt-2">
+                            <Field>
+                                <FieldLabel htmlFor="file">File</FieldLabel>
+                                <Input key={fileInputKey}type="file" id="file" onChange={handleFileChange} />
+                                <FieldDescription>Select a file to upload.</FieldDescription>
+                            </Field>
+                            <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
+                                <Button type="submit" disabled={attachmentUploadLoading}>{attachmentUploadLoading ? "Menyimpan..." : "Upload Attachment"}</Button>
+                            </div>
+                        </form>
+                    )}
 
                     <div className="space-y-2">
                         <Table>
