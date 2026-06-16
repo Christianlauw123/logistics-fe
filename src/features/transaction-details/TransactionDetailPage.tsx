@@ -7,22 +7,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-import { getTransaction, getTransactionLogs, updateTransactionStatus } from "./transaction.hooks"
+import { getTransaction, getTransactionLogs, updateTransactionStatus } from "../transactions/transaction.hooks"
 import { createUploadAttachment, deleteUploadAttachment } from "../attachments/attachment.hooks"
 
 import { AlertCircleIcon, HistoryIcon, MoreHorizontalIcon } from "lucide-react"
 import type { TransactionDetailStatus, TransactionStatus } from "@/types"
 import { useState } from "react"
 import { deleteTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
-import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage, allowedMainTransactionEdit, allowedMainTransactionEditRevisionDestination, allowedAttachmentModification } from "./transaction.helper"
+import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage, allowedMainTransactionEdit, allowedMainTransactionEditRevisionDestination, allowedAttachmentModification } from "../transactions/transaction.helper"
 import { errorHandler, formatCurrency } from "@/lib/utils"
-import TransactionFormPage from "./TransactionFormPage"
+import TransactionFormPage from "../transactions/TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
 import TransactionDetailFormPage from "./TransactionDetailFormPage"
 import { Info } from "@/components/info"
 import { toast } from "sonner"
 import { Separator } from "@/components/ui/separator"
-import TransactionDetailHistoryPage from "./TransactionDetailHistoryPage"
+import TransactionDetailHistoryPage from "../transactions/TransactionDetailHistoryPage"
 
 export default function TransactionDetailPage() {
     const user = useAuthStore((state) => state.user)
@@ -32,6 +32,8 @@ export default function TransactionDetailPage() {
 
     const [openMainAction, setOpenMainAction] = useState(false);
     const [modeMainAction, setModeMainAction] = useState<null | "edit">(null)
+
+    const [openRevisionDestinationAction, setOpenRevisionDestinationAction] = useState(false);
 
     const [openDetailAction, setOpenDetailAction] = useState(false);
     const [openHistoryAction, setOpenHistoryAction] = useState(false);
