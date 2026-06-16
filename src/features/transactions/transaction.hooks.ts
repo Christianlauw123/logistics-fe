@@ -74,7 +74,7 @@ export function getTransaction(id: string | undefined) {
 
 export function getTransactionLogs(id: string | undefined, isOpen: boolean) {
   return useQuery({
-    queryKey: ["transactions", id, "detail", "logs"],
+    queryKey: ["transactions", "detail", "logs", id],
     queryFn: async () => {
       const response = await api.get<{ data: any }>(
         `/transactions/${id}/logs`
@@ -120,8 +120,8 @@ export function updateTransaction() {
       return response.data
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["transactions", variables.transactionId,  "detail"], })
-      queryClient.invalidateQueries({ queryKey: ["transactions", variables.transactionId, "detail", "logs"], })
+      queryClient.invalidateQueries({ queryKey: ["transactions", "detail", variables.transactionId], })
+      queryClient.invalidateQueries({ queryKey: ["transactions", "detail", "logs", variables.transactionId], })
       toast.success("Transaction Updated")
     },
     onError: (error: any) => {
