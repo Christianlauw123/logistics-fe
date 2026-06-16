@@ -1,9 +1,9 @@
 
-function Info({ label, value }: { label: string; value: string; }) {
+function Info({ label, value, icon }: { label: string; value: string; icon?: any; }) {
   return (
     <div>
       <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="font-medium">{value}</p>
+      <p className="font-medium flex">{value} {icon}</p>
     </div>
   )
 }

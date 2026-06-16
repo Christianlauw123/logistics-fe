@@ -83,7 +83,11 @@ const transactionDetailStatusStage: Record<string, Record<TransactionDetailStatu
 };
 
 
-const allowedMainTransactionEditDetailStatus = ['SUBMITTED']
+const allowedMainTransactionEdit = ['SUBMITTED']
+const allowedMainTransactionEditRevisionDestination = ['SUBMITTED', 'APPROVED']
+const allowedMainTransactionEditDetailStatus = ['SUBMITTED', 'APPROVED']
+
+const allowedAttachmentModification  = ['SUBMITTED', 'APPROVED', 'DONE_AND_WAITING_DOCUMENT']
 const detailNotAllowedModify = ['TABUNGAN', 'CLAIM']
 const detailTabunganClaimStatus = ['APPROVED', 'DONE']
 
@@ -92,6 +96,9 @@ export {
     transactionStatusStage,
     transactionDetailStatusStage,
     allowedMainTransactionEditDetailStatus,
+    allowedMainTransactionEditRevisionDestination,
+    allowedAttachmentModification,
+    allowedMainTransactionEdit,
     detailNotAllowedModify,
     detailTabunganClaimStatus
 }

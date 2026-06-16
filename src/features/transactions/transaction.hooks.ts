@@ -33,6 +33,10 @@ export interface CreateUpdateTransactionPayload {
   bank_account_id: string
 }
 
+export interface UpdateTransactionDestinationPayload {
+  revision_dest_sub_district_id: string
+}
+
 export interface TransactionExport {
   success: boolean
 	job_id: string
@@ -96,8 +100,6 @@ export function deleteTransaction() {
 }
 
 export function updateTransaction() {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ transactionId, payload }: { transactionId: string; payload: CreateUpdateTransactionPayload }) => {
       const response = await api.put(`/transactions/${transactionId}`, payload, {
@@ -107,10 +109,7 @@ export function updateTransaction() {
       })
       return response.data
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["transactions", "detail", variables.transactionId],
-      })
+    onSuccess: () => {
       toast.success("Transaction Updated")
     },
     onError: (error: any) => {
@@ -142,6 +141,7 @@ export function createTransaction() {
   })
 }
 
+// Update Transaction Status
 export function updateTransactionStatus() {
   const queryClient = useQueryClient()
 
@@ -162,12 +162,36 @@ export function updateTransactionStatus() {
       })
       toast.success("Status updated")
     },
-    onError: () => {
-      toast.error("Failed to update status")
+    onError: (error: any) => {
+      errorHandler(error);
     },
   })
 }
 
+// Update Transaction Destination
+export function updateTransactionDestination() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ transactionId, payload }: { transactionId: string; payload: UpdateTransactionDestinationPayload }) => {
+      const response = await api.patch(`/transactions/${transactionId}/destination`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] })
+      toast.success("Destination Revision updated")
+    },
+    onError: (error: any) => {
+      errorHandler(error);
+    },
+  })
+}
+
+// Export Section
 export function createExportTransaction() {
   const queryClient = useQueryClient()
 

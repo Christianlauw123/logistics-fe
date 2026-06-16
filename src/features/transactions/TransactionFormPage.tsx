@@ -116,7 +116,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     // Dropdown Search Handlers
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (customerKeywordSearch)setCustomerSearch({ search: customerKeywordSearch })
+            if (customerKeywordSearch) setCustomerSearch({ search: customerKeywordSearch })
 
             if (originSubDistrictKeywordSearch) setOriginSubDistrictSearch({ customer_id: customerId, search: originSubDistrictKeywordSearch })
             if (!originSubDistrictKeywordSearch && customerId) setOriginSubDistrictSearch({ customer_id: customerId })
