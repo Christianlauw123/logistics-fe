@@ -45,7 +45,6 @@ export default function TransactionListPage() {
     const [modeMainAction, setModeMainAction] = useState<null | "add">(null)
     const [showFilters, setShowFilters] = useState(false);
     
-
     const [customerKeywordSearch, setCustomerKeywordSearch] = useState<string>("")
     const [customerSearch, setCustomerSearch] = useState<CustomerFilters>({})
     const { data: customerData, isLoading: customerLoading } = useCustomersQuery(customerSearch);
@@ -96,7 +95,7 @@ export default function TransactionListPage() {
         date_start: filters.dateStart || undefined,
         date_end: filters.dateEnd || undefined,
         status: filters.status || undefined,
-        sort_by: "do_date",
+        sort_by: "created_at",
         sort_dir: "desc",
         filter_date_key: filters.filterDateKey || undefined,
         vehicle_id: filters.vehicle_id || undefined,
@@ -130,7 +129,7 @@ export default function TransactionListPage() {
             if (vehicleKeywordSearch) setVehicleSearch({ search: vehicleKeywordSearch })
         }, 400)
         return () => clearTimeout(timer)
-    }, [customerKeywordSearch])
+    }, [customerKeywordSearch, vehicleKeywordSearch])
 
 
     if (isError) {
@@ -503,15 +502,15 @@ export default function TransactionListPage() {
                 <TableHeader>
                     <TableRow>
                     <TableHead className="w-[120px]">Aksi</TableHead>
-                    <TableHead>No DO</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Tanggal DO Dibuat</TableHead>
+                    <TableHead>No DO</TableHead>
                     <TableHead>Tanggal Actual DO</TableHead>
                     <TableHead>Supir</TableHead>
                     <TableHead>Pelanggan</TableHead>
                     <TableHead>Asal</TableHead>
                     <TableHead>Tujuan</TableHead>
                     <TableHead>Kendaraan</TableHead>
-                    <TableHead>Status</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -548,15 +547,15 @@ export default function TransactionListPage() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </TableCell>
-                        <TableCell className="font-medium">{transaction.do_number}</TableCell>
+                        <TableCell><Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge></TableCell>
                         <TableCell>{transaction.do_date}</TableCell>
+                        <TableCell className="font-medium">{transaction.do_number}</TableCell>
                         <TableCell>{transaction.do_actual_date}</TableCell>
                         <TableCell>{transaction.driver_name}</TableCell>
                         <TableCell>{transaction.customer_name}</TableCell>
                         <TableCell>{transaction.origin_district}</TableCell>
                         <TableCell>{transaction.destination_district}</TableCell>
                         <TableCell>{transaction.vehicle_plate}</TableCell>
-                        <TableCell><Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge></TableCell>
                     </TableRow>
                     ))}
 

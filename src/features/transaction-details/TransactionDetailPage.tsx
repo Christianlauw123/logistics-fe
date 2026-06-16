@@ -7,20 +7,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-import { getTransaction, updateTransactionStatus } from "./transaction.hooks"
+import { getTransaction, updateTransactionStatus } from "../transactions/transaction.hooks"
 import { createUploadAttachment, deleteUploadAttachment } from "../attachments/attachment.hooks"
 
-import { MoreHorizontalIcon } from "lucide-react"
+import { AlertCircleIcon, MoreHorizontalIcon } from "lucide-react"
 import type { TransactionDetailStatus, TransactionStatus } from "@/types"
 import { useState } from "react"
-import { deleteTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
-import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage } from "./transaction.helper"
+import { deleteTransactionDetail, updateTransactionDetailStatus } from "./transaction-detail.hooks"
+import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage, allowedMainTransactionEdit, allowedMainTransactionEditRevisionDestination, allowedAttachmentModification } from "../transactions/transaction.helper"
 import { errorHandler, formatCurrency } from "@/lib/utils"
-import TransactionFormPage from "./TransactionFormPage"
+import TransactionFormPage from "../transactions/TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
 import TransactionDetailFormPage from "./TransactionDetailFormPage"
 import { Info } from "@/components/info"
 import { toast } from "sonner"
+import TransactionFormDestinationRevisionPage from "../transactions/TransactionFormDestinationRevisionPage"
+import { Separator } from "@/components/ui/separator"
 
 export default function TransactionDetailPage() {
     const user = useAuthStore((state) => state.user)
@@ -30,6 +32,8 @@ export default function TransactionDetailPage() {
 
     const [openMainAction, setOpenMainAction] = useState(false);
     const [modeMainAction, setModeMainAction] = useState<null | "edit">(null)
+
+    const [openRevisionDestinationAction, setOpenRevisionDestinationAction] = useState(false);
 
     const [openDetailAction, setOpenDetailAction] = useState(false);
     const [modeDetailAction, setModeDetailAction] = useState<"add" | "edit">("add")
@@ -83,7 +87,6 @@ export default function TransactionDetailPage() {
                 file: selectedFile,
             })
             setSelectedFile(null)
-            console.log("enterred - 2")
             setFileInputKey(Date.now());
         } catch (error) {
             errorHandler(error)
@@ -144,32 +147,61 @@ export default function TransactionDetailPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Main Information</CardTitle>
-                    {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
-                    <Button size="sm" onClick={() => {
-                        setModeMainAction("edit")
-                        setOpenMainAction(true)
-                    }}>
-                        Edit Detail Main
-                    </Button>)}
+                    <div className="flex">
+                        {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEdit.includes(transaction.status))) && (
+                        <Button size="sm" onClick={() => {
+                            setModeMainAction("edit")
+                            setOpenMainAction(true)
+                        }}>
+                            Edit Detail Main
+                        </Button>)}
+                        {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditRevisionDestination.includes(transaction.status))) && (
+                        <Button size="sm" onClick={() => {
+                            setOpenRevisionDestinationAction(true)
+                        }}>
+                            Revisi Tujuan Trip
+                        </Button>)}
+                    </div>
+                    
                     <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={transaction} user={user}/>
+                    <TransactionFormDestinationRevisionPage openRevisionDestinationAction={openRevisionDestinationAction} setOpenRevisionDestinationAction={setOpenRevisionDestinationAction} transaction={transaction}/>
                 </CardHeader>
-
                 <CardContent className="grid gap-4 md:grid-cols-2">
+                    <Info label="Tanggal DO" value={transaction.do_date ?? ''} />
+                    <Info label="Tanggal DO Aktual" value={transaction.do_actual_date ?? "-"}/>
                     <Info label="Pelanggan" value={transaction.customer_name} />
+                    <Info label="Note" value={transaction.note ?? "-"}/>
+                </CardContent>
+                <Separator></Separator>
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                    <Info label="Asal" value={transaction.origin_district} />
+                    <Info label="Tujuan" value={transaction.destination_district} />
+                    <Info label="Harga Trip Normal" value={transaction.trip_price_amount.toString() ?? "-"}/>
+                </CardContent>
+                <Separator></Separator>
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                    { transaction?.revision_destination_district !== transaction.destination_district && (
+                        <>
+                            <Info label="Tujuan Revisi" value={transaction?.revision_destination_district?.toString() ?? "-"} />
+                            <Info label="Harga Trip Revisi" value={transaction?.revision_trip_price_amount?.toString() ?? "-"}/>
+                        </>
+                    )}
+                </CardContent>
+                <Separator></Separator>
+                <CardContent className="grid gap-4 md:grid-cols-2">
                     <Info label="Kendaraan" value={transaction.vehicle_plate} />
                     <Info label="Supir" value={transaction.driver_name} />
                     {/* <Info label="Tujuan" value={transaction.dest_address} /> */}
-                    <Info label="Tanggal DO" value={transaction.do_date ?? ''} />
-                    <Info label="Tanggal DO Aktual" value={transaction.do_actual_date ?? "-"}/>
-                    <Info label="Harga Trip Normal" value={transaction.trip_price_amount.toString() ?? "-"}/>
-                    <Info label="Asal" value={transaction.origin_district} />
-                    <Info label="Tujuan" value={transaction.destination_district} />
                     <Info label="Akun Bank" value={transaction.bank_account_num ?? ''} />
                     <Info label="Kapasitas (Kg)" value={Number(transaction.transaction_capacity).toLocaleString('id-ID') ?? "-"}/>
+                </CardContent>
+                <Separator></Separator>
+                <CardContent className="grid gap-4 md:grid-cols-2">
                     {/* <Info label="Item" value={transaction.transaction_items ?? "-"}/> */}
-                    <Info label="Note" value={transaction.note ?? "-"}/>
+                    <Info label="Dibuat oleh" value={transaction.user.name ?? "-"}/>
                     <Info label="Tanggal/Jam Dibuat" value={`${dateFormat(transaction.created_at)}`} />
-                    <Info label="Kreator" value={transaction.user.name ?? "-"}/>
+                    <Info label="Terakhir dirubah oleh" value={transaction.lastUpdatedBy.name ?? "-"}/>
+                    <Info label="Terakhir Dirubah" value={`${dateFormat(transaction.updated_at)}`} />
                 </CardContent>
             </Card>
 
@@ -191,9 +223,9 @@ export default function TransactionDetailPage() {
                 <CardHeader>
                     <CardTitle>Detail Transaksi</CardTitle>
                     <CardContent className="grid gap-4 md:grid-cols-2">
-                        <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} />
+                        <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} icon={ (transaction.current_total || 0) > (transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0)) ? <AlertCircleIcon className="text-red-400 text-sm" /> : <></>} />
                         <Info label="Total Pengajuan Approved" value={formatCurrency(transaction.current_total_approved || 0)} />
-                        <Info label="Sisa Pengajuan" value={formatCurrency(transaction.trip_price_amount - (transaction?.current_total_approved ?? 0))} />
+                        <Info label="Sisa Pengajuan" value={formatCurrency(transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0))} />
                     </CardContent>
                     {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
                     <Button size="sm" onClick={() => {
@@ -213,6 +245,9 @@ export default function TransactionDetailPage() {
                                 <TableRow>
                                     <TableHead>Keperluan</TableHead>
                                     <TableHead>Jumlah</TableHead>
+                                    {user?.role.name === 'Super Admin' && (
+                                        <TableHead>Jumlah Transfer</TableHead>
+                                    )}
                                     <TableHead>Note</TableHead>
                                     <TableHead>Kasus Khusus</TableHead>
                                     <TableHead>Bukti</TableHead>
@@ -232,6 +267,9 @@ export default function TransactionDetailPage() {
                                     <TableRow key={detail.id}>
                                         <TableCell className="font-medium">{detail.purpose}</TableCell>
                                         <TableCell>{formatCurrency(detail.amount)}</TableCell>
+                                        {user?.role.name === 'Super Admin' && (
+                                            <TableHead>{formatCurrency(detail.total_transfer)}</TableHead>
+                                        )}
                                         <TableCell>{detail.note}</TableCell>
                                         <TableCell>{detail.is_special_case ? 'y' : 'x'}</TableCell>
                                         <TableCell>
@@ -310,7 +348,7 @@ export default function TransactionDetailPage() {
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                    {user?.role?.name !== "Staff" && (
+                    {(user?.role?.name === "Super Admin" ||  (user?.role?.name !== "Staff" && allowedAttachmentModification.includes(transaction.status))) && (
                         <form onSubmit={handleSubmitUpload} className="space-y-4 pt-2">
                             <Field>
                                 <FieldLabel htmlFor="file">File</FieldLabel>
@@ -346,11 +384,13 @@ export default function TransactionDetailPage() {
                                             <Button variant="outline" >
                                                 <a href={attachment.file_url} target="_blank" rel="noreferrer">Open</a>
                                             </Button>
-                                            <Button variant="destructive" onClick={() => 
-                                                handleDeleteAttachment(attachment.id)
-                                            }>
-                                                Delete
-                                            </Button>
+                                            {user?.role?.name === "Super Admin" || allowedAttachmentModification.includes(transaction.status) && (
+                                                <Button variant="destructive" onClick={() => 
+                                                    handleDeleteAttachment(attachment.id)
+                                                }>
+                                                    Delete
+                                                </Button>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))}

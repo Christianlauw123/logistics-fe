@@ -59,11 +59,6 @@ export type TripPrice = {
     destination_sub_district: SubDistrict
 }
 
-export type TransactionStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "DONE_AND_WAITING_DOCUMENT" | "CANCELLED_NO_REFUND" | "CANCELLED_AND_REFUND"
-export type TransactionDetailStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "CANCELLED_FOR_REVISION"
-
-export type AttachmentStatus = "PENDING" | "VERIFIED" | "REJECTED"
-
 export type TransactionDetail = {
     id: string
     purpose: string
@@ -73,6 +68,8 @@ export type TransactionDetail = {
     status: TransactionStatus
     is_special_case: boolean
     attachment?: string
+    amount_unique_number?: number
+    total_transfer: number
 }
 
 export type Attachment = {
@@ -98,6 +95,7 @@ export type Transaction = {
     bank_account: BankAccount
     trip_price: TripPrice
     user: User
+    lastUpdatedBy: User,
     details: TransactionDetail[]
     attachments: Attachment[]
     trip_price_amount: number
@@ -118,6 +116,9 @@ export type Transaction = {
     created_at: string
     current_total?: number | 0
     current_total_approved?: number | 0
+    revision_trip_price_amount: number | 0
+    revision_destination_district: string | ""
+    updated_at: string
 }
 
 export type Paginated<T> = {
@@ -129,3 +130,7 @@ export type Paginated<T> = {
   prev_page_url: string | null
   from: number
 }
+
+export type TransactionStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "DONE_AND_WAITING_DOCUMENT" | "CANCELLED_NO_REFUND" | "CANCELLED_AND_REFUND"
+export type TransactionDetailStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "CANCELLED_FOR_REVISION"
+export type AttachmentStatus = "PENDING" | "VERIFIED" | "REJECTED"

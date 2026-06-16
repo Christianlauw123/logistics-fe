@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { createTransactionDetail, updateTransactionDetail } from "../transaction-details/transaction-detail.hooks"
+import { createTransactionDetail, updateTransactionDetail } from "./transaction-detail.hooks"
 import { errorHandler, formatCurrency } from "@/lib/utils"
 import { Info } from "@/components/info"
 import { CardContent } from "@/components/ui/card"
@@ -55,7 +55,6 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             is_special_case: (rawData.is_special_case ? true : false) || specialCase
         };
         try {
-            console.log(selectedFile)
             if (mode === "add")
                 await createDetail.mutateAsync(basePayload)
             else if (mode === "edit" && detailTransaction){
@@ -86,11 +85,11 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             setDetailNote(detail?.note || "");
             setSpecialCase(detail?.is_special_case || false);
 
-            const detailAmount = Number.isNaN(Number.parseFloat(detail?.amount)) ? Number(detail?.amount) : Number.parseFloat(detail?.amount)
+            const detailAmount = detail?.is_special_case ? 0 : (Number.isNaN(Number.parseFloat(detail?.amount)) ? Number(detail?.amount) : Number.parseFloat(detail?.amount))
 
             setTotalRequest(transaction?.current_total|| 0)
             setTotalRequestApproved(transaction?.current_total_approved || 0)
-            setRemainingRequest(transaction?.trip_price_amount - transaction?.current_total_approved - detailAmount || 0)
+            setRemainingRequest(transaction?.revision_trip_price_amount - transaction?.current_total_approved - detailAmount || 0)
         }else{
             setDetailAmount("");
             setDetailPurpose("");
@@ -98,13 +97,12 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             setSpecialCase(false);
             setTotalRequest(transaction?.current_total || 0)
             setTotalRequestApproved(transaction?.current_total_approved || 0)
-            setRemainingRequest(transaction?.trip_price_amount - transaction?.current_total_approved || 0)
+            setRemainingRequest(transaction?.revision_trip_price_amount - transaction?.current_total_approved || 0)
         }
     }
 
     async function handleProveAttachmentChange(event: React.ChangeEvent<HTMLInputElement>) {
        const file = event.target.files?.[0];
-       console.log(file)
         if (file) {
             setSelectedFile(file);
         }
