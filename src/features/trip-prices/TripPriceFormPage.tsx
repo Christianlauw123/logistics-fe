@@ -18,6 +18,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
     const [originSubDistrictId, setOriginSubDistrictId] = useState<string>("")
     const [destinationSubDistrictId, setDestinationSubDistrictId] = useState<string>("")
     const [tripPriceAmount, setTripPriceAmount] = useState<string>("");
+    const [tripPriceWeight, setTripPriceWeight] = useState<string>("");
 
     const [customerSearch, setCustomerSearch] = useState<CustomerFilters>({})
     const [customerKeywordSearch, setCustomerKeywordSearch] = useState<string>("")
@@ -72,6 +73,14 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
         return () => clearTimeout(timer)
     }, [customerKeywordSearch, originSubDistrictKeywordSearch, destinationSubDistrictKeywordSearch])
 
+    function clearData(){
+        setTripPriceId("")
+        setCustomerId("")
+        setOriginSubDistrictId("")
+        setDestinationSubDistrictId("")
+        setTripPriceAmount("")
+        setTripPriceWeight("")
+    }
     // Add Edit
     useEffect(() => {
         if (mode === "edit" && tripPrice) {
@@ -79,7 +88,8 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
             setCustomerId(tripPrice.customer_id?.toString() || "")
             setOriginSubDistrictId(tripPrice.origin_sub_district_id?.toString() || "")
             setDestinationSubDistrictId(tripPrice.dest_sub_district_id?.toString() || "")
-            setTripPriceAmount(tripPrice.base_price.toString() || "")
+            setTripPriceAmount(tripPrice.base_price?.toString() || "")
+            setTripPriceWeight(tripPrice.weight_category?.toString() || "")
 
             if (tripPrice.customer_id) setCustomerSearch({ id: tripPrice.customer_id })
             if (tripPrice.origin_sub_district_id) setOriginSubDistrictSearch({ id: tripPrice.origin_sub_district_id })
@@ -87,13 +97,10 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
 
         } else {
             // Completely reset fields when user opens an "Add New" form
-            setTripPriceId("")
-            setCustomerId("")
-            setOriginSubDistrictId("")
-            setDestinationSubDistrictId("")
-            setTripPriceAmount("")
+            clearData()
         }
     }, [mode, tripPrice?.id])
+
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -112,7 +119,8 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
             customer_id: customerId as string,
             origin_sub_district_id: originSubDistrictId as string,
             dest_sub_district_id: destinationSubDistrictId as string,
-            base_price: Number(rawData.base_price) ?? Number(tripPriceAmount)
+            base_price: Number(rawData.base_price) ?? Number(tripPriceAmount),
+            weight_category: Number(rawData.weight_category) ?? Number(tripPriceWeight)
         }
 
         try {
@@ -123,6 +131,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
             } else if (mode === "edit") {
                 await updateTripPrice.mutateAsync({ id: tripPrice?.id, payload: basePayload })
             }
+            clearData();
             setOpenMainAction(false); // Close dialog
         } catch (error) {
             errorHandler(error);
@@ -274,6 +283,10 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
                     <div className="space-y-1">
                         <label htmlFor="base_price" className="text-xs font-medium">Harga Dasar</label>
                         <Input id="base_price" value={Number.parseFloat(tripPriceAmount).toString()} onChange={(e) => setTripPriceAmount(e.target.value)} name="base_price" type="number" placeholder="e.g. 1000" required />
+                    </div>
+                    <div className="space-y-1">
+                        <label htmlFor="weight_category" className="text-xs font-medium">Kategori Berat (kg)</label>
+                        <Input id="weight_category" value={Number.parseFloat(tripPriceWeight).toString()} onChange={(e) => setTripPriceWeight(e.target.value)} name="weight_category" type="number" placeholder="e.g. 1000" required />
                     </div>
                     <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Batal</Button>

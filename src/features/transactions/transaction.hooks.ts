@@ -33,10 +33,6 @@ export interface CreateUpdateTransactionPayload {
   bank_account_id: string
 }
 
-export interface UpdateTransactionDestinationPayload {
-  revision_dest_sub_district_id: string
-}
-
 export interface TransactionExport {
   success: boolean
 	job_id: string
@@ -64,7 +60,7 @@ export function getTransactions(filters: TransactionFilters = {}) {
 
 export function getTransaction(id: string | undefined) {
   return useQuery({
-    queryKey: ["transactions", "detail", id],
+    queryKey: ["transactions", id, "detail"],
     queryFn: async () => {
       const response = await api.get<{ data: Transaction }>(
         `/transactions/${id}`
@@ -78,7 +74,7 @@ export function getTransaction(id: string | undefined) {
 
 export function getTransactionLogs(id: string | undefined, isOpen: boolean) {
   return useQuery({
-    queryKey: ["transactions", "detail", "logs", id],
+    queryKey: ["transactions", id, "detail", "logs"],
     queryFn: async () => {
       const response = await api.get<{ data: any }>(
         `/transactions/${id}/logs`
@@ -124,8 +120,8 @@ export function updateTransaction() {
       return response.data
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["transactions", "detail", variables.transactionId], })
-      queryClient.invalidateQueries({ queryKey: ["transactions", "detail", "logs", variables.transactionId], })
+      queryClient.invalidateQueries({ queryKey: ["transactions", variables.transactionId,  "detail"], })
+      queryClient.invalidateQueries({ queryKey: ["transactions", variables.transactionId, "detail", "logs"], })
       toast.success("Transaction Updated")
     },
     onError: (error: any) => {
@@ -147,7 +143,7 @@ export function createTransaction() {
     },
     onSuccess: (_) => {
       queryClient.invalidateQueries({
-        queryKey: ["transactions"],
+        queryKey: ["transactions", "list"],
       })
       toast.success("Transaction Created")
     },
@@ -172,34 +168,11 @@ export function updateTransactionStatus() {
       await api.patch(`/transactions/${id}/status`, { status })
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] })
-      queryClient.invalidateQueries({
-        queryKey: ["transactions", variables.id],
-      })
+      queryClient.invalidateQueries({ queryKey: ["transactions", variables.id,  "detail"], })
+      // queryClient.invalidateQueries({
+      //   queryKey: ["transactions", variables.id],
+      // })
       toast.success("Status updated")
-    },
-    onError: (error: any) => {
-      errorHandler(error);
-    },
-  })
-}
-
-// Update Transaction Destination
-export function updateTransactionDestination() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ transactionId, payload }: { transactionId: string; payload: UpdateTransactionDestinationPayload }) => {
-      const response = await api.patch(`/transactions/${transactionId}/destination`, payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] })
-      toast.success("Destination Revision updated")
     },
     onError: (error: any) => {
       errorHandler(error);
@@ -209,8 +182,6 @@ export function updateTransactionDestination() {
 
 // Export Section
 export function createExportTransaction() {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ payload }: { payload: TransactionFilters}) => {
       const response = await api.post<TransactionExport>("/transactions/export", payload, {
@@ -221,10 +192,7 @@ export function createExportTransaction() {
 
       return response.data
     },
-    onSuccess: (_) => {
-      queryClient.invalidateQueries({
-        queryKey: ["transactions"],
-      })
+    onSuccess: () => {
       toast.success("Export Transaction Created")
     },
     onError: (error: any) => {
@@ -234,8 +202,6 @@ export function createExportTransaction() {
 }
 
 export function getExportTransactionStatus() {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ job_id }: { job_id: string}) => {
       const response = await api.get<TransactionExportStatus>(`/transactions/export-status/${job_id}`, {
@@ -247,9 +213,6 @@ export function getExportTransactionStatus() {
       return response.data
     },
     onSuccess: (_) => {
-      queryClient.invalidateQueries({
-        queryKey: ["transactions"],
-      })
       toast.success("Export Transaction Created")
     },
     onError: (error: any) => {

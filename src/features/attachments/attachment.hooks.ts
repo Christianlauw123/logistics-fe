@@ -19,9 +19,7 @@ export function createUploadAttachment() {
       })
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["transactions", "detail", variables.transactionId],
-      })
+      queryClient.invalidateQueries({ queryKey: ["transactions", variables.transactionId,  "detail"], })
       toast.success("Attachment uploaded")
     },
     onError: (error: any) => {
@@ -38,9 +36,7 @@ export function deleteUploadAttachment() {
       await api.delete(`/attachments/${attachmentId}`)
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["transactions", "detail", variables.transactionId],
-      })
+      queryClient.invalidateQueries({ queryKey: ["transactions", variables.transactionId,  "detail"], })
       toast.success("Attachment deleted")
     },
     onError: (error: any) => {

@@ -7,23 +7,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-import { getTransaction, getTransactionLogs, updateTransactionStatus } from "../transactions/transaction.hooks"
+import { getTransaction, getTransactionLogs, updateTransactionStatus } from "./transaction.hooks"
 import { createUploadAttachment, deleteUploadAttachment } from "../attachments/attachment.hooks"
 
 import { AlertCircleIcon, HistoryIcon, MoreHorizontalIcon } from "lucide-react"
 import type { TransactionDetailStatus, TransactionStatus } from "@/types"
 import { useState } from "react"
 import { deleteTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
-import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage, allowedMainTransactionEdit, allowedMainTransactionEditRevisionDestination, allowedAttachmentModification } from "../transactions/transaction.helper"
+import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage, allowedMainTransactionEdit, allowedMainTransactionEditRevisionDestination, allowedAttachmentModification } from "./transaction.helper"
 import { errorHandler, formatCurrency } from "@/lib/utils"
-import TransactionFormPage from "../transactions/TransactionFormPage"
+import TransactionFormPage from "./TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
 import TransactionDetailFormPage from "./TransactionDetailFormPage"
 import { Info } from "@/components/info"
 import { toast } from "sonner"
-import TransactionFormDestinationRevisionPage from "../transactions/TransactionFormDestinationRevisionPage"
 import { Separator } from "@/components/ui/separator"
-import TransactionDetailHistoryPage from "../transactions/TransactionDetailHistoryPage"
+import TransactionDetailHistoryPage from "./TransactionDetailHistoryPage"
 
 export default function TransactionDetailPage() {
     const user = useAuthStore((state) => state.user)
@@ -33,8 +32,6 @@ export default function TransactionDetailPage() {
 
     const [openMainAction, setOpenMainAction] = useState(false);
     const [modeMainAction, setModeMainAction] = useState<null | "edit">(null)
-
-    const [openRevisionDestinationAction, setOpenRevisionDestinationAction] = useState(false);
 
     const [openDetailAction, setOpenDetailAction] = useState(false);
     const [openHistoryAction, setOpenHistoryAction] = useState(false);
@@ -170,16 +167,9 @@ export default function TransactionDetailPage() {
                         }}>
                             Edit Detail Main
                         </Button>)}
-                        {(user?.role?.name === "Super Admin" || (user?.role?.name === "Operational" && allowedMainTransactionEditRevisionDestination.includes(transaction.status))) && (
-                        <Button size="sm" onClick={() => {
-                            setOpenRevisionDestinationAction(true)
-                        }}>
-                            Revisi Tujuan Trip
-                        </Button>)}
                     </div>
                     
                     <TransactionFormPage openMainAction={openMainAction} setOpenMainAction={setOpenMainAction} mode={modeMainAction!} transaction={transaction} user={user}/>
-                    <TransactionFormDestinationRevisionPage openRevisionDestinationAction={openRevisionDestinationAction} setOpenRevisionDestinationAction={setOpenRevisionDestinationAction} transaction={transaction}/>
                 </CardHeader>
                 <CardContent className="grid gap-4 md:grid-cols-2">
                     <Info label="Tanggal DO" value={transaction.do_date ?? ''} />
@@ -195,12 +185,12 @@ export default function TransactionDetailPage() {
                 </CardContent>
                 <Separator></Separator>
                 <CardContent className="grid gap-4 md:grid-cols-2">
-                    { transaction?.revision_destination_district !== transaction.destination_district && (
+                    {/* { transaction?.revision_destination_district !== transaction.destination_district && ( */}
                         <>
                             <Info label="Tujuan Revisi" value={transaction?.revision_destination_district?.toString() ?? "-"} />
                             <Info label="Harga Trip Revisi" value={transaction?.revision_trip_price_amount?.toString() ?? "-"}/>
                         </>
-                    )}
+                    {/* )} */}
                 </CardContent>
                 <Separator></Separator>
                 <CardContent className="grid gap-4 md:grid-cols-2">
@@ -208,7 +198,12 @@ export default function TransactionDetailPage() {
                     <Info label="Supir" value={transaction.driver_name} />
                     {/* <Info label="Tujuan" value={transaction.dest_address} /> */}
                     <Info label="Akun Bank" value={transaction.bank_account_num ?? ''} />
-                    <Info label="Kapasitas (Kg)" value={Number(transaction?.transaction_capacity)?.toLocaleString('id-ID') ?? "-"}/>
+                    <Info label="Kapasitas (Kg)" value={Number(transaction?.weight_category)?.toLocaleString('id-ID') ?? "-"}/>
+                    {/* { transaction?.revision_destination_district !== transaction.destination_district && ( */}
+                        <>
+                            <Info label="Kapasitas (Kg) - Revisi" value={Number(transaction?.revision_weight_category)?.toLocaleString('id-ID') ?? "-"}/>
+                        </>
+                    {/* )} */}
                 </CardContent>
                 <Separator></Separator>
                 <CardContent className="grid gap-4 md:grid-cols-2">

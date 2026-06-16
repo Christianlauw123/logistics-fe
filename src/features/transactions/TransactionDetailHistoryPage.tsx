@@ -2,7 +2,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function TransactionDetailHistoryPage({ openHistoryAction, setOpenHistoryAction, logs }: { openHistoryAction: boolean; setOpenHistoryAction: (openHistoryAction: boolean) => void; logs:any; }) {
-    console.log(logs);
     return (
         <Dialog open={openHistoryAction} onOpenChange={setOpenHistoryAction}>
             <DialogContent className="md:max-w-[720px]">

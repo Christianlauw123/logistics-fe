@@ -6,6 +6,7 @@ export type TripPriceFilters = {
   customer_id?: string
   origin_sub_district_id?: string
   dest_sub_district_id?: string
+  weight_category?: number
   per_page?: number
   page?: number
   id?: string
@@ -16,12 +17,17 @@ export interface CreateUpdateTripPricePayload {
   origin_sub_district_id?: string
   dest_sub_district_id?: string
   base_price: number
+  weight_category?: number
 }
 
 export interface TripPriceAllowedDistrict {
   id: string
   name: string
   district: District
+}
+
+export interface TripPriceDistrictWeightCategory {
+  weight_category: number
 }
 
 export async function getTripPrices(filters: TripPriceFilters = {}): Promise<Paginated<TripPrice>> {
@@ -52,4 +58,11 @@ export async function listTripAllowedSubDistricts(filters: TripPriceFilters = {}
   const response = await api.get<Paginated<TripPriceAllowedDistrict>>(`/trip_prices/sub_districts`, { params: filters })
   return response.data
 }
+
+export async function listTripAllowedSubDistrictsWeightCategories(filters: TripPriceFilters = {}): Promise<Paginated<TripPriceDistrictWeightCategory>> {
+  const response = await api.get<Paginated<TripPriceDistrictWeightCategory>>(`/trip_prices/sub_districts/weight_categories`, { params: filters })
+  return response.data
+}
+
+
 

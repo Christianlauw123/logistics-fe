@@ -60,6 +60,7 @@ export default function TripPriceListPage() {
                         <TableHead>Pelanggan</TableHead>
                         <TableHead>Asal</TableHead>
                         <TableHead>Tujuan</TableHead>
+                        <TableHead>Kategori</TableHead>
                         <TableHead>Harga Dasar</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -98,6 +99,7 @@ export default function TripPriceListPage() {
                         <TableCell className="font-medium">{tripPrice.customer?.name}</TableCell>
                         <TableCell>{tripPrice.origin_sub_district?.name}, {tripPrice.origin_sub_district?.district?.name}</TableCell>
                         <TableCell>{tripPrice.destination_sub_district?.name}, {tripPrice.destination_sub_district?.district?.name}</TableCell>
+                        <TableCell>{tripPrice.weight_category}</TableCell>
                         <TableCell>{formatCurrency(tripPrice?.base_price) }</TableCell>
                     </TableRow>
                     ))}
