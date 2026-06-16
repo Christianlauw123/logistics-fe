@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { createTransactionDetail, updateTransactionDetail } from "./transaction-detail.hooks"
+import { createTransactionDetail, updateTransactionDetail } from "../transaction-details/transaction-detail.hooks"
 import { errorHandler, formatCurrency } from "@/lib/utils"
 import { Info } from "@/components/info"
 import { CardContent } from "@/components/ui/card"

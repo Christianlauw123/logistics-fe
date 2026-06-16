@@ -15,22 +15,23 @@ import { toast } from "sonner";
 import { errorHandler } from "@/lib/utils";
 import { createTransaction, updateTransaction } from "./transaction.hooks";
 import type { TripPriceFilters } from "../trip-prices/tripPrice.api";
-import { useTripPriceGetAllowedDistrictsQuery } from "../trip-prices/tripPrice.hooks";
+import { useTripPriceGetAllowedDistrictsQuery, useTripPriceGetAllowedDistrictsWeightCategoriesQuery } from "../trip-prices/tripPrice.hooks";
 import type { DriverFilters } from "../drivers/driver.api";
 import { useDriversQuery } from "../drivers/driver.hooks";
 
 export default function TransactionFormPage({ openMainAction, setOpenMainAction, mode, transaction, user }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; transaction: any; user: any }) {
-
     const [customerKeywordSearch, setCustomerKeywordSearch] = useState<string>("")
     const [originSubDistrictKeywordSearch, setOriginSubDistrictKeywordSearch] = useState<string>("")
     const [destinationSubDistrictKeywordSearch, setDestinationSubDistrictKeywordSearch] = useState<string>("")
     const [vehicleKeywordSearch, setVehicleKeywordSearch] = useState<string>("")
     const [bankAccountKeywordSearch, setBankAccountKeywordSearch] = useState<string>("")
     const [driverKeywordSearch, setDriverKeywordSearch] = useState<string>("")
-    
+    const [subDestinationDistrictWeightKeywordSearch, setDestinationSubDistrictWeightKeywordSearch] = useState<string>("")
+
     const [customerSearch, setCustomerSearch] = useState<CustomerFilters>({})
     const [subOriginDistrictSearch, setOriginSubDistrictSearch] = useState<TripPriceFilters>({})
     const [subDestinationDistrictSearch, setDestinationSubDistrictSearch] = useState<TripPriceFilters>({})
+    const [subDestinationDistrictWeightSearch, setDestinationSubDistrictWeightSearch] = useState<TripPriceFilters>({})
     const [vehicleSearch, setVehicleSearch] = useState<VehicleFilters>({})
     const [bankAccountSearch, setBankAccountSearch] = useState<BankAccountFilters>({})
     const [driverSearch, setDriverSearch] = useState<DriverFilters>({})
@@ -39,6 +40,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     const { data: customerData, isLoading: customerLoading } = useCustomersQuery(customerSearch);
     const { data: originSubDistrictData, isLoading: originSubDistrictLoading } = useTripPriceGetAllowedDistrictsQuery({ filters: subOriginDistrictSearch });
     const { data: destinationSubDistrictData, isLoading: destinationSubDistrictLoading } = useTripPriceGetAllowedDistrictsQuery({ filters: subDestinationDistrictSearch });
+    const { data: destinationSubDistrictWeightCategories, isLoading: destinationSubDistrictWeightCategoryLoading } = useTripPriceGetAllowedDistrictsWeightCategoriesQuery({ filters: subDestinationDistrictWeightSearch });
     const { data: vehicleData, isLoading: vehicleLoading } = useVehiclesQuery(vehicleSearch);
     const { data: bankAccountData, isLoading: bankLoading } = useBankAccountsQuery(bankAccountSearch);
     const { data: driverData, isLoading: driverLoading } = useDriversQuery(driverSearch);
@@ -49,6 +51,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     const vehicleOptions = vehicleData?.data || []
     const bankAccountOptions = bankAccountData?.data || []
     const driverOptions = driverData?.data || []
+    const weightCategories = destinationSubDistrictWeightCategories?.data || []
 
     // Set Value for Form
     const [customerId, setCustomerId] = useState<string>("")
@@ -58,6 +61,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     const [bankAccountId, setBankAccountId] = useState<string>("")
     const [driverId, setDriverId] = useState<string>("")
     const [transactionCapacity, setTransactionCapacity] = useState<number>(0)
+    const [weightCategory, setWeightCategory] = useState<string>("")
     // const [transactionItems, setTransactionItems] = useState<string>("")
     // const [destAddress, setDestAddress] = useState<string>("")
     const [doNumber, setDoNumber] = useState<string>("")
@@ -99,13 +103,19 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
         const selected = vehicleOptions.find((v) => v.id.toString() === vehicleId.toString());
         return selected ? selected.plate_number : "";
     };
-
     
     const getDriverDisplayValue = () => {
         if (driverKeywordSearch) return driverKeywordSearch;
         if (!driverId) return "";
         const selected = driverOptions.find((d) => d.id.toString() === driverId.toString());
         return selected ? selected.name : "";
+    };
+
+    const getWeightCategoryDisplayValue = () => {
+        if (subDestinationDistrictWeightKeywordSearch) return subDestinationDistrictWeightKeywordSearch;
+        if (!weightCategory) return "";
+        const selected = weightCategories.find((d) => d.weight_category.toString() === weightCategory.toString());
+        return selected ? selected.weight_category : "";
     };
 
     const [loading, setLoading] = useState(false);
@@ -124,12 +134,15 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             if (destinationSubDistrictKeywordSearch) setDestinationSubDistrictSearch({ customer_id: customerId, origin_sub_district_id: originSubDistrictId, search: destinationSubDistrictKeywordSearch })
             if (!destinationSubDistrictKeywordSearch && customerId && originSubDistrictId) setDestinationSubDistrictSearch({ customer_id: customerId, origin_sub_district_id: originSubDistrictId })
 
+            if (subDestinationDistrictWeightSearch) setDestinationSubDistrictWeightSearch({ customer_id: customerId, origin_sub_district_id: originSubDistrictId, dest_sub_district_id: destinationSubDistrictId, search: subDestinationDistrictWeightKeywordSearch })
+            if (!subDestinationDistrictWeightSearch && customerId && originSubDistrictId && destinationSubDistrictId) setDestinationSubDistrictWeightSearch({ customer_id: customerId, origin_sub_district_id: originSubDistrictId, dest_sub_district_id: destinationSubDistrictId })
+
             if (vehicleKeywordSearch) setVehicleSearch({ search: vehicleKeywordSearch, is_active: true })
             if (bankAccountKeywordSearch) setBankAccountSearch({ search: bankAccountKeywordSearch })
             if (driverKeywordSearch) setDriverSearch({ search: driverKeywordSearch })
         }, 400)
         return () => clearTimeout(timer)
-    }, [customerKeywordSearch, originSubDistrictKeywordSearch, destinationSubDistrictKeywordSearch, vehicleKeywordSearch, bankAccountKeywordSearch, driverKeywordSearch])
+    }, [customerKeywordSearch, originSubDistrictKeywordSearch, destinationSubDistrictKeywordSearch, vehicleKeywordSearch, bankAccountKeywordSearch, driverKeywordSearch, subDestinationDistrictWeightKeywordSearch])
 
     // Add Edit
     useEffect(() => {
@@ -167,8 +180,10 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
 			dest_sub_district_id: destinationSubDistrictId,
 			vehicle_id: vehicleId,
 			bank_account_id: bankAccountId,
-            driver_id: driverId
+            driver_id: driverId,
+            weight_category: weightCategory
         }
+        console.log(basePayload);
 
         try {
             if (mode === "add") {
@@ -194,7 +209,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
         if (transaction){
             setCustomerId(transaction.customer_id?.toString() || "")
             setOriginSubDistrictId(transaction.origin_sub_district_id?.toString() || "")
-            setDestinationSubDistrictId(transaction.dest_sub_district_id?.toString() || "")
+            setDestinationSubDistrictId(transaction.revision_dest_sub_district_id?.toString() || transaction.dest_sub_district_id?.toString() || "")
             setVehicleId(transaction.vehicle_id?.toString() || "")
             setBankAccountId(transaction.bank_account_id?.toString() || "")
             setTransactionCapacity(Number(transaction.transaction_capacity))
@@ -204,13 +219,28 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             setDoActualDate(transaction.do_actual_date || "")
             setNote(transaction.note || "")
             setDriverId(transaction.driver_id?.toString() || "")
+            setWeightCategory(transaction.revision_weight_category?.toString() || transaction.weight_category?.toString() || "")
 
             if (transaction.customer_id) setCustomerSearch({ id: transaction.customer_id })
             if (transaction.origin_sub_district_id) setOriginSubDistrictSearch({ customer_id: transaction.customer_id })
-            if (transaction.dest_sub_district_id) setDestinationSubDistrictSearch({ customer_id: transaction.customer_id, origin_sub_district_id: transaction.origin_sub_district_id })
+            
+            if (transaction.revision_dest_sub_district_id){
+                setDestinationSubDistrictSearch({ customer_id: transaction.customer_id, origin_sub_district_id: transaction.origin_sub_district_id })
+            }else {
+                if (transaction.dest_sub_district_id) 
+                    setDestinationSubDistrictSearch({ customer_id: transaction.customer_id, origin_sub_district_id: transaction.origin_sub_district_id })
+            }
+
             if (transaction.vehicle_id) setVehicleSearch({ id: transaction.vehicle_id })
             if (transaction.bank_account_id) setBankAccountSearch({ id: transaction.bank_account_id })
             if (transaction.driver_id) setDriverSearch({ id: transaction.driver_id })
+
+            if (transaction.revision_weight_category){
+                setDestinationSubDistrictWeightSearch({ customer_id: transaction.customer_id, origin_sub_district_id: transaction.origin_sub_district_id, dest_sub_district_id: transaction.revision_dest_sub_district_id })
+            }else {
+                if (transaction.weight_category) 
+                    setDestinationSubDistrictWeightSearch({ customer_id: transaction.customer_id, origin_sub_district_id: transaction.origin_sub_district_id, dest_sub_district_id: transaction.dest_sub_district_id })
+            }
         }
         else{
             setCustomerId("")
@@ -255,14 +285,6 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                     </div> */}
                     {user?.role?.name !== "Operational" && (
                         <>
-                        <div className="space-y-1">
-                            <label htmlFor="transaction_capacity" className="text-xs font-medium">Isian (Kg)</label>
-                            <Input id="transaction_capacity" value={Number(transactionCapacity)} onChange={(e) => setTransactionCapacity(Number(e.target.value))} name="transaction_capacity" type="number" placeholder="e.g. 1000" required />
-                        </div>
-                        {/* <div className="space-y-1">
-                            <label htmlFor="transaction_items" className="text-xs font-medium">Jenis Barang</label>
-                            <Input id="transaction_items" value={transactionItems || ""} name="transaction_items" placeholder="e.g. Server hosting fee" />
-                        </div> */}
                         <div className="space-y-1">
                             <label htmlFor="purpose" className="text-xs font-medium">Pelanggan</label>
                             <Combobox 
@@ -383,9 +405,17 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                     setDestinationSubDistrictKeywordSearch(value);
                                 }}
                                 onValueChange={(id) => {
-                                    if (id) setDestinationSubDistrictId(id.toString())
-                                    else setDestinationSubDistrictId("");
+                                    if (id){
+                                        setDestinationSubDistrictId(id.toString())
+                                        setDestinationSubDistrictWeightSearch({ customer_id: customerId, origin_sub_district_id: originSubDistrictId, dest_sub_district_id: id.toString() })
+                                    }
+                                    else{
+                                        setDestinationSubDistrictId("");
+                                        setWeightCategory("");
+                                        setDestinationSubDistrictWeightSearch({})
+                                    }
                                     setDestinationSubDistrictKeywordSearch("");
+                                    
                                 }}
                             >
                                 <ComboboxInput placeholder="Select a destination sub district" value={getDestinationSubDistrictDisplayValue()}/>
@@ -404,6 +434,50 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                     {(item) => (
                                         <ComboboxItem key={item.id} value={item.id.toString()}>
                                             {item.name} - {item.district.name}
+                                        </ComboboxItem>
+                                    )}
+                                    </ComboboxList>
+                                </ComboboxContent>
+                            </Combobox>
+                        </div>
+                        <div className="space-y-1">
+                            <label htmlFor="purpose" className="text-xs font-medium">Isian (KG) Tonase</label>
+                            <Combobox 
+                                items={weightCategories}
+                                value={weightCategory}
+                                onInputValueChange={(value) => {
+                                    const isJustSelected = weightCategories.some(
+                                        (b: any) => b.weight_category.toString() === value.toString()
+                                    );
+                                    
+                                    if (isJustSelected) {
+                                        return;
+                                    }
+
+                                    setDestinationSubDistrictWeightKeywordSearch(value);
+                                }}
+                                onValueChange={(value) => {
+                                    if (value) setWeightCategory(value.toString())
+                                    else setWeightCategory("");
+                                    setDestinationSubDistrictWeightKeywordSearch("");
+                                }}
+                            >
+                                <ComboboxInput placeholder="Select a category" value={getWeightCategoryDisplayValue()}/>
+                                <ComboboxContent>
+                                    {destinationSubDistrictWeightCategoryLoading && (
+                                        <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Mencari database...
+                                        </div>
+                                    )}
+                                    
+                                    {!destinationSubDistrictWeightCategoryLoading && weightCategories.length === 0 && (
+                                        <ComboboxEmpty>Tidak ditemukan.</ComboboxEmpty>
+                                    )}
+                                    <ComboboxList>
+                                    {(item) => (
+                                        <ComboboxItem key={item.weight_category} value={item.weight_category.toString()}>
+                                            {item.weight_category}
                                         </ComboboxItem>
                                     )}
                                     </ComboboxList>
@@ -542,6 +616,11 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                                 </ComboboxContent>
                             </Combobox>
                         </div>
+                        {/* <div className="space-y-1">
+                            <label htmlFor="transaction_items" className="text-xs font-medium">Jenis Barang</label>
+                            <Input id="transaction_items" value={transactionItems || ""} name="transaction_items" placeholder="e.g. Server hosting fee" />
+                        </div> */}
+                        
                      </>
                     )}
                     <div className="space-y-1">

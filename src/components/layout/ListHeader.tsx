@@ -5,6 +5,7 @@ interface ListHeaderProps {
     title: string;
     description?: string;
     buttonText?: string;
+    user?: any;
     onButtonClick?: () => void;
 }
 
@@ -16,7 +17,7 @@ interface SearchBarProps {
 
 
 
-const ListHeader: React.FC<ListHeaderProps> = ({ title, onButtonClick }) => {
+const ListHeader: React.FC<ListHeaderProps> = ({ title, onButtonClick, user }) => {
     return (
         <>
             <div>
@@ -26,9 +27,14 @@ const ListHeader: React.FC<ListHeaderProps> = ({ title, onButtonClick }) => {
                 </p>
             </div>
 
-            <Button size="sm" onClick={onButtonClick}>
-                Tambah {title}
-            </Button>
+            {title === 'Transaksi' && user?.role.name === 'Operational' ? (
+                <></>
+            ): (
+                <Button size="sm" onClick={onButtonClick}>
+                    Tambah {title}
+                </Button>
+            )}
+            
         </>
     )
 }

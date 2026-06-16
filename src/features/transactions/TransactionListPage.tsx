@@ -265,6 +265,7 @@ export default function TransactionListPage() {
         <div className="space-y-4">
             <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                 <ListHeader
+                    user={user}
                     title="Transaksi"
                     onButtonClick={() => {
                         setModeMainAction("add")

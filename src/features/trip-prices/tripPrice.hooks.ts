@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createTripPrice, deleteTripPrice, getTripPrice, getTripPrices, listTripAllowedSubDistricts, updateTripPrice } from "./tripPrice.api"
+import { createTripPrice, deleteTripPrice, getTripPrice, getTripPrices, listTripAllowedSubDistricts, listTripAllowedSubDistrictsWeightCategories, updateTripPrice } from "./tripPrice.api"
 import { type CreateUpdateTripPricePayload, type TripPriceFilters } from "./tripPrice.api"
 
 import { errorHandler } from "@/lib/utils"
@@ -84,6 +84,15 @@ export function useTripPriceGetAllowedDistrictsQuery({ filters }: { filters: Tri
     // Store filters in an object at the end of the queryKey array
     queryKey: ["trip_prices", "allowed_districts", { filters }],
     queryFn: () => listTripAllowedSubDistricts(filters),
+    enabled: !!filters.customer_id, // Only fetch if we have a customerId
+  })
+}
+
+export function useTripPriceGetAllowedDistrictsWeightCategoriesQuery({ filters }: { filters: TripPriceFilters }) {
+  return useQuery({
+    // Store filters in an object at the end of the queryKey array
+    queryKey: ["trip_prices", "weight_categories", { filters }],
+    queryFn: () => listTripAllowedSubDistrictsWeightCategories(filters),
     enabled: !!filters.customer_id, // Only fetch if we have a customerId
   })
 }
