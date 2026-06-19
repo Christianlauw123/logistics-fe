@@ -7,22 +7,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-import { getTransaction, getTransactionLogs, updateTransactionStatus } from "../transactions/transaction.hooks"
+import { getTransaction, getTransactionLogs, updateTransactionStatus } from "./transaction.hooks"
 import { createUploadAttachment, deleteUploadAttachment } from "../attachments/attachment.hooks"
 
 import { AlertCircleIcon, HistoryIcon, MoreHorizontalIcon } from "lucide-react"
 import type { TransactionDetailStatus, TransactionStatus } from "@/types"
 import { useState } from "react"
-import { deleteTransactionDetail, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
-import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage, allowedMainTransactionEdit, allowedAttachmentModification } from "../transactions/transaction.helper"
+import { deleteTransactionDetail, getTransactionDetailLogs, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
+import { allowedMainTransactionEditDetailStatus, detailNotAllowedModify, detailTabunganClaimStatus, transactionStatusBadge, transactionStatusStage, transactionDetailStatusStage, allowedMainTransactionEdit, allowedAttachmentModification } from "./transaction.helper"
 import { errorHandler, formatCurrency } from "@/lib/utils"
-import TransactionFormPage from "../transactions/TransactionFormPage"
+import TransactionFormPage from "./TransactionFormPage"
 import { useAuthStore } from "../auth/auth.store"
-import TransactionDetailFormPage from "../transactions/TransactionDetailFormPage"
+import TransactionDetailFormPage from "./TransactionDetailFormPage"
 import { Info } from "@/components/info"
 import { toast } from "sonner"
 import { Separator } from "@/components/ui/separator"
-import TransactionDetailHistoryPage from "../transactions/TransactionDetailHistoryPage"
+import TransactionDetailHistoryPage from "./TransactionDetailHistoryPage"
 
 export default function TransactionDetailPage() {
     const user = useAuthStore((state) => state.user)
@@ -34,12 +34,17 @@ export default function TransactionDetailPage() {
     const [modeMainAction, setModeMainAction] = useState<null | "edit">(null)
 
     const [openDetailAction, setOpenDetailAction] = useState(false);
-    const [openHistoryAction, setOpenHistoryAction] = useState(false);
+    const [openHistoryAction, setOpenHistoryAction] = useState<"transaction" | "detail" | null>(null);
     const [modeDetailAction, setModeDetailAction] = useState<"add" | "edit">("add")
     const [dataDetailEdit, setDataDetailEdit] = useState<any>(null);
+    const [selectedDetailId, setSelectedDetailId] = useState<string>("");
 
     const { data: transaction, isLoading, isError } = getTransaction(id)
-    const { data: transactionLogs } = getTransactionLogs(id, openHistoryAction)
+
+    const { data: transactionLogs } = getTransactionLogs(id, openHistoryAction === "transaction");
+    const { data: transactionDetailLogs } = getTransactionDetailLogs(selectedDetailId, openHistoryAction === "detail");
+
+    const activeLogs = openHistoryAction === "detail" ? transactionDetailLogs : transactionLogs;
 
     const updateStatus = updateTransactionStatus();
     const uploadTransactionAttachment = createUploadAttachment();
@@ -148,13 +153,26 @@ export default function TransactionDetailPage() {
                 <div className="flex flex-col md:flex-row items-start gap-1">
                     <Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge>
                     <HistoryIcon onClick={() => {
-                        setOpenHistoryAction(true)
+                        setOpenHistoryAction("transaction")
                     }}/>
                     
                 </div>
             </div>
 
-            <TransactionDetailHistoryPage openHistoryAction={openHistoryAction} setOpenHistoryAction={setOpenHistoryAction} logs={transactionLogs} />
+            {/* <TransactionDetailHistoryPage openHistoryAction={openHistoryAction} setOpenHistoryAction={setOpenHistoryAction} logs={transactionLogs} /> */}
+            <TransactionDetailHistoryPage 
+                // Convert truthy string types to a boolean wrapper for open state
+                openHistoryAction={!!openHistoryAction} 
+                // Safely reset state values to null on close
+                setOpenHistoryAction={(open) => {
+                    if (!open) {
+                        setOpenHistoryAction(null);
+                        setSelectedDetailId("");
+                    }
+                }} 
+                logs={activeLogs || []} 
+                title={openHistoryAction === "detail" ? "Detail Log History" : "Transaction Log History"}
+            />
 
             <Card>
                 <CardHeader>
@@ -185,12 +203,12 @@ export default function TransactionDetailPage() {
                 </CardContent>
                 <Separator></Separator>
                 <CardContent className="grid gap-4 md:grid-cols-2">
-                    {/* { transaction?.revision_destination_district !== transaction.destination_district && ( */}
+                    { transaction?.revision_destination_district !== transaction.destination_district && (
                         <>
                             <Info label="Tujuan Revisi" value={transaction?.revision_destination_district?.toString() ?? "-"} />
                             <Info label="Harga Trip Revisi" value={transaction?.revision_trip_price_amount?.toString() ?? "-"}/>
                         </>
-                    {/* )} */}
+                    )}
                 </CardContent>
                 <Separator></Separator>
                 <CardContent className="grid gap-4 md:grid-cols-2">
@@ -199,11 +217,11 @@ export default function TransactionDetailPage() {
                     {/* <Info label="Tujuan" value={transaction.dest_address} /> */}
                     <Info label="Akun Bank" value={transaction.bank_account_num ?? ''} />
                     <Info label="Kapasitas (Kg)" value={Number(transaction?.weight_category)?.toLocaleString('id-ID') ?? "-"}/>
-                    {/* { transaction?.revision_destination_district !== transaction.destination_district && ( */}
+                    { transaction?.revision_destination_district !== transaction.destination_district && (
                         <>
                             <Info label="Kapasitas (Kg) - Revisi" value={Number(transaction?.revision_weight_category)?.toLocaleString('id-ID') ?? "-"}/>
                         </>
-                    {/* )} */}
+                    )}
                 </CardContent>
                 <Separator></Separator>
                 <CardContent className="grid gap-4 md:grid-cols-2">
@@ -282,46 +300,59 @@ export default function TransactionDetailPage() {
                                                     <span className="sr-only">Open menu</span>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
+                                                    <DropdownMenuGroup>
+                                                        <DropdownMenuItem  onClick={(e) => {
+                                                                e.stopPropagation(); 
+                                                                setOpenHistoryAction("detail")
+                                                                setSelectedDetailId(detail.id)
+                                                            }}>
+                                                            History
+
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuGroup>
                                                     {detail.status === "SUBMITTED" && user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status) && (
-                                                        <DropdownMenuGroup>
-                                                            <DropdownMenuLabel>Action</DropdownMenuLabel>
-                                                            <DropdownMenuItem  onClick={(e) => {
-                                                                    e.stopPropagation(); 
-                                                                    setModeDetailAction("edit");
-                                                                    setDataDetailEdit(detail);
-                                                                    setOpenDetailAction(true);
-                                                                }}>
-                                                                Edit
-                                                            </DropdownMenuItem>
-                                                            {user?.role?.name === "Super Admin" && !detailNotAllowedModify?.includes(detail?.purpose) && (
-                                                                <DropdownMenuItem variant="destructive" onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleDeleteDetail(detail.id)
-                                                                }}>
-                                                                    Delete
+                                                        <>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuGroup>
+                                                                <DropdownMenuLabel>Action</DropdownMenuLabel>
+                                                                <DropdownMenuItem  onClick={(e) => {
+                                                                        e.stopPropagation(); 
+                                                                        setModeDetailAction("edit");
+                                                                        setDataDetailEdit(detail);
+                                                                        setOpenDetailAction(true);
+                                                                    }}>
+                                                                    Edit
                                                                 </DropdownMenuItem>
-                                                            )}
-                                                        </DropdownMenuGroup>
+                                                                {user?.role?.name === "Super Admin" && !detailNotAllowedModify?.includes(detail?.purpose) && (
+                                                                    <DropdownMenuItem variant="destructive" onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleDeleteDetail(detail.id)
+                                                                    }}>
+                                                                        Delete
+                                                                    </DropdownMenuItem>
+                                                                )}
+                                                            </DropdownMenuGroup>
+                                                        </>
                                                     )}
                                                     {transactionDetailStatusStage[user?.role?.name || ''][detail.status as TransactionDetailStatus].length !== 0 && (
                                                         <>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuGroup>
-                                                            <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-                                                            {transactionDetailStatusStage[user?.role?.name || ''][detail.status as TransactionDetailStatus].map((transactionDetailStage) => {
-                                                                const detailTabunganClaimInfo = detailNotAllowedModify?.includes(detail?.purpose)
-                                                                const shouldRenderButton = !detailTabunganClaimInfo || detailTabunganClaimStatus.includes(transactionDetailStage[0])
-                                                                return (shouldRenderButton && (
-                                                                        <DropdownMenuItem 
-                                                                            key={transactionDetailStage[0]} 
-                                                                            onClick={() => handleTransactionDetailStatusChange(detail.id, transactionDetailStage[0] as TransactionDetailStatus)}
-                                                                        >
-                                                                            {transactionDetailStage[1]}
-                                                                        </DropdownMenuItem>
-                                                                    )
-                                                                );
-                                                            })}
-                                                        </DropdownMenuGroup>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuGroup>
+                                                                <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
+                                                                {transactionDetailStatusStage[user?.role?.name || ''][detail.status as TransactionDetailStatus].map((transactionDetailStage) => {
+                                                                    const detailTabunganClaimInfo = detailNotAllowedModify?.includes(detail?.purpose)
+                                                                    const shouldRenderButton = !detailTabunganClaimInfo || detailTabunganClaimStatus.includes(transactionDetailStage[0])
+                                                                    return (shouldRenderButton && (
+                                                                            <DropdownMenuItem 
+                                                                                key={transactionDetailStage[0]} 
+                                                                                onClick={() => handleTransactionDetailStatusChange(detail.id, transactionDetailStage[0] as TransactionDetailStatus)}
+                                                                            >
+                                                                                {transactionDetailStage[1]}
+                                                                            </DropdownMenuItem>
+                                                                        )
+                                                                    );
+                                                                })}
+                                                            </DropdownMenuGroup>
                                                         </>
                                                     )}
                                                 </DropdownMenuContent>

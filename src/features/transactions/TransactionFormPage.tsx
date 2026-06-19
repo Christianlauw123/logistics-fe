@@ -183,20 +183,18 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             driver_id: driverId,
             weight_category: weightCategory
         }
-        console.log(basePayload);
 
         try {
             if (mode === "add") {
                 // Call create API here with basePayload
                 await createMainTransaction.mutateAsync({ payload: basePayload })
                 setTransaction(null)
+                reset();
             } else if (mode === "edit") {
-                
                 const response = await updateMainTransaction.mutateAsync({ transactionId: transaction?.id, payload: basePayload })
                 setTransaction(response.data) // Update form with response after update performed, so user can see the updated value immediately after update without reopening the form
             }
             setOpenMainAction(false); // Close dialog
-
         } catch (error) {
             errorHandler(error);
         } finally {
@@ -204,6 +202,20 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
         }
     }
 
+    function reset(){
+        setCustomerId("")
+        setOriginSubDistrictId("")
+        setDestinationSubDistrictId("")
+        setVehicleId("")
+        setBankAccountId("")
+        setTransactionCapacity(0)
+        // setTransactionItems("")
+        // setDestAddress("")
+        setDoNumber("")
+        setDoActualDate("")
+        setNote("")
+        setDriverId("")
+    }
     // Goal set when initialize and when update performed, so user can see the updated value immediately after update without reopening the form
     function setTransaction(transaction: any | null){
         if (transaction){
@@ -243,18 +255,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
             }
         }
         else{
-            setCustomerId("")
-            setOriginSubDistrictId("")
-            setDestinationSubDistrictId("")
-            setVehicleId("")
-            setBankAccountId("")
-            setTransactionCapacity(0)
-            // setTransactionItems("")
-            // setDestAddress("")
-            setDoNumber("")
-            setDoActualDate("")
-            setNote("")
-            setDriverId("")
+            reset()
         }
     }
 

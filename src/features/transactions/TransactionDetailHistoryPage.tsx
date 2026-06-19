@@ -1,12 +1,25 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-export default function TransactionDetailHistoryPage({ openHistoryAction, setOpenHistoryAction, logs }: { openHistoryAction: boolean; setOpenHistoryAction: (openHistoryAction: boolean) => void; logs:any; }) {
+interface TransactionDetailHistoryPageProps {
+    openHistoryAction: boolean;
+    setOpenHistoryAction: (open: boolean) => void;
+    logs: any[];
+    isLoading?: boolean; // New prop to handle dynamic loading states cleanly
+    title?: string;      // New prop to alternate between transaction and row details
+}
+
+export default function TransactionDetailHistoryPage({
+    openHistoryAction,
+    setOpenHistoryAction,
+    logs,
+    title = "History Transaksi"
+}: TransactionDetailHistoryPageProps) {
     return (
         <Dialog open={openHistoryAction} onOpenChange={setOpenHistoryAction}>
-            <DialogContent className="md:max-w-[720px]">
+            <DialogContent className="md:max-w-[720px] max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>History Transaksi</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
                 <div className="overflow-hidden rounded-md border bg-background">
                         <Table>

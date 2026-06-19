@@ -320,179 +320,197 @@ export default function TransactionListPage() {
                         )}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        {/* Customer Filter */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Pelanggan</label>
-                            <Combobox 
-                                items={customerOptions}
-                                value={filters.customer_id || ""}
-                                onInputValueChange={(value) => {
-                                    const isJustSelected = customerOptions.some(
-                                        (b) => b.id.toString() === value.toString()
-                                    );
-                                    
-                                    if (isJustSelected) {
-                                        return;
-                                    }
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                        {/* ================= ROW 1 ================= */}
+                        <div className="p-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Pelanggan</label>
+                                <Combobox 
+                                    items={customerOptions}
+                                    value={filters.customer_id || ""}
+                                    onInputValueChange={(value) => {
+                                        const isJustSelected = customerOptions.some(
+                                            (b) => b.id.toString() === value.toString()
+                                        );
+                                        
+                                        if (isJustSelected) {
+                                            return;
+                                        }
 
-                                    setCustomerKeywordSearch(value);
-                                }}
-                                onValueChange={(id) => {
-                                    if (id){
+                                        setCustomerKeywordSearch(value);
+                                    }}
+                                    onValueChange={(id) => {
+                                        if (id){
+                                            setFilters((prev) => ({
+                                                ...prev,
+                                                customer_id: id || null,
+                                            }))
+                                            setPage(1)
+                                        }
+                                        else setFilters((prev) => ({ ...prev, customer_id: null }));
+                                        setCustomerKeywordSearch("");
+                                    }}
+                                >
+                                    <ComboboxInput placeholder="Select a Customer" value={getCustomerDisplayValue()}/>
+                                    <ComboboxContent>
+                                        {customerLoading && (
+                                            <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                Mencari database...
+                                            </div>
+                                        )}
+                                        
+                                        {!customerLoading && customerOptions.length === 0 && (
+                                            <ComboboxEmpty>Pelanggan tidak ditemukan.</ComboboxEmpty>
+                                        )}
+                                        <ComboboxList>
+                                        {(item) => (
+                                            <ComboboxItem key={item.id} value={item.id.toString()}>
+                                                {item.name}
+                                            </ComboboxItem>
+                                        )}
+                                        </ComboboxList>
+                                    </ComboboxContent>
+                                </Combobox>
+                            </div>
+                        </div>
+                        
+                        <div className="p-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Kendaraan</label>
+                                <Combobox 
+                                    items={vehicleOptions}
+                                    value={filters.vehicle_id || ""}
+                                    onInputValueChange={(value) => {
+                                        const isJustSelected = vehicleOptions.some(
+                                            (b) => b.id.toString() === value.toString()
+                                        );
+                                        
+                                        if (isJustSelected) {
+                                            return;
+                                        }
+
+                                        setVehicleKeywordSearch(value);
+                                    }}
+                                    onValueChange={(id) => {
+                                        if (id){
+                                            setFilters((prev) => ({
+                                                ...prev,
+                                                vehicle_id: id || null,
+                                            }))
+                                            setPage(1)
+                                        }
+                                        else setFilters((prev) => ({ ...prev, vehicle_id: null }));
+                                        setVehicleKeywordSearch("");
+                                    }}
+                                >
+                                    <ComboboxInput placeholder="Pilih Kendaraan" value={getVehicleDisplayValue()}/>
+                                    <ComboboxContent>
+                                        {vehicleLoading && (
+                                            <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                Mencari database...
+                                            </div>
+                                        )}
+                                        
+                                        {!vehicleLoading && vehicleOptions.length === 0 && (
+                                            <ComboboxEmpty>Kendaraan tidak ditemukan.</ComboboxEmpty>
+                                        )}
+                                        <ComboboxList>
+                                        {(item) => (
+                                            <ComboboxItem key={item.id} value={item.id.toString()}>
+                                                {item.plate_number}
+                                            </ComboboxItem>
+                                        )}
+                                        </ComboboxList>
+                                    </ComboboxContent>
+                                </Combobox>
+                            </div>
+                        </div>
+                        
+                        <div className="p-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Status</label>
+                                <select 
+                                    value={filters.status || ""}
+                                    onChange={(e) => {
                                         setFilters((prev) => ({
                                             ...prev,
-                                            customer_id: id || null,
+                                            status: e.target.value || null,
                                         }))
                                         setPage(1)
-                                    }
-                                    else setFilters((prev) => ({ ...prev, customer_id: null }));
-                                    setCustomerKeywordSearch("");
-                                }}
-                            >
-                                <ComboboxInput placeholder="Select a Customer" value={getCustomerDisplayValue()}/>
-                                <ComboboxContent>
-                                    {customerLoading && (
-                                        <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                            Mencari database...
-                                        </div>
-                                    )}
-                                    
-                                    {!customerLoading && customerOptions.length === 0 && (
-                                        <ComboboxEmpty>Pelanggan tidak ditemukan.</ComboboxEmpty>
-                                    )}
-                                    <ComboboxList>
-                                    {(item) => (
-                                        <ComboboxItem key={item.id} value={item.id.toString()}>
-                                            {item.name}
-                                        </ComboboxItem>
-                                    )}
-                                    </ComboboxList>
-                                </ComboboxContent>
-                            </Combobox>
+                                    }}
+                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                >
+                                    <option value="">All Status</option>
+                                    {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
+                                        <option key={status} value={status}>
+                                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div className="p-4">
                         </div>
 
-                        {/* Kendaraan Filter */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Kendaraan</label>
-                            <Combobox 
-                                items={vehicleOptions}
-                                value={filters.vehicle_id || ""}
-                                onInputValueChange={(value) => {
-                                    const isJustSelected = vehicleOptions.some(
-                                        (b) => b.id.toString() === value.toString()
-                                    );
-                                    
-                                    if (isJustSelected) {
-                                        return;
-                                    }
 
-                                    setVehicleKeywordSearch(value);
-                                }}
-                                onValueChange={(id) => {
-                                    if (id){
+                        {/* ================= ROW 2 ================= */}
+                        {/* Item 5: Column 1 */}
+                        <div className="p-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Filter Tanggal</label>
+                                <select 
+                                    value={filters.filterDateKey || ""}
+                                    onChange={(e) => handleDateFilterChange(e.target.value as FilterDateKey || null)}
+                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                >
+                                    <option value="">No Filter</option>
+                                    <option value="do_date">Tanggal DO</option>
+                                    <option value="do_actual_date">Tanggal DO Actual</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        {/* Item 6: Column 2 */}
+                        <div className="p-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Tanggal Mulai</label>
+                                <Input
+                                    type="date"
+                                    value={filters.dateStart}
+                                    onChange={(e) => {
                                         setFilters((prev) => ({
                                             ...prev,
-                                            vehicle_id: id || null,
+                                            dateStart: e.target.value,
                                         }))
                                         setPage(1)
-                                    }
-                                    else setFilters((prev) => ({ ...prev, vehicle_id: null }));
-                                    setVehicleKeywordSearch("");
-                                }}
-                            >
-                                <ComboboxInput placeholder="Pilih Kendaraan" value={getVehicleDisplayValue()}/>
-                                <ComboboxContent>
-                                    {vehicleLoading && (
-                                        <div className="flex items-center justify-center p-4 text-sm text-muted-foreground gap-2">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                            Mencari database...
-                                        </div>
-                                    )}
-                                    
-                                    {!vehicleLoading && vehicleOptions.length === 0 && (
-                                        <ComboboxEmpty>Kendaraan tidak ditemukan.</ComboboxEmpty>
-                                    )}
-                                    <ComboboxList>
-                                    {(item) => (
-                                        <ComboboxItem key={item.id} value={item.id.toString()}>
-                                            {item.plate_number}
-                                        </ComboboxItem>
-                                    )}
-                                    </ComboboxList>
-                                </ComboboxContent>
-                            </Combobox>
+                                    }}
+                                />
+                            </div>
                         </div>
-
-                        {/* Date Filter Type */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Filter Tanggal</label>
-                            <select 
-                                value={filters.filterDateKey || ""}
-                                onChange={(e) => handleDateFilterChange(e.target.value as FilterDateKey || null)}
-                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                            >
-                                <option value="">No Filter</option>
-                                <option value="do_date">Tanggal DO</option>
-                                <option value="do_actual_date">Tanggal DO Actual</option>
-                            </select>
+                        
+                        {/* Item 7: Column 3 */}
+                        <div className="p-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Tanggal Selesai</label>
+                                <Input
+                                    type="date"
+                                    value={filters.dateEnd}
+                                    onChange={(e) => {
+                                        setFilters((prev) => ({
+                                            ...prev,
+                                            dateEnd: e.target.value,
+                                        }))
+                                        setPage(1)
+                                    }}
+                                />
+                            </div>
                         </div>
-
-                        {/* Custom Date Start */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Tanggal Mulai</label>
-                            <Input
-                                type="date"
-                                value={filters.dateStart}
-                                onChange={(e) => {
-                                    setFilters((prev) => ({
-                                        ...prev,
-                                        dateStart: e.target.value,
-                                    }))
-                                    setPage(1)
-                                }}
-                            />
-                        </div>
-
-                        {/* Custom Date End */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Tanggal Selesai</label>
-                            <Input
-                                type="date"
-                                value={filters.dateEnd}
-                                onChange={(e) => {
-                                    setFilters((prev) => ({
-                                        ...prev,
-                                        dateEnd: e.target.value,
-                                    }))
-                                    setPage(1)
-                                }}
-                            />
-                        </div>
-
-                        {/* Status Filter */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Status</label>
-                            <select 
-                                value={filters.status || ""}
-                                onChange={(e) => {
-                                    setFilters((prev) => ({
-                                        ...prev,
-                                        status: e.target.value || null,
-                                    }))
-                                    setPage(1)
-                                }}
-                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                            >
-                                <option value="">All Status</option>
-                                {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
-                                    <option key={status} value={status}>
-                                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        
+                        {/* Item 8: Column 4 */}
+                        <div className="p-4"></div>
                     </div>
                 </div>
             )}
