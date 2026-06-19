@@ -76,6 +76,19 @@ export function getTransaction(id: string | undefined) {
   })
 }
 
+export function getTransactionLogs(id: string | undefined, isOpen: boolean) {
+  return useQuery({
+    queryKey: ["transactions", "detail", "logs", id],
+    queryFn: async () => {
+      const response = await api.get<{ data: any }>(
+        `/transactions/${id}/logs`
+      )
+      return response.data.data
+    },
+    enabled: Boolean(id) && isOpen,
+  })
+}
+
 export function deleteTransaction() {
   const queryClient = useQueryClient()
 
@@ -100,6 +113,7 @@ export function deleteTransaction() {
 }
 
 export function updateTransaction() {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ transactionId, payload }: { transactionId: string; payload: CreateUpdateTransactionPayload }) => {
       const response = await api.put(`/transactions/${transactionId}`, payload, {
@@ -109,7 +123,9 @@ export function updateTransaction() {
       })
       return response.data
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["transactions", "detail", variables.transactionId], })
+      queryClient.invalidateQueries({ queryKey: ["transactions", "detail", "logs", variables.transactionId], })
       toast.success("Transaction Updated")
     },
     onError: (error: any) => {
