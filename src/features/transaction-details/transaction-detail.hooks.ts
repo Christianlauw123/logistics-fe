@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
 import type { TransactionDetailStatus } from "@/types"
@@ -84,5 +84,18 @@ export function updateTransactionDetailStatus() {
     onError: (error: any) => {
       errorHandler(error)
     },
+  })
+}
+
+export function getTransactionDetailLogs(id: string | undefined, isOpen: boolean) {
+  return useQuery({
+    queryKey: ["transaction_details", id, "detail", "logs"],
+    queryFn: async () => {
+      const response = await api.get<{ data: any }>(
+        `/transaction_details/${id}/logs_details`
+      )
+      return response.data.data
+    },
+    enabled: Boolean(id) && isOpen,
   })
 }

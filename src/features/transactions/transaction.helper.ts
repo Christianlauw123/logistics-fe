@@ -160,7 +160,6 @@ const transactionDetailStatusStage: Record<string, Record<TransactionDetailStatu
 
 
 const allowedMainTransactionEdit = ['SUBMITTED']
-const allowedMainTransactionEditRevisionDestination = ['SUBMITTED', 'APPROVED']
 const allowedMainTransactionEditDetailStatus = ['SUBMITTED', 'APPROVED']
 
 const allowedAttachmentModification  = ['SUBMITTED', 'APPROVED', 'DONE_AND_WAITING_DOCUMENT']
@@ -172,7 +171,6 @@ export {
     transactionStatusStage,
     transactionDetailStatusStage,
     allowedMainTransactionEditDetailStatus,
-    allowedMainTransactionEditRevisionDestination,
     allowedAttachmentModification,
     allowedMainTransactionEdit,
     detailNotAllowedModify,
