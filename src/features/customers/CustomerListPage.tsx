@@ -19,7 +19,7 @@ export default function CustomerListPage() {
     const { data: customers, isError } = useCustomersQuery({
         search,
         page,
-        per_page: 5,
+        per_page: 15,
     })
 
     const deleteCustomer = useCustomerDeleteQuery();

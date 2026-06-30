@@ -18,7 +18,7 @@ export default function DriverListPage() {
     const { data: drivers, isError } = useDriversQuery({
         search,
         page,
-        per_page: 5,
+        per_page: 15,
     })
 
     const deleteDriver = useDriverDeleteQuery();

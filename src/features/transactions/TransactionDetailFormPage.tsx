@@ -10,9 +10,8 @@ import { errorHandler, formatCurrency } from "@/lib/utils"
 import { Info } from "@/components/info"
 import { CardContent } from "@/components/ui/card"
 import type { TransactionDetail } from "@/types"
-import { Switch } from "@/components/ui/switch"
 
-export default function TransactionDetailFormPage({ openDetailAction, setOpenDetailAction, mode, detailTransaction, transaction, setDetailTransaction }: { openDetailAction: boolean; setOpenDetailAction: (openDetailAction: boolean) => void; mode: "add" | "edit"; detailTransaction: any; transaction: any; setDetailTransaction: (detailTransaction: TransactionDetail) => any;}) {
+export default function TransactionDetailFormPage({ modeSpecial, openDetailAction, setOpenDetailAction, mode, detailTransaction, transaction, setDetailTransaction }: { modeSpecial: string; openDetailAction: boolean; setOpenDetailAction: (openDetailAction: boolean) => void; mode: "add" | "edit"; detailTransaction: any; transaction: any; setDetailTransaction: (detailTransaction: TransactionDetail) => any;}) {
     const { id } = useParams()
     const [detailAmount, setDetailAmount] = useState<string>("")
     const [detailPurpose, setDetailPurpose] = useState<string>("")
@@ -20,7 +19,7 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
     const [totalRequest, setTotalRequest] = useState<number>(0)
     const [totalRequestApproved, setTotalRequestApproved] = useState<number>(0)
     const [remainingRequest, setRemainingRequest] = useState<number>(0)
-    const [specialCase, setSpecialCase] = useState<boolean>(false)
+    const [attLink, setAttLink] = useState<string>("");
 
     // Upload Bukti
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -52,8 +51,9 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             note: rawData.note as string ?? detailNote,
             amount: Number(rawData.amount) ?? Number(detailAmount),
             file: selectedFile ?? undefined,
-            is_special_case: (rawData.is_special_case ? true : false) || specialCase
+            is_special_case: modeSpecial === "special" ? true : false
         };
+        console.log(modeSpecial);
         try {
             if (mode === "add")
                 await createDetail.mutateAsync(basePayload)
@@ -83,22 +83,26 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
             setDetailAmount(detail?.amount || "0");
             setDetailPurpose(detail?.purpose || "");
             setDetailNote(detail?.note || "");
-            setSpecialCase(detail?.is_special_case || false);
 
             const detailAmount = detail?.is_special_case ? 0 : (Number.isNaN(Number.parseFloat(detail?.amount)) ? Number(detail?.amount) : Number.parseFloat(detail?.amount))
 
             setTotalRequest(transaction?.current_total|| 0)
             setTotalRequestApproved(transaction?.current_total_approved || 0)
             setRemainingRequest(transaction?.revision_trip_price_amount - transaction?.current_total_approved - detailAmount || 0)
+            setAttLink(detail?.attachment || "")
         }else{
-            setDetailAmount("");
-            setDetailPurpose("");
-            setDetailNote("");
-            setSpecialCase(false);
-            setTotalRequest(transaction?.current_total || 0)
-            setTotalRequestApproved(transaction?.current_total_approved || 0)
-            setRemainingRequest(transaction?.revision_trip_price_amount - transaction?.current_total_approved || 0)
+            reset(transaction)
         }
+    }
+
+    function reset(transaction: any){
+        setDetailAmount("");
+        setDetailPurpose("");
+        setDetailNote("");
+        setTotalRequest(transaction?.current_total || 0)
+        setTotalRequestApproved(transaction?.current_total_approved || 0)
+        setRemainingRequest(transaction?.revision_trip_price_amount - transaction?.current_total_approved || 0)
+        setAttLink("")
     }
 
     async function handleProveAttachmentChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -127,22 +131,19 @@ export default function TransactionDetailFormPage({ openDetailAction, setOpenDet
                         <Input id="purpose" value={detailPurpose} onChange={(e) => setDetailPurpose(e.target.value)} name="purpose" placeholder="e.g. Server hosting fee" required />
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="amount" className="text-xs font-medium">Amount</label>
+                        <label htmlFor="amount" className="text-xs font-medium">Nominal</label>
                         <Input id="amount" value={Number.parseFloat(detailAmount || "0").toString()} onChange={(e) => setDetailAmount(e.target.value)} name="amount" type="number" placeholder="0.00" required />
                     </div>
                     <div className="space-y-1">
-                        <label htmlFor="note" className="text-xs font-medium">Note</label>
+                        <label htmlFor="note" className="text-xs font-medium">Catatan</label>
                         <Input id="note" value={detailNote} onChange={(e) => setDetailNote(e.target.value)} name="note" placeholder="e.g. Server hosting fee"  />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="file_detail" className="text-xs font-medium">Bukti Foto</label>
                         <Input type="file" id="file_detail" onChange={handleProveAttachmentChange} />
+                        {attLink}
                     </div>
 
-                    <div className="space-y-1">
-                        <label htmlFor="is_special_case" className="text-xs font-medium">Kasus Special</label>
-                        <Switch id="is_special_case" checked={specialCase} onCheckedChange={setSpecialCase} />
-                    </div>
                     <div className="flex justify-end gap-2 pt-2">
                         <Button type="button" variant="outline" onClick={() => setOpenDetailAction(false)}>Cancel</Button>
                         <Button type="submit" disabled={loading}>{loading ? "Submitting..." : "Save Detail"}</Button>

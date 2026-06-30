@@ -201,6 +201,26 @@ export function createExportTransaction() {
   })
 }
 
+export function createExportTransactionSimple() {
+  return useMutation({
+    mutationFn: async ({ payload }: { payload: TransactionFilters}) => {
+      const response = await api.post<TransactionExport>("/transactions/simple_export", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success("Export Transaction Created")
+    },
+    onError: (error: any) => {
+      errorHandler(error)
+    },
+  })
+}
+
 export function getExportTransactionStatus() {
   return useMutation({
     mutationFn: async ({ job_id }: { job_id: string}) => {

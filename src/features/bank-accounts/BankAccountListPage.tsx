@@ -19,7 +19,7 @@ export default function BankAccountListPage() {
     const { data: bankAccounts, isError } = useBankAccountsQuery({
         search,
         page,
-        per_page: 5,
+        per_page: 15,
     })
 
     const deleteBankAccount = useBankAccountDeleteQuery();

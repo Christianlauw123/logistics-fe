@@ -3,14 +3,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
 import { getTransaction, getTransactionLogs, updateTransactionStatus } from "./transaction.hooks"
 import { createUploadAttachment, deleteUploadAttachment } from "../attachments/attachment.hooks"
 
-import { AlertCircleIcon, HistoryIcon, MoreHorizontalIcon } from "lucide-react"
+import { AlertCircleIcon, HistoryIcon } from "lucide-react"
 import type { TransactionDetailStatus, TransactionStatus } from "@/types"
 import { useState } from "react"
 import { deleteTransactionDetail, getTransactionDetailLogs, updateTransactionDetailStatus } from "../transaction-details/transaction-detail.hooks"
@@ -23,6 +22,7 @@ import { Info } from "@/components/info"
 import { toast } from "sonner"
 import { Separator } from "@/components/ui/separator"
 import TransactionDetailHistoryPage from "./TransactionDetailHistoryPage"
+import { TransactionDetailPageTable } from "./TransactionDetailPageTable"
 
 export default function TransactionDetailPage() {
     const user = useAuthStore((state) => state.user)
@@ -36,6 +36,7 @@ export default function TransactionDetailPage() {
     const [openDetailAction, setOpenDetailAction] = useState(false);
     const [openHistoryAction, setOpenHistoryAction] = useState<"transaction" | "detail" | null>(null);
     const [modeDetailAction, setModeDetailAction] = useState<"add" | "edit">("add")
+    const [modeDetailSpecialAction, setModeDetailSpecialAction] = useState<"normal" | "special">("normal")
     const [dataDetailEdit, setDataDetailEdit] = useState<any>(null);
     const [selectedDetailId, setSelectedDetailId] = useState<string>("");
 
@@ -254,133 +255,81 @@ export default function TransactionDetailPage() {
                         <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} icon={ (transaction.current_total || 0) > (transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0)) ? <AlertCircleIcon className="text-red-400 text-sm" /> : <></>} />
                         <Info label="Total Pengajuan Approved" value={formatCurrency(transaction.current_total_approved || 0)} />
                         <Info label="Sisa Pengajuan" value={formatCurrency(transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0))} />
+                        <Info label="Selisih Biaya Kelebihan" value={(transaction.current_total_discrepancy === undefined) ? "0" :  (transaction.current_total_discrepancy > 0 ? "0" : formatCurrency(transaction.current_total_discrepancy))} />
                     </CardContent>
+                    <Separator />
+
+                    <CardTitle>Detail Transaksi UJP</CardTitle>
                     {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
-                    <Button size="sm" onClick={() => {
-                        setModeDetailAction("add")
-                        setOpenDetailAction(true)
-                    }}>
-                        Tambah Detail
-                    </Button>)}
-                    
-                    <TransactionDetailFormPage openDetailAction={openDetailAction} setOpenDetailAction={setOpenDetailAction} mode={modeDetailAction!} detailTransaction={dataDetailEdit} transaction={transaction} setDetailTransaction={setDataDetailEdit}/>
+                        <>
+                            <Button size="sm" onClick={() => {
+                                setModeDetailAction("add")
+                                setOpenDetailAction(true)
+                                setModeDetailSpecialAction("normal")
+                            }}>
+                                Tambah Detail UJP
+                            </Button>
+                        </>
+                    )}
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <TransactionDetailPageTable
+                                type="normal"
+                                user={user}
+                                transaction={transaction}
+                                allowedMainTransactionEditDetailStatus={allowedMainTransactionEditDetailStatus}
+                                detailNotAllowedModify={detailNotAllowedModify}
+                                transactionDetailStatusStage={transactionDetailStatusStage}
+                                detailTabunganClaimStatus={detailTabunganClaimStatus}
+                                transactionStatusBadge={transactionStatusBadge}
+                                setOpenHistoryAction={setOpenHistoryAction}
+                                setSelectedDetailId={setSelectedDetailId}
+                                setModeDetailAction={setModeDetailAction}
+                                setDataDetailEdit={setDataDetailEdit}
+                                setOpenDetailAction={setOpenDetailAction}
+                                handleDeleteDetail={handleDeleteDetail}
+                                handleTransactionDetailStatusChange={handleTransactionDetailStatusChange}
+                            />
+                        </div>
+                    </CardContent>
+                    <Separator />
+                    <CardTitle>Detail Transaksi Lainnya</CardTitle>
+                    {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
+                        <>
+                            <Button size="sm" onClick={() => {
+                                setModeDetailAction("add")
+                                setOpenDetailAction(true)
+                                setModeDetailSpecialAction("special")
+                            }}>
+                                Tambah Detail Khusus (Uang Makan, subsidi solar, dll)
+                            </Button>
+                        </>
+                    )}
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <TransactionDetailPageTable
+                                type="special"
+                                user={user}
+                                transaction={transaction}
+                                allowedMainTransactionEditDetailStatus={allowedMainTransactionEditDetailStatus}
+                                detailNotAllowedModify={detailNotAllowedModify}
+                                transactionDetailStatusStage={transactionDetailStatusStage}
+                                detailTabunganClaimStatus={detailTabunganClaimStatus}
+                                transactionStatusBadge={transactionStatusBadge}
+                                setOpenHistoryAction={setOpenHistoryAction}
+                                setSelectedDetailId={setSelectedDetailId}
+                                setModeDetailAction={setModeDetailAction}
+                                setDataDetailEdit={setDataDetailEdit}
+                                setOpenDetailAction={setOpenDetailAction}
+                                handleDeleteDetail={handleDeleteDetail}
+                                handleTransactionDetailStatusChange={handleTransactionDetailStatusChange}
+                            />
+                        </div>
+                    </CardContent>
+                    <TransactionDetailFormPage modeSpecial={modeDetailSpecialAction} openDetailAction={openDetailAction} setOpenDetailAction={setOpenDetailAction} mode={modeDetailAction!} detailTransaction={dataDetailEdit} transaction={transaction} setDetailTransaction={setDataDetailEdit}/>
                 </CardHeader>
 
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Actions</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Keperluan</TableHead>
-                                    <TableHead>Jumlah</TableHead>
-                                    {user?.role.name === 'Super Admin' && (
-                                        <TableHead>Jumlah Transfer</TableHead>
-                                    )}
-                                    <TableHead>Note</TableHead>
-                                    <TableHead>Kasus Khusus</TableHead>
-                                    <TableHead>Bukti</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {transaction.details?.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center">
-                                            No details added yet.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                                {transaction.details?.map((detail) => (
-                                    <TableRow key={detail.id}>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger >
-                                                    <MoreHorizontalIcon />
-                                                    <span className="sr-only">Open menu</span>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuGroup>
-                                                        <DropdownMenuItem  onClick={(e) => {
-                                                                e.stopPropagation(); 
-                                                                setOpenHistoryAction("detail")
-                                                                setSelectedDetailId(detail.id)
-                                                            }}>
-                                                            History
-
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuGroup>
-                                                    {detail.status === "SUBMITTED" && user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status) && (
-                                                        <>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuGroup>
-                                                                <DropdownMenuLabel>Action</DropdownMenuLabel>
-                                                                <DropdownMenuItem  onClick={(e) => {
-                                                                        e.stopPropagation(); 
-                                                                        setModeDetailAction("edit");
-                                                                        setDataDetailEdit(detail);
-                                                                        setOpenDetailAction(true);
-                                                                    }}>
-                                                                    Edit
-                                                                </DropdownMenuItem>
-                                                                {user?.role?.name === "Super Admin" && !detailNotAllowedModify?.includes(detail?.purpose) && (
-                                                                    <DropdownMenuItem variant="destructive" onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleDeleteDetail(detail.id)
-                                                                    }}>
-                                                                        Delete
-                                                                    </DropdownMenuItem>
-                                                                )}
-                                                            </DropdownMenuGroup>
-                                                        </>
-                                                    )}
-                                                    {transactionDetailStatusStage[user?.role?.name || ''][detail.status as TransactionDetailStatus].length !== 0 && (
-                                                        <>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuGroup>
-                                                                <DropdownMenuLabel>Change Status To</DropdownMenuLabel>
-                                                                {transactionDetailStatusStage[user?.role?.name || ''][detail.status as TransactionDetailStatus].map((transactionDetailStage) => {
-                                                                    const detailTabunganClaimInfo = detailNotAllowedModify?.includes(detail?.purpose)
-                                                                    const shouldRenderButton = !detailTabunganClaimInfo || detailTabunganClaimStatus.includes(transactionDetailStage[0])
-                                                                    return (shouldRenderButton && (
-                                                                            <DropdownMenuItem 
-                                                                                key={transactionDetailStage[0]} 
-                                                                                onClick={() => handleTransactionDetailStatusChange(detail.id, transactionDetailStage[0] as TransactionDetailStatus)}
-                                                                            >
-                                                                                {transactionDetailStage[1]}
-                                                                            </DropdownMenuItem>
-                                                                        )
-                                                                    );
-                                                                })}
-                                                            </DropdownMenuGroup>
-                                                        </>
-                                                    )}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge className={`${transactionStatusBadge[detail.status]}`}>{detail.status}</Badge>
-                                        </TableCell>
-                                        <TableCell className="font-medium">{detail.purpose}</TableCell>
-                                        <TableCell>{formatCurrency(detail.amount)}</TableCell>
-                                        {user?.role.name === 'Super Admin' && (
-                                            <TableHead>{formatCurrency(detail.total_transfer)}</TableHead>
-                                        )}
-                                        <TableCell>{detail.note}</TableCell>
-                                        <TableCell>{detail.is_special_case ? 'y' : 'x'}</TableCell>
-                                        <TableCell>
-                                            {detail.attachment && (
-                                                <Button variant="outline" >
-                                                    <a href={detail.attachment} target="_blank" rel="noreferrer">Open</a>
-                                                </Button>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
+                
             </Card>
 
             <Card>

@@ -139,7 +139,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
 
             if (vehicleKeywordSearch) setVehicleSearch({ search: vehicleKeywordSearch, is_active: true })
             if (bankAccountKeywordSearch) setBankAccountSearch({ search: bankAccountKeywordSearch })
-            if (driverKeywordSearch) setDriverSearch({ search: driverKeywordSearch })
+            if (driverKeywordSearch) setDriverSearch({ search: driverKeywordSearch, is_active: true })
         }, 400)
         return () => clearTimeout(timer)
     }, [customerKeywordSearch, originSubDistrictKeywordSearch, destinationSubDistrictKeywordSearch, vehicleKeywordSearch, bankAccountKeywordSearch, driverKeywordSearch, subDestinationDistrictWeightKeywordSearch])

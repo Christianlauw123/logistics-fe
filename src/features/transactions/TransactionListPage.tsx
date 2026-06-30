@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import { createExportTransaction, deleteTransaction, getExportTransactionStatus, getTransactions } from "./transaction.hooks"
+import { createExportTransaction, createExportTransactionSimple, deleteTransaction, getExportTransactionStatus, getTransactions } from "./transaction.hooks"
 import { transactionStatusBadge, transactionStatusStage } from "./transaction.helper"
 
 import type { CustomerFilters } from "../customers/customer.api"
@@ -90,7 +90,7 @@ export default function TransactionListPage() {
     const { data, isError } = getTransactions({
         search: search || undefined,
         page: page,
-        per_page: 5,
+        per_page: 15,
         customer_id: filters.customer_id || undefined,
         date_start: filters.dateStart || undefined,
         date_end: filters.dateEnd || undefined,
@@ -137,6 +137,7 @@ export default function TransactionListPage() {
     }
 
     const startExportTransaction = createExportTransaction();
+    const startExportTransactionSimple = createExportTransactionSimple();
     const exportTransactionStatus = getExportTransactionStatus();
 
     
@@ -189,77 +190,135 @@ export default function TransactionListPage() {
         }
     }
 
-    const pollIntervalRef = useRef<number| null>(null)
+    async function handleExportDetail(){
+        if (filters.filterDateKey === null || filters.dateStart === '' || filters.dateEnd === ''){
+            toast.error('Silakan pilih filter tanggal, atur tanggal mulai & selesai sebelum mengekspor')
+            return;
+        }
+
+        setExportState({
+            isExporting: true,
+            jobId: null,
+            status: "processing",
+            error: null,
+        })
+        try {
+            const basePayload = { 
+                search: search as string, // Ensure 'id' is available in this scope
+                customer_id: filters.customer_id === null ? undefined : filters.customer_id,
+                date_start: filters.dateStart,
+                date_end: filters.dateEnd,
+                filter_date_key: filters.filterDateKey === null ? undefined :filters.filterDateKey,
+                vehicle_id: filters.vehicle_id === null ? undefined :filters.vehicle_id,
+            }
+            const response = await startExportTransactionSimple.mutateAsync({ payload: basePayload })
+
+            setExportState({
+                isExporting: true,
+                jobId: response.job_id,
+                status: "processing",
+                error: null,
+            })
+        }
+        catch(error){
+            errorHandler(error)
+            setExportState({
+                isExporting: false,
+                jobId: null,
+                status: "failed",
+                error: "Failed to start export. Please try again.",
+            })
+        }
+    }
+
+    const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
     // Poll for export status
     useEffect(() => {
-        if (!exportState.jobId) return
+        // 1. Guard clause: Do nothing if there's no jobId
+        if (!exportState.jobId) return;
+
+        // 2. Local copy of the jobId to prevent race conditions during updates
+        const currentJobId = exportState.jobId;
 
         const pollExportStatus = async () => {
             try {
-                const response = await exportTransactionStatus.mutateAsync({ job_id: exportState.jobId as string })
+                const response = await exportTransactionStatus.mutateAsync({ job_id: currentJobId });
+                
                 if (response.status === "completed") {
-                    // Open the download link in a new tab safely
-                    window.open(`${import.meta.env.VITE_API_URL}/transactions/download-export/${response.job_id}`, '_blank', 'noopener,noreferrer');
+                    // Clear intervals instantly before making state changes
+                    if (pollIntervalRef.current) {
+                        clearInterval(pollIntervalRef.current);
+                        pollIntervalRef.current = null;
+                    }
+
+                    window.open(`${import.meta.env.VITE_API_URL}/transactions/download-export/${currentJobId}`, '_blank', 'noopener,noreferrer');
+                    
                     setExportState({
                         isExporting: false,
                         jobId: null,
                         status: "completed",
                         error: null,
-                    })
+                    });
 
-                    // Clear polling
+                    // Smooth reset back to normal without disrupting active jobs
+                    setTimeout(() => {
+                        setExportState(prev => {
+                            // Only reset if a new export hasn't been started in the meantime
+                            if (prev.status === "completed") {
+                                return { isExporting: false, jobId: null, status: "idle", error: null };
+                            }
+                            return prev;
+                        });
+                    }, 3000);
+
+                } else if (response.status === "failed") {
                     if (pollIntervalRef.current) {
-                        clearInterval(pollIntervalRef.current)
-                        pollIntervalRef.current = null
+                        clearInterval(pollIntervalRef.current);
+                        pollIntervalRef.current = null;
                     }
 
-                    // Reset after 3 seconds
-                    setTimeout(() => {
-                        setExportState({
-                            isExporting: false,
-                            jobId: null,
-                            status: "idle",
-                            error: null,
-                        })
-                    }, 3000)
-                } else if (response.status === "failed") {
                     setExportState({
                         isExporting: false,
                         jobId: null,
                         status: "failed",
                         error: "Export failed",
-                    })
-
-                    // Clear polling
-                    if (pollIntervalRef.current) {
-                        clearInterval(pollIntervalRef.current)
-                        pollIntervalRef.current = null
-                    }
+                    });
                 }
             } catch (error) {
-                errorHandler(error)
+                errorHandler(error);
                 if (pollIntervalRef.current) {
-                    clearInterval(pollIntervalRef.current)
-                    pollIntervalRef.current = null
+                    clearInterval(pollIntervalRef.current);
+                    pollIntervalRef.current = null;
                 }
+                setExportState({
+                    isExporting: false,
+                    jobId: null,
+                    status: "failed",
+                    error: "Network error checking status",
+                });
             }
+        };
+
+        // 3. Prevent duplicate intervals by clearing an existing one first
+        if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
         }
 
-        // Poll immediately
-        pollExportStatus()
+        // Run immediately on mount/id change
+        pollExportStatus();
 
-        // Then poll every 1 second
-        if (!pollIntervalRef.current) {
-            pollIntervalRef.current = setInterval(pollExportStatus, 1000)
-        }
+        // Setup the 1-second cadence safely
+        pollIntervalRef.current = setInterval(pollExportStatus, 1000);
 
+        // 4. Return cleanup function to run when jobId changes or component unmounts
         return () => {
             if (pollIntervalRef.current) {
-                clearInterval(pollIntervalRef.current)
-                pollIntervalRef.current = null
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
             }
-        }
-    }, [exportState.jobId])
+        };
+    }, [exportState.jobId]);
 
     return (
         <div className="space-y-4">
@@ -300,7 +359,22 @@ export default function TransactionListPage() {
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Exporting...</>
                 ) : exportState.status === "completed" ? (
                     <><Download className="mr-2 h-4 w-4" />Done!</>
-                ) : ( <><Download className="mr-2 h-4 w-4" />Export</>
+                ) : ( <><Download className="mr-2 h-4 w-4" />Full Export</>
+                )}
+            </Button>
+
+            <Button 
+                size="sm"
+                variant="default"
+                onClick={handleExportDetail}
+                disabled={exportState.isExporting}
+                className="gap-2"
+            >
+                {exportState.isExporting && exportState.status === "processing" ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Exporting...</>
+                ) : exportState.status === "completed" ? (
+                    <><Download className="mr-2 h-4 w-4" />Done!</>
+                ) : ( <><Download className="mr-2 h-4 w-4" />Export Detail</>
                 )}
             </Button>
 
@@ -428,29 +502,34 @@ export default function TransactionListPage() {
                             </div>
                         </div>
                         
-                        <div className="p-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Status</label>
-                                <select 
-                                    value={filters.status || ""}
-                                    onChange={(e) => {
-                                        setFilters((prev) => ({
-                                            ...prev,
-                                            status: e.target.value || null,
-                                        }))
-                                        setPage(1)
-                                    }}
-                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                >
-                                    <option value="">All Status</option>
-                                    {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
-                                        <option key={status} value={status}>
-                                            {status.charAt(0).toUpperCase() + status.slice(1)}
-                                        </option>
-                                    ))}
-                                </select>
+                        {user?.role.name !== 'Staff' ? (
+                            <div className="p-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Status</label>
+                                    <select 
+                                        value={filters.status || ""}
+                                        onChange={(e) => {
+                                            setFilters((prev) => ({
+                                                ...prev,
+                                                status: e.target.value || null,
+                                            }))
+                                            setPage(1)
+                                        }}
+                                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    >
+                                        <option value="">All Status</option>
+                                        {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
+                                            <option key={status} value={status}>
+                                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="p-4">
+                            </div>
+                        )}
                         
                         <div className="p-4">
                         </div>
@@ -523,13 +602,13 @@ export default function TransactionListPage() {
                     <TableHead className="w-[120px]">Aksi</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Tanggal DO Dibuat</TableHead>
+                    <TableHead>Kendaraan</TableHead>
+                    <TableHead>Supir</TableHead>
+                    <TableHead>Tujuan</TableHead>
                     <TableHead>No DO</TableHead>
                     <TableHead>Tanggal Actual DO</TableHead>
-                    <TableHead>Supir</TableHead>
                     <TableHead>Pelanggan</TableHead>
                     <TableHead>Asal</TableHead>
-                    <TableHead>Tujuan</TableHead>
-                    <TableHead>Kendaraan</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -568,13 +647,13 @@ export default function TransactionListPage() {
                         </TableCell>
                         <TableCell><Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge></TableCell>
                         <TableCell>{transaction.do_date}</TableCell>
+                        <TableCell>{transaction.vehicle_plate}</TableCell>
+                        <TableCell>{transaction.driver_name}</TableCell>
+                        <TableCell>{transaction.revision_destination_district}</TableCell>
                         <TableCell className="font-medium">{transaction.do_number}</TableCell>
                         <TableCell>{transaction.do_actual_date}</TableCell>
-                        <TableCell>{transaction.driver_name}</TableCell>
                         <TableCell>{transaction.customer_name}</TableCell>
                         <TableCell>{transaction.origin_district}</TableCell>
-                        <TableCell>{transaction.destination_district}</TableCell>
-                        <TableCell>{transaction.vehicle_plate}</TableCell>
                     </TableRow>
                     ))}
 

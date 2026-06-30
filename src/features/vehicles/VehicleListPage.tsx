@@ -19,7 +19,7 @@ export default function VehicleListPage() {
     const { data: vehicles, isError } = useVehiclesQuery({
         search,
         page,
-        per_page: 5,
+        per_page: 15,
     })
 
     const deleteVehicle = useVehicleDeleteQuery();
