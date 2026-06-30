@@ -58,6 +58,7 @@ export type TripPrice = {
     origin_sub_district: SubDistrict
     destination_sub_district: SubDistrict
     weight_category: number
+    base_price_factory: number
 }
 
 export type TransactionDetail = {
@@ -118,6 +119,7 @@ export type Transaction = {
     current_total?: number | 0
     current_total_approved?: number | 0
     revision_trip_price_amount: number | 0
+    current_total_discrepancy?: number | 0
     revision_destination_district: string | ""
     weight_category?: number | 0
     revision_weight_category?: number | 0

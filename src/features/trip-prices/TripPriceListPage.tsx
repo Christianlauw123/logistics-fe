@@ -19,7 +19,7 @@ export default function TripPriceListPage() {
     const { data: tripPrices, isError } = useTripPricesQuery({
         search,
         page,
-        per_page: 5,
+        per_page: 15,
     })
 
     const deleteTripPrice = useTripPriceDeleteQuery();
@@ -60,8 +60,9 @@ export default function TripPriceListPage() {
                         <TableHead>Pelanggan</TableHead>
                         <TableHead>Asal</TableHead>
                         <TableHead>Tujuan</TableHead>
-                        <TableHead>Kategori</TableHead>
+                        <TableHead>Kategori Berat (kg)</TableHead>
                         <TableHead>Harga Dasar</TableHead>
+                        <TableHead>Harga Dasar Pabrik</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -101,6 +102,7 @@ export default function TripPriceListPage() {
                         <TableCell>{tripPrice.destination_sub_district?.name}, {tripPrice.destination_sub_district?.district?.name}</TableCell>
                         <TableCell>{tripPrice.weight_category}</TableCell>
                         <TableCell>{formatCurrency(tripPrice?.base_price) }</TableCell>
+                        <TableCell>{formatCurrency(tripPrice?.base_price_factory) }</TableCell>
                     </TableRow>
                     ))}
 

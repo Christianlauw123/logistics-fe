@@ -18,7 +18,7 @@ export default function UserListPage() {
     const { data: users, isError } = useUsersQuery({
         search,
         page,
-        per_page: 5,
+        per_page: 15,
     })
 
     const deleteUser = useUserDeleteQuery();

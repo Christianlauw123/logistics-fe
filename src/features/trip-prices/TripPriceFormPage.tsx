@@ -19,6 +19,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
     const [destinationSubDistrictId, setDestinationSubDistrictId] = useState<string>("")
     const [tripPriceAmount, setTripPriceAmount] = useState<string>("");
     const [tripPriceWeight, setTripPriceWeight] = useState<string>("");
+    const [basePriceFactory, setBasePriceFactory] = useState<string>("");
 
     const [customerSearch, setCustomerSearch] = useState<CustomerFilters>({})
     const [customerKeywordSearch, setCustomerKeywordSearch] = useState<string>("")
@@ -80,6 +81,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
         setDestinationSubDistrictId("")
         setTripPriceAmount("")
         setTripPriceWeight("")
+        setBasePriceFactory("")
     }
     // Add Edit
     useEffect(() => {
@@ -90,6 +92,7 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
             setDestinationSubDistrictId(tripPrice.dest_sub_district_id?.toString() || "")
             setTripPriceAmount(tripPrice.base_price?.toString() || "")
             setTripPriceWeight(tripPrice.weight_category?.toString() || "")
+            setBasePriceFactory(tripPrice.base_price_factory?.toString() || "")
 
             if (tripPrice.customer_id) setCustomerSearch({ id: tripPrice.customer_id })
             if (tripPrice.origin_sub_district_id) setOriginSubDistrictSearch({ id: tripPrice.origin_sub_district_id })
@@ -120,7 +123,8 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
             origin_sub_district_id: originSubDistrictId as string,
             dest_sub_district_id: destinationSubDistrictId as string,
             base_price: Number(rawData.base_price) ?? Number(tripPriceAmount),
-            weight_category: Number(rawData.weight_category) ?? Number(tripPriceWeight)
+            weight_category: Number(rawData.weight_category) ?? Number(tripPriceWeight),
+            base_price_factory: Number(rawData.base_price_factory) ?? Number(basePriceFactory),
         }
 
         try {
@@ -283,6 +287,10 @@ export default function TripPriceFormPage({ openMainAction, setOpenMainAction, m
                     <div className="space-y-1">
                         <label htmlFor="base_price" className="text-xs font-medium">Harga Dasar</label>
                         <Input id="base_price" value={Number.parseFloat(tripPriceAmount).toString()} onChange={(e) => setTripPriceAmount(e.target.value)} name="base_price" type="number" placeholder="e.g. 1000" required />
+                    </div>
+                    <div className="space-y-1">
+                        <label htmlFor="base_price_factory" className="text-xs font-medium">Harga Dasar Pabrik</label>
+                        <Input id="base_price_factory" value={Number.parseFloat(basePriceFactory).toString()} onChange={(e) => setBasePriceFactory(e.target.value)} name="base_price_factory" type="number" placeholder="e.g. 1000" required />
                     </div>
                     <div className="space-y-1">
                         <label htmlFor="weight_category" className="text-xs font-medium">Kategori Berat (kg)</label>

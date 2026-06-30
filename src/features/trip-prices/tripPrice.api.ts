@@ -18,6 +18,7 @@ export interface CreateUpdateTripPricePayload {
   dest_sub_district_id?: string
   base_price: number
   weight_category?: number
+  base_price_factory?: number
 }
 
 export interface TripPriceAllowedDistrict {
