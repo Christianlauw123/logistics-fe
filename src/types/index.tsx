@@ -41,6 +41,7 @@ export type Vehicle = {
 export type Driver = {
     id: string
     name: string
+    is_active: boolean
 }
 
 export type BankAccount = {

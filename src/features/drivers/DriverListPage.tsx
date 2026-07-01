@@ -7,6 +7,7 @@ import { useDriverDeleteQuery, useDriversQuery } from "./driver.hooks"
 import DriverFormPage from "./DriverFormPage"
 import { ListPaginationFooter } from "@/components/layout/ListFooter"
 import { ListHeader, SearchBar } from "@/components/layout/ListHeader"
+import { Badge } from "@/components/ui/badge"
 
 export default function DriverListPage() {
     const [search, setSearch] = useState("")
@@ -57,6 +58,7 @@ export default function DriverListPage() {
                     <TableRow>
                     <TableHead className="w-[120px]">Aksi</TableHead>
                     <TableHead>Driver</TableHead>
+                    <TableHead>Status</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -93,6 +95,11 @@ export default function DriverListPage() {
                         </TableCell>
                         <TableCell className="font-medium">
                         {driver.name}
+                        </TableCell>
+                        <TableCell>
+                            <Badge variant={driver.is_active ? "default" : "secondary"}>
+                                {driver.is_active ? "Active" : "Inactive"}
+                            </Badge>
                         </TableCell>
                         
                     </TableRow>

@@ -204,7 +204,7 @@ export default function TransactionDetailPage() {
                 </CardContent>
                 <Separator></Separator>
                 <CardContent className="grid gap-4 md:grid-cols-2">
-                    { transaction?.revision_destination_district !== transaction.destination_district && (
+                    { transaction?.revision_destination_district !== transaction.destination_district || transaction?.revision_weight_category !== transaction.weight_category && (
                         <>
                             <Info label="Tujuan Revisi" value={transaction?.revision_destination_district?.toString() ?? "-"} />
                             <Info label="Harga Trip Revisi" value={transaction?.revision_trip_price_amount?.toString() ?? "-"}/>
@@ -218,7 +218,7 @@ export default function TransactionDetailPage() {
                     {/* <Info label="Tujuan" value={transaction.dest_address} /> */}
                     <Info label="Akun Bank" value={transaction.bank_account_num ?? ''} />
                     <Info label="Kapasitas (Kg)" value={Number(transaction?.weight_category)?.toLocaleString('id-ID') ?? "-"}/>
-                    { transaction?.revision_destination_district !== transaction.destination_district && (
+                    { transaction?.revision_destination_district !== transaction.destination_district || transaction?.revision_weight_category !== transaction.weight_category && (
                         <>
                             <Info label="Kapasitas (Kg) - Revisi" value={Number(transaction?.revision_weight_category)?.toLocaleString('id-ID') ?? "-"}/>
                         </>
@@ -248,31 +248,41 @@ export default function TransactionDetailPage() {
                 </Card>
             )}
 
+            <TransactionDetailFormPage modeSpecial={modeDetailSpecialAction} openDetailAction={openDetailAction} setOpenDetailAction={setOpenDetailAction} mode={modeDetailAction!} detailTransaction={dataDetailEdit} transaction={transaction} setDetailTransaction={setDataDetailEdit}/>
             <Card>
                 <CardHeader>
                     <CardTitle>Detail Transaksi</CardTitle>
-                    <CardContent className="grid gap-4 md:grid-cols-2">
-                        <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} icon={ (transaction.current_total || 0) > (transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0)) ? <AlertCircleIcon className="text-red-400 text-sm" /> : <></>} />
-                        <Info label="Total Pengajuan Approved" value={formatCurrency(transaction.current_total_approved || 0)} />
-                        <Info label="Sisa Pengajuan" value={formatCurrency(transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0))} />
-                        <Info label="Selisih Biaya Kelebihan" value={(transaction.current_total_discrepancy === undefined) ? "0" :  (transaction.current_total_discrepancy > 0 ? "0" : formatCurrency(transaction.current_total_discrepancy))} />
-                    </CardContent>
-                    <Separator />
+                </CardHeader>
 
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                    <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} icon={ (transaction.current_total || 0) > (transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0)) ? <AlertCircleIcon className="text-red-400 text-sm" /> : <></>} />
+                    <Info label="Total Pengajuan Approved" value={formatCurrency(transaction.current_total_approved || 0)} />
+                    <Info label="Sisa Pengajuan" value={formatCurrency(transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0))} />
+                    <Info label="Selisih Biaya Kelebihan" value={(transaction.current_total_discrepancy === undefined) ? "0" :  (transaction.current_total_discrepancy > 0 ? "0" : formatCurrency(transaction.current_total_discrepancy))} />
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
                     <CardTitle>Detail Transaksi UJP</CardTitle>
+                </CardHeader>
+                
+                <CardContent className="space-y-4">
                     {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
                         <>
-                            <Button size="sm" onClick={() => {
-                                setModeDetailAction("add")
-                                setOpenDetailAction(true)
-                                setModeDetailSpecialAction("normal")
-                            }}>
-                                Tambah Detail UJP
-                            </Button>
+                            <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
+                                <Button size="sm" onClick={() => {
+                                    setModeDetailAction("add")
+                                    setOpenDetailAction(true)
+                                    setModeDetailSpecialAction("normal")
+                                }}>
+                                    Tambah Detail UJP
+                                </Button>
+                            </div>
                         </>
                     )}
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
+                    <div className="space-y-2">
+                        <div className="overflow-hidden rounded-md border bg-background">
                             <TransactionDetailPageTable
                                 type="normal"
                                 user={user}
@@ -291,22 +301,31 @@ export default function TransactionDetailPage() {
                                 handleTransactionDetailStatusChange={handleTransactionDetailStatusChange}
                             />
                         </div>
-                    </CardContent>
-                    <Separator />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
                     <CardTitle>Detail Transaksi Lainnya</CardTitle>
+                </CardHeader>
+                
+                <CardContent className="space-y-4">
                     {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
                         <>
-                            <Button size="sm" onClick={() => {
-                                setModeDetailAction("add")
-                                setOpenDetailAction(true)
-                                setModeDetailSpecialAction("special")
-                            }}>
-                                Tambah Detail Khusus (Uang Makan, subsidi solar, dll)
-                            </Button>
+                            <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
+                                <Button size="sm" onClick={() => {
+                                    setModeDetailAction("add")
+                                    setOpenDetailAction(true)
+                                    setModeDetailSpecialAction("special")
+                                }}>
+                                    Tambah Detail Khusus (Uang Makan, subsidi solar, dll)
+                                </Button>
+                            </div>
                         </>
                     )}
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
+                    <div className="space-y-2">
+                        <div className="overflow-hidden rounded-md border bg-background">
                             <TransactionDetailPageTable
                                 type="special"
                                 user={user}
@@ -325,13 +344,9 @@ export default function TransactionDetailPage() {
                                 handleTransactionDetailStatusChange={handleTransactionDetailStatusChange}
                             />
                         </div>
-                    </CardContent>
-                    <TransactionDetailFormPage modeSpecial={modeDetailSpecialAction} openDetailAction={openDetailAction} setOpenDetailAction={setOpenDetailAction} mode={modeDetailAction!} detailTransaction={dataDetailEdit} transaction={transaction} setDetailTransaction={setDataDetailEdit}/>
-                </CardHeader>
-
-                
+                    </div>
+                </CardContent>
             </Card>
-
             <Card>
                 <CardHeader>
                     <CardTitle>Attachments</CardTitle>

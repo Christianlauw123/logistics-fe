@@ -134,10 +134,30 @@ const transactionDetailStatusStage: Record<string, Record<TransactionDetailStatu
             ['CANCELLED_FOR_REVISION', 'Cancel - Revisi'],
             ['DONE', 'Done']
         ],
-        'REJECTED': [],
-        'CANCELLED': [],
-        'CANCELLED_FOR_REVISION': [],
-        'DONE': [],
+        'REJECTED': [
+            ['APPROVED', 'Approved'],
+            ['CANCELLED', 'Cancel'],
+            ['CANCELLED_FOR_REVISION', 'Cancel - Revisi'],
+            ['DONE', 'Done']
+        ],
+        'CANCELLED': [
+            ['APPROVED', 'Approved'],
+            ['REJECTED', 'Reject'],
+            ['CANCELLED_FOR_REVISION', 'Cancel - Revisi'],
+            ['DONE', 'Done']
+        ],
+        'CANCELLED_FOR_REVISION': [
+            ['APPROVED', 'Approved'],
+            ['REJECTED', 'Reject'],
+            ['CANCELLED', 'Cancel'],
+            ['DONE', 'Done']
+        ],
+        'DONE': [
+            ['APPROVED', 'Approved'],
+            ['REJECTED', 'Reject'],
+            ['CANCELLED', 'Cancel'],
+            ['CANCELLED_FOR_REVISION', 'Cancel - Revisi'],
+        ],
     },
 
     'Staff': {
