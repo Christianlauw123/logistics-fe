@@ -5,9 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { errorHandler } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function DriverFormPage({ openMainAction, setOpenMainAction, mode, driver }: { openMainAction: boolean; setOpenMainAction: (openMainAction: boolean) => void; mode: "add" | "edit"; driver: any }) {
     const [driverId, setDriverId] = useState<string>("")
+    const [driverActive, setDriverActive] = useState<boolean>(true)
     const [driverName, setDriverName] = useState<string>("")
     const [loading, setLoading] = useState(false);
 
@@ -17,10 +20,12 @@ export default function DriverFormPage({ openMainAction, setOpenMainAction, mode
     useEffect(() => {
         if (mode === "edit" && driver) {
             setDriverId(driver.id?.toString() || "")
+            setDriverActive(driver?.is_active || false)
             setDriverName(driver.name)
         } else {
             // Completely reset fields when user opens an "Add New" form
             setDriverId("")
+            setDriverActive(driver?.is_active || false)
             setDriverName("")
         }
     }, [mode, driver?.id])
@@ -39,7 +44,8 @@ export default function DriverFormPage({ openMainAction, setOpenMainAction, mode
         const formData = new FormData(event.currentTarget);
         const rawData = Object.fromEntries(formData.entries());
         const basePayload = { 
-            name: rawData.name as string ?? driverName
+            name: rawData.name as string ?? driverName,
+            is_active: driverActive
         }
 
         try {
@@ -70,6 +76,10 @@ export default function DriverFormPage({ openMainAction, setOpenMainAction, mode
                     <div className="space-y-1">
                         <label htmlFor="name" className="text-xs font-medium">Nama</label>
                         <Input id="name" value={driverName} onChange={(e) => setDriverName(e.target.value)} name="name" placeholder="e.g. John Doe" required />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="driver-active">Status Kendaraan</Label>
+                        <Switch id="driver-active" checked={driverActive} onCheckedChange={setDriverActive} />
                     </div>
                     <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                         <Button type="button" variant="outline" onClick={() => setOpenMainAction(false)}>Batal</Button>

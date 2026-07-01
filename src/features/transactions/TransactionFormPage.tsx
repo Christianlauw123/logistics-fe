@@ -32,9 +32,9 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
     const [subOriginDistrictSearch, setOriginSubDistrictSearch] = useState<TripPriceFilters>({})
     const [subDestinationDistrictSearch, setDestinationSubDistrictSearch] = useState<TripPriceFilters>({})
     const [subDestinationDistrictWeightSearch, setDestinationSubDistrictWeightSearch] = useState<TripPriceFilters>({})
-    const [vehicleSearch, setVehicleSearch] = useState<VehicleFilters>({})
+    const [vehicleSearch, setVehicleSearch] = useState<VehicleFilters>({is_active: true})
     const [bankAccountSearch, setBankAccountSearch] = useState<BankAccountFilters>({})
-    const [driverSearch, setDriverSearch] = useState<DriverFilters>({})
+    const [driverSearch, setDriverSearch] = useState<DriverFilters>({is_active: true})
 
     // Fetch Query
     const { data: customerData, isLoading: customerLoading } = useCustomersQuery(customerSearch);

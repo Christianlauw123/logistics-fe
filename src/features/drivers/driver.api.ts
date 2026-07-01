@@ -11,6 +11,7 @@ export type DriverFilters = {
 
 export interface CreateUpdateDriverPayload {
   name: string
+  is_active?: boolean
 }
 
 export async function getDrivers(filters: DriverFilters = {}): Promise<Paginated<Driver>> {
