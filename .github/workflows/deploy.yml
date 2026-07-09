@@ -1,0 +1,36 @@
+name: Deploy Application
+
+# Trigger this workflow every time you push code to the master branch
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to Server via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          # 1. Manually load NVM environment variables
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+          cd /var/www/logistics-app/frontend
+          
+          # 2. Clear out any accidental server file modifications
+          git reset --hard HEAD
+          git clean -fd
+          
+          # 3. Pull down your freshly pushed updates
+          git pull origin master
+          
+          # 4. Set node to latest-22 + Rebuild apps
+          nvm use 22
+          npm run build

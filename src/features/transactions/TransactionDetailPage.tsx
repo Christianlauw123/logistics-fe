@@ -179,7 +179,7 @@ export default function TransactionDetailPage() {
                 <CardHeader>
                     <CardTitle>Main Information {user?.role?.name}</CardTitle>
                     <div className="flex">
-                        {(user?.role?.name === "Super Admin" || (user?.role?.name === "Operational" && allowedMainTransactionEdit.includes(transaction.status))) && (
+                        {(user?.role?.name === "Super Admin" || (allowedMainTransactionEdit.includes(transaction.status))) && (
                         <Button size="sm" onClick={() => {
                             setModeMainAction("edit")
                             setOpenMainAction(true)
@@ -251,24 +251,18 @@ export default function TransactionDetailPage() {
             <TransactionDetailFormPage modeSpecial={modeDetailSpecialAction} openDetailAction={openDetailAction} setOpenDetailAction={setOpenDetailAction} mode={modeDetailAction!} detailTransaction={dataDetailEdit} transaction={transaction} setDetailTransaction={setDataDetailEdit}/>
             <Card>
                 <CardHeader>
-                    <CardTitle>Detail Transaksi</CardTitle>
+                    <CardTitle>Detail Transaksi UJP</CardTitle>
                 </CardHeader>
 
                 <CardContent className="grid gap-4 md:grid-cols-2">
-                    <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} icon={ (transaction.current_total || 0) > (transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0)) ? <AlertCircleIcon className="text-red-400 text-sm" /> : <></>} />
+                    <Info label="Total Pengajuan" value={formatCurrency(transaction.current_total || 0)} />
                     <Info label="Total Pengajuan Approved" value={formatCurrency(transaction.current_total_approved || 0)} />
                     <Info label="Sisa Pengajuan" value={formatCurrency(transaction.revision_trip_price_amount - (transaction?.current_total_approved ?? 0))} />
-                    <Info label="Selisih Biaya Kelebihan" value={(transaction.current_total_discrepancy === undefined) ? "0" :  (transaction.current_total_discrepancy > 0 ? "0" : formatCurrency(transaction.current_total_discrepancy))} />
+                    <Info label="Selisih Biaya Kelebihan" value={(transaction.current_total_discrepancy === undefined) ? "0" :  (transaction.current_total_discrepancy > 0 ? "0" : formatCurrency(transaction.current_total_discrepancy))} icon={ (transaction.current_total_discrepancy === undefined) ?  <></> :  (transaction.current_total_discrepancy >= 0 ? <></> : <AlertCircleIcon className="text-red-400 text-sm" />) } />
                 </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Detail Transaksi UJP</CardTitle>
-                </CardHeader>
                 
                 <CardContent className="space-y-4">
-                    {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
+                    {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEdit.includes(transaction.status))) && (
                         <>
                             <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                                 <Button size="sm" onClick={() => {
@@ -311,7 +305,7 @@ export default function TransactionDetailPage() {
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
-                    {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
+                    {(user?.role?.name === "Super Admin" || user?.role?.name !== "Operational") && (
                         <>
                             <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                                 <Button size="sm" onClick={() => {
@@ -389,7 +383,7 @@ export default function TransactionDetailPage() {
                                             <Button variant="outline" >
                                                 <a href={attachment.file_url} target="_blank" rel="noreferrer">Open</a>
                                             </Button>
-                                            {user?.role?.name === "Super Admin" || allowedAttachmentModification.includes(transaction.status) && (
+                                            {(user?.role?.name === "Super Admin" ||  (user?.role?.name !== "Staff" && allowedAttachmentModification.includes(transaction.status))) && (
                                                 <Button variant="destructive" onClick={() => 
                                                     handleDeleteAttachment(attachment.id)
                                                 }>

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
-import { Download, Filter, Loader2, MoreHorizontalIcon, X } from "lucide-react"
+import { AlertCircle, Download, Filter, Loader2, MoreHorizontalIcon, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -502,34 +502,29 @@ export default function TransactionListPage() {
                             </div>
                         </div>
                         
-                        {user?.role.name !== 'Staff' ? (
-                            <div className="p-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Status</label>
-                                    <select 
-                                        value={filters.status || ""}
-                                        onChange={(e) => {
-                                            setFilters((prev) => ({
-                                                ...prev,
-                                                status: e.target.value || null,
-                                            }))
-                                            setPage(1)
-                                        }}
-                                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                    >
-                                        <option value="">All Status</option>
-                                        {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
-                                            <option key={status} value={status}>
-                                                {status.charAt(0).toUpperCase() + status.slice(1)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                        <div className="p-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Status</label>
+                                <select 
+                                    value={filters.status || ""}
+                                    onChange={(e) => {
+                                        setFilters((prev) => ({
+                                            ...prev,
+                                            status: e.target.value || null,
+                                        }))
+                                        setPage(1)
+                                    }}
+                                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                >
+                                    <option value="">All Status</option>
+                                    {(Object.keys(transactionStatusStage[user?.role.name as string]) as TransactionStatus[]).map((status) => (
+                                        <option key={status} value={status}>
+                                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-                        ) : (
-                            <div className="p-4">
-                            </div>
-                        )}
+                        </div>
                         
                         <div className="p-4">
                         </div>
@@ -599,7 +594,7 @@ export default function TransactionListPage() {
                 <Table>
                 <TableHeader>
                     <TableRow>
-                    <TableHead className="w-[120px]">Aksi</TableHead>
+                    <TableHead>Aksi</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Tanggal DO Dibuat</TableHead>
                     <TableHead>Kendaraan</TableHead>
@@ -645,7 +640,12 @@ export default function TransactionListPage() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </TableCell>
-                        <TableCell><Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge></TableCell>
+                        <TableCell>
+                            <div className="flex items-center gap-2">
+                                <Badge className={`${transactionStatusBadge[transaction.status]}`}>{transaction.status}</Badge>
+                                {transaction.details_remaining_count > 0 && ( <AlertCircle className="h-4 w-4 text-red-500" /> )}
+                            </div>
+                        </TableCell>
                         <TableCell>{transaction.do_date}</TableCell>
                         <TableCell>{transaction.vehicle_plate}</TableCell>
                         <TableCell>{transaction.driver_name}</TableCell>

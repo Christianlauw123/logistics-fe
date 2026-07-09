@@ -53,16 +53,20 @@ export default function TransactionDetailFormPage({ modeSpecial, openDetailActio
             file: selectedFile ?? undefined,
             is_special_case: modeSpecial === "special" ? true : false
         };
-        console.log(modeSpecial);
+
         try {
-            if (mode === "add")
-                await createDetail.mutateAsync(basePayload)
+            if (mode === "add"){
+                const response = await createDetail.mutateAsync(basePayload)
+                setDetailTransaction(response.data as TransactionDetail)
+            }
             else if (mode === "edit" && detailTransaction){
                 const updatedPayload = {...basePayload, transactionDetailId: detailTransaction.id}
                 const response = await updateDetail.mutateAsync(updatedPayload)
                 setDetailTransaction(response.data as TransactionDetail)
             }
+
             setOpenDetailAction(false); // Close dialog
+            reset(transaction)
         } catch (error) {
             errorHandler(error);
         } finally {
@@ -84,11 +88,11 @@ export default function TransactionDetailFormPage({ modeSpecial, openDetailActio
             setDetailPurpose(detail?.purpose || "");
             setDetailNote(detail?.note || "");
 
-            const detailAmount = detail?.is_special_case ? 0 : (Number.isNaN(Number.parseFloat(detail?.amount)) ? Number(detail?.amount) : Number.parseFloat(detail?.amount))
+            const detailAmount = detail?.is_special_case ? 0 : (Number.parseFloat(detail?.amount) || 0);
 
             setTotalRequest(transaction?.current_total|| 0)
             setTotalRequestApproved(transaction?.current_total_approved || 0)
-            setRemainingRequest(transaction?.revision_trip_price_amount - transaction?.current_total_approved - detailAmount || 0)
+            setRemainingRequest((transaction?.revision_trip_price_amount - transaction?.current_total_approved || 0) + detailAmount)
             setAttLink(detail?.attachment || "")
         }else{
             reset(transaction)
@@ -103,6 +107,7 @@ export default function TransactionDetailFormPage({ modeSpecial, openDetailActio
         setTotalRequestApproved(transaction?.current_total_approved || 0)
         setRemainingRequest(transaction?.revision_trip_price_amount - transaction?.current_total_approved || 0)
         setAttLink("")
+        setSelectedFile(null)
     }
 
     async function handleProveAttachmentChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -118,11 +123,12 @@ export default function TransactionDetailFormPage({ modeSpecial, openDetailActio
                 <DialogHeader>
                     <DialogTitle>{mode === "add" ? "Add" : "Edit"} Transaction Detail</DialogTitle>
 
+                    {modeSpecial !== "special" && (
                     <CardContent className="grid gap-4 md:grid-cols-2">
                         <Info label="Total Pengajuan" value={formatCurrency(totalRequest)} />
                         <Info label="Total Pengajuan Approved" value={formatCurrency(totalRequestApproved)} />
                         <Info label="Sisa Pengajuan" value={formatCurrency(remainingRequest)} />
-                    </CardContent>
+                    </CardContent>)}
                 </DialogHeader>
                 
                 <form onSubmit={handleDetailSubmit} className="space-y-4 pt-2">

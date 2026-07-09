@@ -271,7 +271,7 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                         <>
                             <div className="space-y-1">
                                 <label htmlFor="do_number" className="text-xs font-medium">No Do</label>
-                                <Input id="do_number" value={doNumber || ""}  onChange={(e) => setDoNumber(e.target.value)} name="do_number" placeholder="e.g. Server hosting fee" />
+                                <Input id="do_number" value={doNumber || ""} onChange={(e) => setDoNumber(e.target.value)} name="do_number" placeholder="e.g. Server hosting fee" />
                             </div>
                             <div className="space-y-1">
                                 <label htmlFor="do_actual_date" className="text-xs font-medium">Tanggal Actual DO</label>
@@ -289,6 +289,8 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                         <div className="space-y-1">
                             <label htmlFor="purpose" className="text-xs font-medium">Pelanggan</label>
                             <Combobox 
+                                readOnly={mode === "edit"}
+                                disabled={mode === "edit"}
                                 items={customerOptions}
                                 value={customerId}
                                 onInputValueChange={(value) => {
@@ -341,6 +343,8 @@ export default function TransactionFormPage({ openMainAction, setOpenMainAction,
                         <div className="space-y-1">
                             <label htmlFor="purpose" className="text-xs font-medium">Asal</label>
                             <Combobox 
+                                readOnly={mode === "edit"}
+                                disabled={mode === "edit"}
                                 items={originSubDistrictOptions}
                                 value={originSubDistrictId}
                                 onInputValueChange={(value) => {

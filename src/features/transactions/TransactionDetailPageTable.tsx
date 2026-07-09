@@ -87,7 +87,7 @@ export const TransactionDetailPageTable: React.FC<TransactionDetailTableProps> =
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
 
-                                    {detail.status === "SUBMITTED" && user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status) && (
+                                    {(user?.role?.name === "Super Admin" || (user?.role?.name !== "Operational" && allowedMainTransactionEditDetailStatus.includes(transaction.status))) && (
                                         <>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuGroup>

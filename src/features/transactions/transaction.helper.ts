@@ -23,7 +23,6 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
         // 'CANCELLED_NO_REFUND': [],
         // 'CANCELLED_AND_REFUND': []
         'SUBMITTED': [
-            ['APPROVED', 'Approve'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_NO_REFUND', 'Cancel - No Refund'],
@@ -31,18 +30,17 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
             ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'],
             ['DONE', 'Done'],
         ],
-        'APPROVED': [
-            ['SUBMITTED', 'Submitted'],
-            ['REJECTED', 'Reject'],
-            ['CANCELLED', 'Cancel'],
-            ['CANCELLED_NO_REFUND', 'Cancel - No Refund'],
-            ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai'],
-            ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'],
-            ['DONE', 'Done'],
-        ],
+        // 'APPROVED': [
+        //     ['SUBMITTED', 'Submitted'],
+        //     ['REJECTED', 'Reject'],
+        //     ['CANCELLED', 'Cancel'],
+        //     ['CANCELLED_NO_REFUND', 'Cancel - No Refund'],
+        //     ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai'],
+        //     ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'],
+        //     ['DONE', 'Done'],
+        // ],
         'DONE': [
             ['SUBMITTED', 'Submitted'],
-            ['APPROVED', 'Approve'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_NO_REFUND', 'Cancel - No Refund'],
@@ -51,7 +49,6 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
         ],
         'CANCELLED': [
             ['SUBMITTED', 'Submitted'],
-            ['APPROVED', 'Approve'],
             ['REJECTED', 'Reject'],
             ['CANCELLED_NO_REFUND', 'Cancel - No Refund'],
             ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai'],
@@ -60,7 +57,7 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
         ],
         'REJECTED': [
             ['SUBMITTED', 'Submitted'],
-            ['APPROVED', 'Approve'],            
+            // ['APPROVED', 'Approve'],            
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_NO_REFUND', 'Cancel - No Refund'],
             ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai'],
@@ -69,7 +66,6 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
         ],
         'DONE_AND_WAITING_DOCUMENT': [
             ['SUBMITTED', 'Submitted'],
-            ['APPROVED', 'Approve'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_NO_REFUND', 'Cancel - No Refund'],
@@ -78,7 +74,6 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
         ],
         'CANCELLED_NO_REFUND': [
             ['SUBMITTED', 'Submitted'],
-            ['APPROVED', 'Approve'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai'],
@@ -87,7 +82,6 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
         ],
         'CANCELLED_AND_REFUND': [
             ['SUBMITTED', 'Submitted'],
-            ['APPROVED', 'Approve'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_NO_REFUND', 'Cancel - No Refund'],
@@ -99,7 +93,7 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
 
     'Staff': {
         'SUBMITTED': [['CANCELLED', 'Cancel']],
-        'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
+        // 'APPROVED': [['DONE', 'Done'], ['CANCELLED', 'Cancel'], ['DONE_AND_WAITING_DOCUMENT', 'Done - Menunggu Dokumen'], ['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
         'DONE': [],
         'CANCELLED': [['CANCELLED_NO_REFUND', 'Cancel - No Refund'], ['CANCELLED_AND_REFUND', 'Cancel - Refund Selesai']],
         'REJECTED': [],
@@ -109,7 +103,7 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
     },
     'Operational': {
         'SUBMITTED': [],
-        'APPROVED': [],
+        // 'APPROVED': [],
         'DONE': [],
         'CANCELLED': [],
         'REJECTED': [],
@@ -122,37 +116,42 @@ const transactionStatusStage: Record<string, Record<TransactionStatus, [Transact
 const transactionDetailStatusStage: Record<string, Record<TransactionDetailStatus, [TransactionDetailStatus, string][]>> = {
     'Super Admin': {
         'SUBMITTED': [
-            ['APPROVED', 'Approve'],
+            ['APPROVED', 'Approved'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_FOR_REVISION', 'Cancel - Revisi'],
             ['DONE', 'Done']
         ],
         'APPROVED': [
+            ['SUBMITTED', 'Submitted'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_FOR_REVISION', 'Cancel - Revisi'],
             ['DONE', 'Done']
         ],
         'REJECTED': [
+            ['SUBMITTED', 'Submitted'],
             ['APPROVED', 'Approved'],
             ['CANCELLED', 'Cancel'],
             ['CANCELLED_FOR_REVISION', 'Cancel - Revisi'],
             ['DONE', 'Done']
         ],
         'CANCELLED': [
+            ['SUBMITTED', 'Submitted'],
             ['APPROVED', 'Approved'],
             ['REJECTED', 'Reject'],
             ['CANCELLED_FOR_REVISION', 'Cancel - Revisi'],
             ['DONE', 'Done']
         ],
         'CANCELLED_FOR_REVISION': [
+            ['SUBMITTED', 'Submitted'],
             ['APPROVED', 'Approved'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
             ['DONE', 'Done']
         ],
         'DONE': [
+            ['SUBMITTED', 'Submitted'],
             ['APPROVED', 'Approved'],
             ['REJECTED', 'Reject'],
             ['CANCELLED', 'Cancel'],
@@ -182,7 +181,7 @@ const transactionDetailStatusStage: Record<string, Record<TransactionDetailStatu
 const allowedMainTransactionEdit = ['SUBMITTED']
 const allowedMainTransactionEditDetailStatus = ['SUBMITTED', 'APPROVED']
 
-const allowedAttachmentModification  = ['SUBMITTED', 'APPROVED', 'DONE_AND_WAITING_DOCUMENT']
+const allowedAttachmentModification  = ['SUBMITTED', 'DONE_AND_WAITING_DOCUMENT']
 const detailNotAllowedModify = ['TABUNGAN', 'CLAIM']
 const detailTabunganClaimStatus = ['APPROVED', 'DONE']
 

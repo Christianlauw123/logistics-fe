@@ -91,6 +91,7 @@ export type Transaction = {
     do_number: string | null
     do_date: string | null
     do_actual_date: string | null
+    details_remaining_count: number
     dest_address: string
     status: TransactionStatus
     customer: Customer
@@ -137,6 +138,6 @@ export type Paginated<T> = {
   from: number
 }
 
-export type TransactionStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "DONE_AND_WAITING_DOCUMENT" | "CANCELLED_NO_REFUND" | "CANCELLED_AND_REFUND"
+export type TransactionStatus = "SUBMITTED" | "DONE" | "CANCELLED" | "REJECTED" | "DONE_AND_WAITING_DOCUMENT" | "CANCELLED_NO_REFUND" | "CANCELLED_AND_REFUND"
 export type TransactionDetailStatus = "SUBMITTED" | "APPROVED" | "DONE" | "CANCELLED" | "REJECTED" | "CANCELLED_FOR_REVISION"
 export type AttachmentStatus = "PENDING" | "VERIFIED" | "REJECTED"
